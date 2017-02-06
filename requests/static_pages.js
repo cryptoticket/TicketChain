@@ -1,6 +1,6 @@
 
 app.get('/index.html', function(request, res) {
-     var body = 'Please contact administrator...';
+     var body = 'Welcome to TicketChain service';
 
      res.setHeader('Content-Type', 'text/plain');
      res.setHeader('Content-Length', body.length);

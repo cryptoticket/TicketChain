@@ -27,7 +27,6 @@
     "nodemailer": "^0.7.1",
     "password-generator": "^2.0.2",
     "querystring": "^0.2.0",
-    "toobusy": "^0.2.4",
     "winston": "^2.2.0"
   },
   "engines": {

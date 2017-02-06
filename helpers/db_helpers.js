@@ -115,24 +115,7 @@ function createNewUser(name,lastName,email,pass,facebookID,needValidation,cb){
                     }
 
                     winston.info('User created: ' + user.shortId);
-
-                    var sub = new db.SubscriptionModel;
-                    sub.userShortId = id;
-                    sub.type = 1;       // free
-                    sub.created = sub.modified = user.created;
-
-                    // TODO: configure...
-                    // add 30 days 
-                    sub.expires.setDate(sub.created.getDate() + 30);
-
-                    sub.save(function(err){
-                         if(err){
-                              winston.error('Can not save sub to DB: ' + err);
-                              return cb(err);
-                         }
-
-                         return cb(null,user);
-                    });
+                    return cb(null,user);
                });
           });
      });

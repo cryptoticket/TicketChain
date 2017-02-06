@@ -38,24 +38,6 @@ User.statics.findByFacebookID = function(id,cb){
      this.find({facebookID: id}, cb);
 }
 
-//////////////////////////////////////////////////
-//////////////////////////////////////////////////
-var Subscription = new Schema({
-     userShortId: {type: String, required:true},
-
-     // 1-"free"
-     // 2-"premium" 
-     type:{ type: Number, required: true},
-
-     created: { type: Date, default: Date.now, required:true},
-     expires: { type: Date, default: Date.now, required:true},
-
-     modified: { type: Date, default: Date.now, required:false }
-});
-
-Subscription.statics.findByShortId = function(usi,cb){
-     this.find({ userShortId: usi}, cb);
-}
 
 /// \brief Call this one and keep returned object
 function connectToDbCallback(uri,user,pass,cb){
@@ -113,16 +95,16 @@ function disconnectDb(){
 }
 
 function removeDb(cb){
-     mongoose.connection.db.dropDatabase();
-     cb();
+     mongoose.connection.once('connected', () => {
+         mongoose.connection.db.dropDatabase();
+         cb();
+     });
 }
 
 // Exports:
 var UserModel = mongoose.model('User', User);
-var SubscriptionModel  = mongoose.model('Subscription', Subscription);
 
 module.exports.UserModel = UserModel;
-module.exports.SubscriptionModel = SubscriptionModel;
 
 // 
 module.exports.blockLogging = blockLogging;

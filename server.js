@@ -8,10 +8,6 @@ var https = require('https');
 var winston = require('winston');
 var expressJwt = require('express-jwt');
 
-// on some machines 'toobusy' has compilation problems due to version mismatch
-// if it happens -> remove it)
-var toobusy = require('toobusy');
-
 var config = require('./config');
 
 ///////////// Global variables ))
@@ -59,14 +55,6 @@ var apiCallLimit = function(req,res,next){
 
      next();   // continue
 }
-
-app.use(function(req, res, next) {
-     if (toobusy()) {
-          res.send(503, "I'm too busy, sorry");
-     } else {
-          next();
-     }
-});
 
 function rawBody(req, res, next) {
      req.rawBody = '';
@@ -149,7 +137,6 @@ app.get('/prepShutdown', function(req, res) {
 
 // This is main APIs file
 eval(fs.readFileSync('requests/users.js')+'');
-eval(fs.readFileSync('requests/facebook.js')+'');
 eval(fs.readFileSync('requests/static_pages.js')+'');
 
 function initDb(dbInit){
