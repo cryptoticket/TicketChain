@@ -39,6 +39,15 @@ User.statics.findByFacebookID = function(id,cb){
 }
 
 
+////////////////
+var Ticket = new Schema({
+     state: {type: Number, required:true},
+     serial_number: {type: String, required:true},
+     
+     created: { type: Date, default: Date.now, required:false },
+});
+
+
 /// \brief Call this one and keep returned object
 function connectToDbCallback(uri,user,pass,cb){
      var options = {
@@ -103,8 +112,10 @@ function removeDb(cb){
 
 // Exports:
 var UserModel = mongoose.model('User', User);
+var TicketModel = mongoose.model('Ticket', Ticket);
 
 module.exports.UserModel = UserModel;
+module.exports.TicketModel = TicketModel;
 
 // 
 module.exports.blockLogging = blockLogging;

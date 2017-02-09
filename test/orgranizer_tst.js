@@ -99,16 +99,20 @@ describe('Organizer module',function(){
           var INN = '1234567891';
           var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId;
 
+          console.log('Asking for ticket by ID: ' + ticketOneId);
+
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
                assert.equal(err,null);
                assert.equal(statusCode,200);
 
                var p = JSON.parse(dataOut);
-               ticketOneSerialNumber = p.serial_number;
 
+               assert.notEqual(p.serial_number.length,0);
+               assert.notEqual(p.id.length,0);
                // TODO: check format
 
+               ticketOneSerialNumber = p.serial_number;
                done();
           });
      })

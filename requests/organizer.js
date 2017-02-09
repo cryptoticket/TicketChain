@@ -8,7 +8,7 @@ var assert = require('assert');
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/get-all-ticket-issued-by-organizer
 app.get('/api/v1/organizer/:inn/tickets',function(request,res,next){
      if(typeof(request.params.inn)==='undefined'){
-          winston.error('No shortId');
+          winston.error('No inn');
           return next();
      }
      var inn = request.params.inn;
@@ -18,8 +18,21 @@ app.get('/api/v1/organizer/:inn/tickets',function(request,res,next){
      }
      winston.info('Asking tickets for INN: ' + inn);
 
-     var arr = [];
-     res.json(arr);
+     db.TicketModel.find({},function(err,tickets){
+          if(err){
+               return next(err);
+          }
+
+          console.log('Found tickets: ' + tickets.length);
+
+          var arr = [];
+
+          for(var i=0; i<tickets.length; ++i){
+               arr.push(tickets[i]._id);
+          }
+
+          res.json(arr);
+     });
 });
 
 // Create new blank ticket to reserve it.
@@ -29,7 +42,7 @@ app.get('/api/v1/organizer/:inn/tickets',function(request,res,next){
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/create-a-new-ticket
 app.post('/api/v1/organizer/:inn/tickets',function(request, res, next){
      if(typeof(request.params.inn)==='undefined'){
-          winston.error('No shortId');
+          winston.error('No inn');
           return next();
      }
      var inn = request.params.inn;
@@ -42,12 +55,24 @@ app.post('/api/v1/organizer/:inn/tickets',function(request, res, next){
      var id = 0;
      var number = 0;
 
-     // TODO: add to DB
+     var ticket = new db.TicketModel();
 
-     winston.info('Added ticket: ' + id + '; serial_number= ' + number);
-     res.json({ 
-          id: id, 
-          serial_number: number 
+     // TODO:
+     ticket.state = 0;
+     ticket.serial_number = 'AB12345678';
+     ticket.created = Date.now();
+
+     ticket.save(function(err){
+          if(err){
+               return next(err);
+          }
+
+          winston.info('Added ticket: ' + id + '; serial_number= ' + number);
+
+          res.json({ 
+               id: ticket._id, 
+               serial_number: ticket.serial_number
+          });
      });
 });
 
@@ -57,9 +82,64 @@ app.post('/api/v1/organizer/:inn/tickets',function(request, res, next){
 //
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/get-a-ticket
 app.get('/api/v1/organizer/:inn/tickets/:id_or_number',function(request,res,next){
-     // TODO
-     next();
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No inn');
+          return next();
+     }
+     var inn = request.params.inn;
+     if(!helpers.validateInn(inn)){
+          winston.error('Bad inn');
+          return next();
+     }
+
+     if(typeof(request.params.id_or_number)==='undefined'){
+          winston.error('No id_or_number provided');
+          return next();
+     }
+     var id_or_number= request.params.id_or_number;
+     if(!id_or_number || !id_or_number.length){
+          winston.error('Bad id_or_number provided');
+          return next();
+     }
+
+     winston.info('INN is: ' + inn);
+     if(id_or_number.length==10){
+          return getTicketByNumber(id_or_number,request,res,next);
+     }else{
+          return getTicketById(id_or_number,request,res,next);
+     }
 });
+
+function getTicketByNumber(num,request,res,next){
+     winston.info('Getting ticket by num: ' + num);
+     db.TicketModel.find({serial_number:num},function(err,ticket){
+          if(err){
+               return next(err);
+          }
+
+          return convertTicketToOut(ticket,request,res,next);
+     });
+}
+
+function getTicketById(id,request,res,next){
+     winston.info('Getting ticket by ID: ' + id);
+     db.TicketModel.find({_id:id},function(err,tickets){
+          if(err){
+               return next(err);
+          }
+          
+          return convertTicketToOut(tickets[0],request,res,next);
+     });
+}
+
+function convertTicketToOut(t,request,res,next){
+     var out = {
+          id: t._id,
+          serial_number: t.serial_number
+     };
+
+     res.json(out);
+}
 
 // Edit a ticket
 //
