@@ -14,6 +14,10 @@ function getRandom(min, max) {
      return Math.floor(Math.random() * (max - min) + min);
 }
 
+function validateInn(inn){
+     return (inn.length==10);
+}
+
 function validateEmail(email) { 
      var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
      return re.test(email);
@@ -57,6 +61,7 @@ function capitalizeFirst(s){
 
 exports.getRandom = getRandom;
 
+exports.validateInn = validateInn;
 exports.validateEmail = validateEmail;
 exports.validatePass = validatePass;
 exports.validateShortId = validateShortId;
