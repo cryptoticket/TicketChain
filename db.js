@@ -41,10 +41,48 @@ User.statics.findByFacebookID = function(id,cb){
 
 ////////////////
 var Ticket = new Schema({
-     state: {type: Number, required:true},
      serial_number: {type: String, required:true},
+
+     // 0 - init
+     // 1 - sold
+     // 2 - cancelled
+     state: {type: Number, required:true},
+     created: { type: Date, default: Date.now, required: true},
+
+     priceRub: {type: Number, required:false},
+     isPaperTicket: {type: Boolean, required:false},
+
+     issuer: {type: String, required:false},
+     // WARNING: inn is required!
+     issuer_inn: {type: String, required:true},
+     issuer_orgn: {type: String, required:false},
+     issuer_ogrnip: {type: String, required:false},
+     issuer_address: {type: String, required:false},
+
+     event_title: {type: String, required:false},
+     event_place_title: {type: String, required:false},
+     event_date: { type: Date, default: Date.now, required:false },
+     event_place_address: {type: String, required:false},
+
+     row: {type: String, required:false},
+     seat: {type: String, required:false},
      
-     created: { type: Date, default: Date.now, required:false },
+     ticket_category: {type: Number, required:false},
+
+     organizer: {type: String, required:false},
+     organizer_inn: {type: String, required:false},
+     organizer_orgn: {type: String, required:false},
+     organizer_ogrnip: {type: String, required:false},
+     organizer_address: {type: String, required:false},
+
+     seller: {type: String, required:false},
+     seller_inn: {type: String, required:false},
+     seller_orgn: {type: String, required:false},
+     seller_ogrnip: {type: String, required:false},
+     seller_address: {type: String, required:false},
+
+     buyer_name: {type: String, required:false},
+     buying_date: { type: Date, default: Date.now, required:false }
 });
 
 

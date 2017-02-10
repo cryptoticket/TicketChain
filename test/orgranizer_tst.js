@@ -17,6 +17,8 @@ var globalToken = '';
 var ticketOneId = 0;
 var ticketOneSerialNumber = 0;
 
+var INN = '1234567890';
+
 describe('Organizer module',function(){
      before(function(done){
           var uri  = 'mongodb://localhost/tests';
@@ -38,7 +40,6 @@ describe('Organizer module',function(){
      });
 
      it('should get no tickets', function(done){
-          var INN = '1234567890';
           var url = '/api/v1/organizer/' + INN + '/tickets';
 
           var authToken = '';
@@ -54,7 +55,6 @@ describe('Organizer module',function(){
      })
 
      it('should create ticket', function(done){
-          var INN = '1234567890';
           var url = '/api/v1/organizer/' + INN + '/tickets';
 
           var data = { 
@@ -78,7 +78,6 @@ describe('Organizer module',function(){
      })
 
      it('should get tickets', function(done){
-          var INN = '1234567890';
           var url = '/api/v1/organizer/' + INN + '/tickets';
 
           var authToken = '';
@@ -96,7 +95,6 @@ describe('Organizer module',function(){
      })
 
      it('should get ticket by ID', function(done){
-          var INN = '1234567891';
           var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId;
 
           console.log('Asking for ticket by ID: ' + ticketOneId);
@@ -108,6 +106,9 @@ describe('Organizer module',function(){
 
                var p = JSON.parse(dataOut);
 
+               //console.log('O: ');
+               //console.log(dataOut);
+
                assert.notEqual(p.serial_number.length,0);
                assert.notEqual(p.id.length,0);
                // TODO: check format
@@ -118,7 +119,6 @@ describe('Organizer module',function(){
      })
 
      it('should get ticket by SERIAL NUMBER', function(done){
-          var INN = '1234567891';
           var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneSerialNumber;
 
           var authToken = '';
@@ -129,7 +129,12 @@ describe('Organizer module',function(){
                var p = JSON.parse(dataOut);
                ticketOneSerialNumber = p.serial_number;
 
+               console.log('CCC: ');
+               console.log(dataOut);
+
                // TODO: check format
+               assert.notEqual(p.serial_number.length,0);
+               assert.equal(p.state,"created");
 
                done();
           });
@@ -148,16 +153,13 @@ describe('Organizer module',function(){
      })
 
      it('should not get tickets for other INN', function(done){
-          var INN = '1234567891';
+          var INN = '123456789';
           var url = '/api/v1/organizer/' + INN + '/tickets';
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
                assert.equal(err,null);
-               assert.equal(statusCode,200);
-
-               var p = JSON.parse(dataOut);
-               assert.equal(p.length,0);
+               assert.equal(statusCode,404);
 
                done();
           });
@@ -175,6 +177,52 @@ describe('Organizer module',function(){
           postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
                assert.equal(err,null);
                assert.equal(statusCode,404);
+               done();
+          });
+     })
+
+     it('should sell ticket', function(done){
+          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId + '/sell';
+
+          // TODO: can take data here
+          var data = { 
+          };
+          var postData = JSON.stringify(data);
+
+          var authToken = '';
+          postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+               done();
+          });
+     })
+
+     it('should not sell ticket again', function(done){
+          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId + '/sell';
+
+          var data = { 
+          };
+          var postData = JSON.stringify(data);
+
+          var authToken = '';
+          postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,404);
+               done();
+          });
+     })
+
+     it('should get updated ticket state', function(done){
+          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneSerialNumber;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.state,"sold");
+
                done();
           });
      })
