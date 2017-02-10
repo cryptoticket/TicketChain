@@ -19,6 +19,8 @@ var ticketOneSerialNumber = 0;
 
 var INN = '1234567890';
 
+var batchOneId = 0;
+
 describe('Organizer module',function(){
      before(function(done){
           var uri  = 'mongodb://localhost/tests';
@@ -40,7 +42,7 @@ describe('Organizer module',function(){
      });
 
      it('should get no tickets', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets';
+          var url = '/api/v1/organizers/' + INN + '/tickets';
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -55,7 +57,7 @@ describe('Organizer module',function(){
      })
 
      it('should create ticket', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets';
+          var url = '/api/v1/organizers/' + INN + '/tickets';
 
           var data = { 
           };
@@ -78,7 +80,7 @@ describe('Organizer module',function(){
      })
 
      it('should get tickets', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets';
+          var url = '/api/v1/organizers/' + INN + '/tickets';
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -95,7 +97,7 @@ describe('Organizer module',function(){
      })
 
      it('should get ticket by ID', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId;
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId;
 
           console.log('Asking for ticket by ID: ' + ticketOneId);
 
@@ -119,7 +121,7 @@ describe('Organizer module',function(){
      })
 
      it('should get ticket by SERIAL NUMBER', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneSerialNumber;
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneSerialNumber;
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -142,7 +144,7 @@ describe('Organizer module',function(){
 
      it('should not get tickets if INN is bad', function(done){
           var INN = '123456789';
-          var url = '/api/v1/organizer/' + INN + '/tickets';
+          var url = '/api/v1/organizers/' + INN + '/tickets';
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -154,7 +156,7 @@ describe('Organizer module',function(){
 
      it('should not get tickets for other INN', function(done){
           var INN = '123456789';
-          var url = '/api/v1/organizer/' + INN + '/tickets';
+          var url = '/api/v1/organizers/' + INN + '/tickets';
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -167,7 +169,7 @@ describe('Organizer module',function(){
 
      it('should not create ticket if bad INN', function(done){
           var INN = '123456789';
-          var url = '/api/v1/organizer/' + INN + '/tickets';
+          var url = '/api/v1/organizers/' + INN + '/tickets';
 
           var data = { 
           };
@@ -182,7 +184,7 @@ describe('Organizer module',function(){
      })
 
      it('should sell ticket', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId + '/sell';
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId + '/sell';
 
           // TODO: can take data here
           var data = { 
@@ -198,7 +200,7 @@ describe('Organizer module',function(){
      })
 
      it('should not sell ticket again', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId + '/sell';
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId + '/sell';
 
           var data = { 
           };
@@ -213,7 +215,7 @@ describe('Organizer module',function(){
      })
 
      it('should get updated ticket state', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneSerialNumber;
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneSerialNumber;
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -228,7 +230,7 @@ describe('Organizer module',function(){
      })
 
      it('should cancell ticket', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId + '/cancel';
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId + '/cancel';
 
           var data = { 
           };
@@ -243,7 +245,7 @@ describe('Organizer module',function(){
      })
 
      it('should get updated ticket state', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneSerialNumber;
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneSerialNumber;
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -258,7 +260,7 @@ describe('Organizer module',function(){
      })
 
      it('should allow to cancell ticket again', function(done){
-          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId + '/cancel';
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId + '/cancel';
 
           var data = { 
           };
@@ -271,4 +273,80 @@ describe('Organizer module',function(){
                done();
           });
      })
+});
+
+describe('Batch module',function(){
+     before(function(done){
+          var uri  = 'mongodb://localhost/tests';
+
+          var conn = db.connectToDb(uri,'','');
+          db.removeDb(function(){
+               server.initDb(db);
+
+               server.startHttp(9091);
+               done();   // ok
+          });
+     });
+
+     after(function(done){
+          server.stop();
+          db.removeDb(function(){});
+          db.disconnectDb();
+          done();
+     });
+
+     it('should create batch', function(done){
+          var url = '/api/v1/organizers/' + INN + '/batches';
+
+          var data = { 
+               number_of_tickets: 1 
+          };
+          var postData = JSON.stringify(data);
+
+          var authToken = '';
+          postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.notEqual(p.batch_id, 0);
+               
+               batchOneId = p.batch_id;
+
+               done();
+          });
+     })
+
+     it('should get batch', function(done){
+          var url = '/api/v1/organizers/' + INN + '/batches/' + batchOneId;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.length,1);
+
+               ticketOneId = p[0];
+
+               done();
+          });
+     })
+
+     it('should get ticket', function(done){
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.state,"created");
+
+               done();
+          });
+     })
+
 });

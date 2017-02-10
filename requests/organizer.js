@@ -6,7 +6,7 @@ var assert = require('assert');
 // Get all issued by particular company tickets. Returns array of ticket IDs.
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/get-all-ticket-issued-by-organizer
-app.get('/api/v1/organizer/:inn/tickets',function(request,res,next){
+app.get('/api/v1/organizers/:inn/tickets',function(request,res,next){
      if(typeof(request.params.inn)==='undefined'){
           winston.error('No inn');
           return next();
@@ -40,7 +40,7 @@ app.get('/api/v1/organizer/:inn/tickets',function(request,res,next){
 // This method is blocking.
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/create-a-new-ticket
-app.post('/api/v1/organizer/:inn/tickets',function(request, res, next){
+app.post('/api/v1/organizers/:inn/tickets',function(request, res, next){
      if(typeof(request.params.inn)==='undefined'){
           winston.error('No inn');
           return next();
@@ -71,7 +71,7 @@ app.post('/api/v1/organizer/:inn/tickets',function(request, res, next){
 // This method is blocking.
 //
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/get-a-ticket
-app.get('/api/v1/organizer/:inn/tickets/:id_or_number',function(request,res,next){
+app.get('/api/v1/organizers/:inn/tickets/:id_or_number',function(request,res,next){
      if(typeof(request.params.inn)==='undefined'){
           winston.error('No inn');
           return next();
@@ -141,22 +141,64 @@ function convertTicketToOut(t,request,res,next){
 // Edit a ticket
 //
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/edit-a-ticket
-app.put('/api/v1/organizer/:inn/tickets/:id',function(request,res,next){
-     // TODO
-     next();
+app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No inn');
+          return next();
+     }
+     var inn = request.params.inn;
+     if(!helpers.validateInn(inn)){
+          winston.error('Bad inn');
+          return next();
+     }
+     if(typeof(request.params.id)==='undefined'){
+          winston.error('No id provided');
+          return next();
+     }
+     var id = request.params.id;
+     if(!id || !id.length){
+          winston.error('Bad id_or_number provided');
+          return next();
+     }
+     winston.info('Sell tickets ' + id + ' for INN: ' + inn);
+
+     db.TicketModel.find({issuer_inn:inn, _id:id},function(err,tickets){
+          if(err){
+               return next(err);
+          }
+          if(!tickets || !tickets.length){
+               winston.info('Ticket not found: ' + id);
+               return next();
+          }
+
+          var ticket = tickets[0];
+
+          fromDataToTicket(ticket,request);
+
+          ticket.save(function(err){
+               if(err){
+                    return next(err);
+               }
+               res.send(200);
+          });
+     });
 });
+
+function fromDataToTicket(ticket,request){
+     // TODO: 
+}
 
 // Sell a ticket
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/sell-a-ticket
-app.post('/api/v1/organizer/:inn/tickets/:id/sell',function(request, res, next){
+app.post('/api/v1/organizers/:inn/tickets/:id/sell',function(request, res, next){
      changeStateTo(1,request,res,next);
 });
 
 // Cancel a ticket
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/cancel-a-ticket
-app.post('/api/v1/organizer/:inn/tickets/:id/cancel',function(request, res, next){
+app.post('/api/v1/organizers/:inn/tickets/:id/cancel',function(request, res, next){
      changeStateTo(2,request,res,next);
 });
 
@@ -223,7 +265,7 @@ function changeStateTo(state,request,res,next){
 //   2) batch has been created
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/batch-collection/create-new-batch
-app.post('/api/v1/organizer/:inn/batch',function(request, res, next){
+app.post('/api/v1/organizers/:inn/batches',function(request, res, next){
      if(typeof(request.params.inn)==='undefined'){
           winston.error('No inn');
           return next();
@@ -278,7 +320,7 @@ function addNewTicketToBatch(batch,inn,n,request,res,next){
                }
 
                // continue recursion 
-               addNewTicketToBatch(batch,n - 1, request,res,next);
+               addNewTicketToBatch(batch,inn,n - 1, request,res,next);
           });
      });
 }
@@ -287,7 +329,7 @@ function addNewTicketToBatch(batch,inn,n,request,res,next){
 // Will return all tickets that have been created in a single batch.
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/batch-collection/get-batch
-app.get('/api/v1/organizer/:inn/batch/:id',function(request, res, next){
+app.get('/api/v1/organizers/:inn/batches/:id',function(request, res, next){
      if(typeof(request.params.inn)==='undefined'){
           winston.error('No inn');
           return next();
@@ -332,8 +374,10 @@ function createNewBlankTicket(inn,cb){
      var ticket = new db.TicketModel();
 
      ticket.state = 0;
-     // TODO: change
-     ticket.serial_number = 'AB12345678';
+
+     // TODO: make unique!!!
+     // collisions possible
+     ticket.serial_number = helpers.generateSn();
      ticket.issuer_inn = inn;
      ticket.created = Date.now();
 

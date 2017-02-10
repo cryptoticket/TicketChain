@@ -53,6 +53,18 @@ function generateResetSig(email,pass){
      return hash;
 }
 
+function generateSn(){
+     var out = '';
+
+     // TODO: 2 symbols
+     // 'AB12345678'
+
+     for(var i=0; i<10; ++i){
+          out = out + getRandom(1, 9);
+     }
+     return out;
+}
+
 function capitalizeFirst(s){
      var other = s.slice(1).toLowerCase();
 
@@ -65,6 +77,8 @@ exports.validateInn = validateInn;
 exports.validateEmail = validateEmail;
 exports.validatePass = validatePass;
 exports.validateShortId = validateShortId;
+
+exports.generateSn = generateSn;
 
 exports.generateValidationSig = generateValidationSig;
 exports.generateResetSig = generateResetSig;
