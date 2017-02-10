@@ -122,22 +122,6 @@ function getTicketById(id,request,res,next){
      });
 }
 
-function convertTicketToOut(t,request,res,next){
-     var out = {
-          id: t._id,
-          serial_number: t.serial_number,
-          state: 'created'
-     };
-
-     if(t.state==1){
-          out.state = 'sold';
-     }else if(t.state==2){
-          out.state = 'cancelled';
-     }
-
-     res.json(out);
-}
-
 // Edit a ticket
 //
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/edit-a-ticket
@@ -183,10 +167,6 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
           });
      });
 });
-
-function fromDataToTicket(ticket,request){
-     // TODO: 
-}
 
 // Sell a ticket
 // 
@@ -385,3 +365,92 @@ function createNewBlankTicket(inn,cb){
           cb(err,ticket);
      });
 }
+
+function convertTicketToOut(t,request,res,next){
+     var out = {
+          id: t._id,
+          serial_number: t.serial_number,
+          state: 'created',
+
+          price_rub: t.priceRub,
+          is_paper_ticket: t.isPaperTicket,
+
+          issuer: t.issuer,
+          issuer_inn: t.issuer_inn,
+          issuer_orgn: t.issuer_orgn,
+          issuer_ogrnip: t.issuer_ogrnip,
+          issuer_address: t.issuer_address,
+
+          event_title: t.event_title,
+          event_place_title: t.event_place_title,
+          event_date: t.event_date,
+          event_place_address: t.event_place_address,
+
+          row: t.row,
+          seat: t.seat,
+          
+          ticket_category: t.ticket_category,
+
+          organizer: t.organizer,
+          organizer_inn: t.organizer_inn,
+          organizer_orgn: t.organizer_orgn,
+          organizer_ogrnip: t.organizer_ogrnip,
+          organizer_address: t.organizer_address,
+
+          seller: t.seller,
+          seller_inn: t.seller_inn,
+          seller_orgn: t.seller_orgn,
+          seller_ogrnip: t.seller_ogrnip,
+          seller_address: t.seller_address,
+
+          buyer_name: t.buyer_name,
+          buying_date: t.buying_date
+     };
+
+     if(t.state==1){
+          out.state = 'sold';
+     }else if(t.state==2){
+          out.state = 'cancelled';
+     }
+
+     res.json(out);
+}
+
+function fromDataToTicket(ticket,request){
+     copyField(ticket,request.body,'priceRub');
+     copyField(ticket,request.body,'isPaperTicket');
+     copyField(ticket,request.body,'issuer');
+     copyField(ticket,request.body,'issuer_inn');
+     copyField(ticket,request.body,'issuer_orgn');
+     copyField(ticket,request.body,'issuer_ogrnip');
+     copyField(ticket,request.body,'issuer_address');
+     copyField(ticket,request.body,'event_title');
+     copyField(ticket,request.body,'event_place_title');
+     // TODO: date
+     //copyField(ticket,request.body,'event_date');
+     copyField(ticket,request.body,'event_place_address');
+     copyField(ticket,request.body,'row');
+     copyField(ticket,request.body,'seat');
+     copyField(ticket,request.body,'ticket_category');
+     copyField(ticket,request.body,'organizer');
+     // WARNING: can't be changed
+     //copyField(ticket,request.body,'organizer_inn');
+     copyField(ticket,request.body,'organizer_orgn');
+     copyField(ticket,request.body,'organizer_ogrnip');
+     copyField(ticket,request.body,'organizer_address');
+     copyField(ticket,request.body,'seller');
+     copyField(ticket,request.body,'seller_inn');
+     copyField(ticket,request.body,'seller_orgn');
+     copyField(ticket,request.body,'seller_ogrnip');
+     copyField(ticket,request.body,'seller_address');
+     copyField(ticket,request.body,'buyer_name');
+     // TODO: date
+     //copyField(ticket,request.body,'buying_date');
+}
+
+function copyField(to,from,field){
+     if(field in from){
+          to[field] = from[field];
+     }
+}
+

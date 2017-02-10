@@ -183,6 +183,39 @@ describe('Organizer module',function(){
           });
      })
 
+     it('should edit ticket', function(done){
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId;
+
+          var data = { 
+               issuer_orgn: '1231'
+          };
+          var postData = JSON.stringify(data);
+
+          var authToken = '';
+          putDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               done();
+          });
+     })
+
+     it('should get updated ticket', function(done){
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneSerialNumber;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.issuer_orgn,'1231');
+
+               done();
+          });
+     })
+
+     /*
      it('should sell ticket', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId + '/sell';
 
@@ -273,6 +306,7 @@ describe('Organizer module',function(){
                done();
           });
      })
+     */
 });
 
 describe('Batch module',function(){
