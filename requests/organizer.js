@@ -52,23 +52,12 @@ app.post('/api/v1/organizer/:inn/tickets',function(request, res, next){
      }
      winston.info('Adding ticket for INN: ' + inn);
 
-     var id = 0;
-     var number = 0;
-
-     var ticket = new db.TicketModel();
-
-     ticket.state = 0;
-     // TODO: change
-     ticket.serial_number = 'AB12345678';
-     ticket.issuer_inn = inn;
-     ticket.created = Date.now();
-
-     ticket.save(function(err){
+     createNewBlankTicket(inn,function(err,ticket){
           if(err){
                return next(err);
           }
-
-          winston.info('Added ticket: ' + id + '; serial_number= ' + number);
+          
+          winston.info('Added ticket: ' + ticket._id + '; serial_number= ' + ticket.serial_number);
 
           res.json({ 
                id: ticket._id, 
@@ -235,18 +224,120 @@ function changeStateTo(state,request,res,next){
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/batch-collection/create-new-batch
 app.post('/api/v1/organizer/:inn/batch',function(request, res, next){
-     // TODO
-     next();
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No inn');
+          return next();
+     }
+     var inn = request.params.inn;
+
+     if(typeof(request.body)==='undefined' || request.body===null){
+          return next();
+     } 
+     if(typeof(request.body.number_of_tickets)==='undefined'){
+          winston.error('No number_of_tickets provided');
+          return next();
+     }
+     var n = request.body.number_of_tickets;
+     
+     // create batch:
+     var batch = new db.BatchModel();
+     batch.organizer_inn = inn;
+     batch.tickets = [];
+
+     batch.save(function(err){
+          if(err){
+               return next(err);
+          }
+
+          addNewTicketToBatch(batch,inn,n,request,res,next);
+     });
 });
 
+function addNewTicketToBatch(batch,inn,n,request,res,next){
+     if(!n){
+          // end recursion
+          return res.json({batch_id: batch._id});
+     }
+
+     // update
+     createNewBlankTicket(inn,function(err,ticket){
+          if(err){
+               winston.info('Can not create new ticket');
+               return next(err);
+          }
+
+          // add ticket to batch
+          batch.tickets.push({ticketId: ticket._id});
+          
+          // TODO: perf is lost here
+          // save on each iteration
+          batch.save(function(err){
+               if(err){
+                    winston.info('Can not save batch');
+                    return next(err);
+               }
+
+               // continue recursion 
+               addNewTicketToBatch(batch,n - 1, request,res,next);
+          });
+     });
+}
 
 // Get batch
 // Will return all tickets that have been created in a single batch.
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/batch-collection/get-batch
 app.get('/api/v1/organizer/:inn/batch/:id',function(request, res, next){
-     // TODO
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No inn');
+          return next();
+     }
+     var inn = request.params.inn;
+     if(!helpers.validateInn(inn)){
+          winston.error('Bad inn');
+          return next();
+     }
+     if(typeof(request.params.id)==='undefined'){
+          winston.error('No id provided');
+          return next();
+     }
+     var id = request.params.id;
+     if(!id || !id.length){
+          winston.error('Bad id_or_number provided');
+          return next();
+     }
+     winston.info('Get batch ' + id + ' for INN: ' + inn);
 
-     next();
+     db.BatchModel.find({organizer_inn:inn, _id:id},function(err,batches){
+          if(err){
+               return next(err);
+          }
+
+          if(!batches || !batches.length){
+               winston.info('Batch not found');
+               return next();
+          }
+
+          var out = [];
+          var batch = batches[0];
+          for(var i=0; i<batch.tickets.length; ++i){
+               out.push(batch.tickets[i].ticketId);
+          }
+
+          res.json(out);
+     });
 });
 
+function createNewBlankTicket(inn,cb){
+     var ticket = new db.TicketModel();
+
+     ticket.state = 0;
+     // TODO: change
+     ticket.serial_number = 'AB12345678';
+     ticket.issuer_inn = inn;
+     ticket.created = Date.now();
+
+     ticket.save(function(err){
+          cb(err,ticket);
+     });
+}

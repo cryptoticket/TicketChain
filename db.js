@@ -86,6 +86,14 @@ var Ticket = new Schema({
 });
 
 
+var Batch = new Schema({
+     organizer_inn: {type: String, required:false},
+
+	tickets: [{
+		ticketId: {type:Schema.ObjectId, required:true},
+     }],
+});
+
 /// \brief Call this one and keep returned object
 function connectToDbCallback(uri,user,pass,cb){
      var options = {
@@ -151,9 +159,11 @@ function removeDb(cb){
 // Exports:
 var UserModel = mongoose.model('User', User);
 var TicketModel = mongoose.model('Ticket', Ticket);
+var BatchModel = mongoose.model('Batch', Batch);
 
 module.exports.UserModel = UserModel;
 module.exports.TicketModel = TicketModel;
+module.exports.BatchModel = BatchModel;
 
 // 
 module.exports.blockLogging = blockLogging;
