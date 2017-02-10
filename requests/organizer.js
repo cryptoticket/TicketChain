@@ -146,9 +146,6 @@ function convertTicketToOut(t,request,res,next){
           out.state = 'cancelled';
      }
 
-     console.log('Return: ');
-     console.log(out);
-
      res.json(out);
 }
 
@@ -164,6 +161,17 @@ app.put('/api/v1/organizer/:inn/tickets/:id',function(request,res,next){
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/sell-a-ticket
 app.post('/api/v1/organizer/:inn/tickets/:id/sell',function(request, res, next){
+     changeStateTo(1,request,res,next);
+});
+
+// Cancel a ticket
+// 
+// http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/cancel-a-ticket
+app.post('/api/v1/organizer/:inn/tickets/:id/cancel',function(request, res, next){
+     changeStateTo(2,request,res,next);
+});
+
+function changeStateTo(state,request,res,next){
      if(typeof(request.params.inn)==='undefined'){
           winston.error('No inn');
           return next();
@@ -194,13 +202,20 @@ app.post('/api/v1/organizer/:inn/tickets/:id/sell',function(request, res, next){
           }
 
           var ticket = tickets[0];
-          if(ticket.state!=0){
-               winston.info('Ticket state is BAD: ' + ticket.state);
-               return next();
+
+          // created->sold
+          if(state==1){
+               if(ticket.state!=0){
+                    winston.info('Ticket state is BAD: ' + ticket.state);
+                    return next();
+               }
+
+               ticket.state = 1;
+          }else if(state==2){
+               // created or sold -> cancelled
+               ticket.state = 2;
           }
 
-          // update
-          ticket.state = 1;
           ticket.save(function(err){
                if(err){
                     return next(err);
@@ -208,15 +223,7 @@ app.post('/api/v1/organizer/:inn/tickets/:id/sell',function(request, res, next){
                res.send(200);
           });
      });
-});
-
-// Cancel a ticket
-// 
-// http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/cancel-a-ticket
-app.post('/api/v1/organizer/:inn/tickets/:id/cancel',function(request, res, next){
-     // TODO
-     next();
-});
+}
 
 ///////// BATCH:
 // Create multiple new blank tickets to reserve them. 

@@ -226,4 +226,49 @@ describe('Organizer module',function(){
                done();
           });
      })
+
+     it('should cancell ticket', function(done){
+          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId + '/cancel';
+
+          var data = { 
+          };
+          var postData = JSON.stringify(data);
+
+          var authToken = '';
+          postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+               done();
+          });
+     })
+
+     it('should get updated ticket state', function(done){
+          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneSerialNumber;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.state,"cancelled");
+
+               done();
+          });
+     })
+
+     it('should allow to cancell ticket again', function(done){
+          var url = '/api/v1/organizer/' + INN + '/tickets/' + ticketOneId + '/cancel';
+
+          var data = { 
+          };
+          var postData = JSON.stringify(data);
+
+          var authToken = '';
+          postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+               done();
+          });
+     })
 });
