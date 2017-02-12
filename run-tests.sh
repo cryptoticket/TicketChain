@@ -1,8 +1,9 @@
 #! /bin/bash
 
-mocha --reporter spec -t 10000 -g "Batch"
+mocha --reporter spec -t 10000 -g "Organizer"
 
-#-g "Organizer"
+#-g "Batch"
+
 
 
 

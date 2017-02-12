@@ -163,7 +163,8 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
                if(err){
                     return next(err);
                }
-               res.send(200);
+
+               res.json({});
           });
      });
 });
