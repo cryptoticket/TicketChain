@@ -80,7 +80,7 @@ db.connectToDbCallback(
 );
      
 // Start server
-var port = config.get('http_port');
+var port = (process.env.PORT || config.get('http_port'));
 
 server.initDb(db);
 
