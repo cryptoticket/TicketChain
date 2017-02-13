@@ -61,10 +61,14 @@ process.on('SIGINT', function() {
 ////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////
 // Connect to DB
+var db_uri = (process.env.MONGODB_URI || config.get('db:uri'));
+var db_user = (process.env.MONGODB_USER || config.get('db:user'));
+var db_pass = (process.env.MONGODB_PASS || config.get('db:pass'));
+
 db.connectToDbCallback(
-     config.get('db:uri'),
-     config.get('db:user'),
-     config.get('db:pass'),
+     db_uri,
+     db_user,
+     db_pass,
 
      function(err){
           if(!err){
