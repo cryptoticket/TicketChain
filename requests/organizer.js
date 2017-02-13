@@ -542,6 +542,30 @@ app.get('/api/v1/organizers/:id',function(request,res,next){
      });
 });
 
+// Update organizer by ID
+//
+// http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/update-an-organizer
+app.put('/api/v1/organizers/:id',function(request,res,next){
+     if(typeof(request.params.id)==='undefined'){
+          winston.error('No ID');
+          return next();
+     }
+     var id = request.params.id;
+
+     getOrganizerById(id,function(err,org){
+          if(err){
+               return next(err);
+          }
+
+          updateOrganizer(org,request.body,function(err){
+               if(err){
+                    return next(err);
+               }
+               res.json({});
+          });
+     });
+});
+
 function getOrganizerByInn(inn,cb){
      db.OrganizerModel.find({organizer_inn:inn},function(err,orgs){
           if(err){
