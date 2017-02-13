@@ -515,25 +515,28 @@ app.get('/api/v1/organizers',function(request,res,next){
           var out = [];
           for(var i=0; i<orgs.length; ++i){
                //convertOrgToOut(o,orgs[i]);
-               out.push(orgs[i]._id); 
+               out.push(orgs[i].organizer_inn); 
           }
           res.json(out);
      });
 });
 
-// Get organizer by ID
+// Get organizer by INN
 //
 // http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-organizer
-app.get('/api/v1/organizers/:id',function(request,res,next){
-     if(typeof(request.params.id)==='undefined'){
-          winston.error('No ID');
+app.get('/api/v1/organizers/:inn',function(request,res,next){
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No INN');
           return next();
      }
-     var id = request.params.id;
+     var inn = request.params.inn;
 
-     getOrganizerById(id,function(err,org){
+     getOrganizerByInn(inn,function(err,isFound,org){
           if(err){
                return next(err);
+          }
+          if(!isFound){
+               return next();
           }
 
           var out = {};
@@ -542,19 +545,22 @@ app.get('/api/v1/organizers/:id',function(request,res,next){
      });
 });
 
-// Update organizer by ID
+// Update organizer by INN 
 //
 // http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/update-an-organizer
-app.put('/api/v1/organizers/:id',function(request,res,next){
-     if(typeof(request.params.id)==='undefined'){
-          winston.error('No ID');
+app.put('/api/v1/organizers/:inn',function(request,res,next){
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No INN');
           return next();
      }
-     var id = request.params.id;
+     var inn = request.params.inn;
 
-     getOrganizerById(id,function(err,org){
+     getOrganizerByInn(inn,function(err,isFound,org){
           if(err){
                return next(err);
+          }
+          if(!isFound){
+               return next();
           }
 
           updateOrganizer(org,request.body,function(err){

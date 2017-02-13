@@ -14,7 +14,7 @@ var signature = '';
 var userId = '';
 var globalToken = '';
 
-var orgOneId = 0;
+var orgOneInn = 0;
 var ticketOneId = 0;
 var ticketOneSerialNumber = 0;
 
@@ -87,13 +87,13 @@ describe('Organizer module',function(){
                var p = JSON.parse(dataOut);
                assert.equal(p.length,1);
 
-               orgOneId = p[0];
+               orgOneInn = p[0];
                done();
           });
      })
 
-     it('should get organizer by ID', function(done){
-          var url = '/api/v1/organizers/' + orgOneId;
+     it('should get organizer by INN', function(done){
+          var url = '/api/v1/organizers/' + orgOneInn;
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
