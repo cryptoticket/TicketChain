@@ -232,7 +232,9 @@ function changeStateTo(state,request,res,next){
                if(err){
                     return next(err);
                }
-               res.send(200);
+
+               // Good!
+               res.json({});
           });
      });
 }

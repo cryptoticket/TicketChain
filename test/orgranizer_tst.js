@@ -215,7 +215,6 @@ describe('Organizer module',function(){
           });
      })
 
-     /*
      it('should sell ticket', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId + '/sell';
 
@@ -306,7 +305,6 @@ describe('Organizer module',function(){
                done();
           });
      })
-     */
 });
 
 describe('Batch module',function(){
