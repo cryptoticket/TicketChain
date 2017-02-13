@@ -475,7 +475,8 @@ function fromDataToTicket(ticket,request,cb){
      copyField(ticket,request.body,'row');
      copyField(ticket,request.body,'seat');
      copyField(ticket,request.body,'ticket_category');
-     copyField(ticket,request.body,'organizer');
+
+     //copyField(ticket,request.body,'organizer');
 
      copyField(ticket,request.body,'seller');
      copyField(ticket,request.body,'seller_inn');
