@@ -38,6 +38,14 @@ User.statics.findByFacebookID = function(id,cb){
      this.find({facebookID: id}, cb);
 }
 
+var Organizer = new Schema({
+     organizer: {type: String, required:false},
+
+     organizer_inn: {type: String, required:false},
+     organizer_orgn: {type: String, required:false},
+     organizer_ogrnip: {type: String, required:false},
+     organizer_address: {type: String, required:false},
+});
 
 ////////////////
 var Ticket = new Schema({
@@ -54,7 +62,7 @@ var Ticket = new Schema({
 
      issuer: {type: String, required:false},
      // WARNING: inn is required!
-     issuer_inn: {type: String, required:true},
+     issuer_inn: {type: String, required:false},
      issuer_orgn: {type: String, required:false},
      issuer_ogrnip: {type: String, required:false},
      issuer_address: {type: String, required:false},
@@ -69,11 +77,7 @@ var Ticket = new Schema({
      
      ticket_category: {type: Number, required:false},
 
-     organizer: {type: String, required:false},
-     organizer_inn: {type: String, required:false},
-     organizer_orgn: {type: String, required:false},
-     organizer_ogrnip: {type: String, required:false},
-     organizer_address: {type: String, required:false},
+     organizer: {type: Schema.ObjectId, required: true},
 
      seller: {type: String, required:false},
      seller_inn: {type: String, required:false},
@@ -87,7 +91,7 @@ var Ticket = new Schema({
 
 
 var Batch = new Schema({
-     organizer_inn: {type: String, required:false},
+     organizer: {type: Schema.ObjectId, required:true},
 
 	tickets: [{
 		ticketId: {type:Schema.ObjectId, required:true},
@@ -159,10 +163,12 @@ function removeDb(cb){
 // Exports:
 var UserModel = mongoose.model('User', User);
 var TicketModel = mongoose.model('Ticket', Ticket);
+var OrganizerModel = mongoose.model('Organizer', Organizer);
 var BatchModel = mongoose.model('Batch', Batch);
 
 module.exports.UserModel = UserModel;
 module.exports.TicketModel = TicketModel;
+module.exports.OrganizerModel = OrganizerModel;
 module.exports.BatchModel = BatchModel;
 
 // 

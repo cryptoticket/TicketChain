@@ -14,6 +14,7 @@ var signature = '';
 var userId = '';
 var globalToken = '';
 
+var orgOneId = 0;
 var ticketOneId = 0;
 var ticketOneSerialNumber = 0;
 
@@ -47,11 +48,7 @@ describe('Organizer module',function(){
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
                assert.equal(err,null);
-               assert.equal(statusCode,200);
-
-               var p = JSON.parse(dataOut);
-               assert.equal(p.length,0);
-
+               assert.equal(statusCode,404);
                done();
           });
      })
@@ -79,6 +76,36 @@ describe('Organizer module',function(){
           });
      })
 
+     it('should get organizers', function(done){
+          var url = '/api/v1/organizers';
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.length,1);
+
+               orgOneId = p[0];
+               done();
+          });
+     })
+
+     it('should get organizer by ID', function(done){
+          var url = '/api/v1/organizers/' + orgOneId;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.organizer_inn,INN);
+               done();
+          });
+     })
+
      it('should get tickets', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets';
 
@@ -86,6 +113,9 @@ describe('Organizer module',function(){
           getData(9091,url,authToken,function(err,statusCode,dataOut){
                assert.equal(err,null);
                assert.equal(statusCode,200);
+               
+               console.log('OUT: ');
+               console.log(dataOut);
 
                var p = JSON.parse(dataOut);
                assert.equal(p.length,1);
@@ -113,6 +143,8 @@ describe('Organizer module',function(){
 
                assert.notEqual(p.serial_number.length,0);
                assert.notEqual(p.id.length,0);
+               assert.equal(p.organizer_inn,INN);
+
                // TODO: check format
 
                ticketOneSerialNumber = p.serial_number;

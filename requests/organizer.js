@@ -3,6 +3,9 @@ var db_helpers = require('./helpers/db_helpers.js');
 
 var assert = require('assert');
 
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+
 // Get all issued by particular company tickets. Returns array of ticket IDs.
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/get-all-ticket-issued-by-organizer
@@ -18,20 +21,25 @@ app.get('/api/v1/organizers/:inn/tickets',function(request,res,next){
      }
      winston.info('Asking tickets for INN: ' + inn);
 
-     db.TicketModel.find({issuer_inn:inn},function(err,tickets){
-          if(err){
-               return next(err);
-          }
+     getOrganizerByInn(inn,function(err,orgFound,org){
+          if(err){return next(err);}
+          if(!orgFound){return next();}
 
-          console.log('Found tickets: ' + tickets.length);
+          db.TicketModel.find({organizer:org._id},function(err,tickets){
+               if(err){
+                    return next(err);
+               }
 
-          var arr = [];
+               console.log('Found tickets: ' + tickets.length);
 
-          for(var i=0; i<tickets.length; ++i){
-               arr.push(tickets[i]._id);
-          }
+               var arr = [];
 
-          res.json(arr);
+               for(var i=0; i<tickets.length; ++i){
+                    arr.push(tickets[i]._id);
+               }
+
+               res.json(arr);
+          });
      });
 });
 
@@ -146,25 +154,34 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
      }
      winston.info('Sell tickets ' + id + ' for INN: ' + inn);
 
-     db.TicketModel.find({issuer_inn:inn, _id:id},function(err,tickets){
-          if(err){
-               return next(err);
-          }
-          if(!tickets || !tickets.length){
-               winston.info('Ticket not found: ' + id);
-               return next();
-          }
+     getOrganizerByInn(inn,function(err,orgFound,org){
+          if(err){return next(err);}
+          if(!orgFound){return next();}
 
-          var ticket = tickets[0];
-
-          fromDataToTicket(ticket,request);
-
-          ticket.save(function(err){
+          db.TicketModel.find({organizer:org._id, _id:id},function(err,tickets){
                if(err){
                     return next(err);
                }
+               if(!tickets || !tickets.length){
+                    winston.info('Ticket not found: ' + id);
+                    return next();
+               }
 
-               res.json({});
+               var ticket = tickets[0];
+
+               fromDataToTicket(ticket,request,function(err,ticketOut){
+                    if(err){
+                         return next(err);
+                    }
+
+                    ticketOut.save(function(err){
+                         if(err){
+                              return next(err);
+                         }
+
+                         res.json({});
+                    });
+               });
           });
      });
 });
@@ -204,37 +221,42 @@ function changeStateTo(state,request,res,next){
      }
      winston.info('Sell tickets ' + id + ' for INN: ' + inn);
 
-     db.TicketModel.find({issuer_inn:inn, _id:id},function(err,tickets){
-          if(err){
-               return next(err);
-          }
-          if(!tickets || !tickets.length){
-               winston.info('Ticket not found: ' + id);
-               return next();
-          }
+     getOrganizerByInn(inn,function(err,orgFound,org){
+          if(err){return next(err);}
+          if(!orgFound){return next();}
 
-          var ticket = tickets[0];
-
-          // created->sold
-          if(state==1){
-               if(ticket.state!=0){
-                    winston.info('Ticket state is BAD: ' + ticket.state);
-                    return next();
-               }
-
-               ticket.state = 1;
-          }else if(state==2){
-               // created or sold -> cancelled
-               ticket.state = 2;
-          }
-
-          ticket.save(function(err){
+          db.TicketModel.find({organizer:org._id, _id:id},function(err,tickets){
                if(err){
                     return next(err);
                }
+               if(!tickets || !tickets.length){
+                    winston.info('Ticket not found: ' + id);
+                    return next();
+               }
 
-               // Good!
-               res.json({});
+               var ticket = tickets[0];
+
+               // created->sold
+               if(state==1){
+                    if(ticket.state!=0){
+                         winston.info('Ticket state is BAD: ' + ticket.state);
+                         return next();
+                    }
+
+                    ticket.state = 1;
+               }else if(state==2){
+                    // created or sold -> cancelled
+                    ticket.state = 2;
+               }
+
+               ticket.save(function(err){
+                    if(err){
+                         return next(err);
+                    }
+
+                    // Good!
+                    res.json({});
+               });
           });
      });
 }
@@ -264,17 +286,23 @@ app.post('/api/v1/organizers/:inn/batches',function(request, res, next){
      }
      var n = request.body.number_of_tickets;
      
-     // create batch:
-     var batch = new db.BatchModel();
-     batch.organizer_inn = inn;
-     batch.tickets = [];
-
-     batch.save(function(err){
+     createOrganizer(inn,function(err,id){
           if(err){
-               return next(err);
+               return cb(err);
           }
 
-          addNewTicketToBatch(batch,inn,n,request,res,next);
+          // create batch:
+          var batch = new db.BatchModel();
+          batch.organizer = id;
+          batch.tickets = [];
+
+          batch.save(function(err){
+               if(err){
+                    return next(err);
+               }
+
+               addNewTicketToBatch(batch,inn,n,request,res,next);
+          });
      });
 });
 
@@ -333,39 +361,50 @@ app.get('/api/v1/organizers/:inn/batches/:id',function(request, res, next){
      }
      winston.info('Get batch ' + id + ' for INN: ' + inn);
 
-     db.BatchModel.find({organizer_inn:inn, _id:id},function(err,batches){
-          if(err){
-               return next(err);
-          }
+     getOrganizerByInn(inn,function(err,orgFound,org){
+          if(err){return next(err);}
+          if(!orgFound){return next();}
 
-          if(!batches || !batches.length){
-               winston.info('Batch not found');
-               return next();
-          }
+          db.BatchModel.find({organizer:org._id, _id:id},function(err,batches){
+               if(err){
+                    return next(err);
+               }
 
-          var out = [];
-          var batch = batches[0];
-          for(var i=0; i<batch.tickets.length; ++i){
-               out.push(batch.tickets[i].ticketId);
-          }
+               if(!batches || !batches.length){
+                    winston.info('Batch not found');
+                    return next();
+               }
 
-          res.json(out);
+               var out = [];
+               var batch = batches[0];
+               for(var i=0; i<batch.tickets.length; ++i){
+                    out.push(batch.tickets[i].ticketId);
+               }
+
+               res.json(out);
+          });
      });
 });
 
 function createNewBlankTicket(inn,cb){
-     var ticket = new db.TicketModel();
+     createOrganizer(inn,function(err,id){
+          if(err){
+               return cb(err);
+          }
 
-     ticket.state = 0;
+          var ticket = new db.TicketModel();
 
-     // TODO: make unique!!!
-     // collisions possible
-     ticket.serial_number = helpers.generateSn();
-     ticket.issuer_inn = inn;
-     ticket.created = Date.now();
+          ticket.state = 0;
 
-     ticket.save(function(err){
-          cb(err,ticket);
+          // TODO: make unique!!!
+          // collisions possible
+          ticket.serial_number = helpers.generateSn();
+          ticket.created = Date.now();
+
+          ticket.organizer = id;
+          ticket.save(function(err){
+               cb(err,ticket);
+          });
      });
 }
 
@@ -394,12 +433,6 @@ function convertTicketToOut(t,request,res,next){
           
           ticket_category: t.ticket_category,
 
-          organizer: t.organizer,
-          organizer_inn: t.organizer_inn,
-          organizer_orgn: t.organizer_orgn,
-          organizer_ogrnip: t.organizer_ogrnip,
-          organizer_address: t.organizer_address,
-
           seller: t.seller,
           seller_inn: t.seller_inn,
           seller_orgn: t.seller_orgn,
@@ -416,10 +449,17 @@ function convertTicketToOut(t,request,res,next){
           out.state = 'cancelled';
      }
 
-     res.json(out);
+     getOrganizerById(t.organizer,function(err,org){
+          if(err){
+               return next(err);
+          }
+
+          convertOrgToOut(out,org);
+          res.json(out);
+     });
 }
 
-function fromDataToTicket(ticket,request){
+function fromDataToTicket(ticket,request,cb){
      copyField(ticket,request.body,'priceRub');
      copyField(ticket,request.body,'isPaperTicket');
      copyField(ticket,request.body,'issuer');
@@ -436,19 +476,20 @@ function fromDataToTicket(ticket,request){
      copyField(ticket,request.body,'seat');
      copyField(ticket,request.body,'ticket_category');
      copyField(ticket,request.body,'organizer');
-     // WARNING: can't be changed
-     //copyField(ticket,request.body,'organizer_inn');
-     copyField(ticket,request.body,'organizer_orgn');
-     copyField(ticket,request.body,'organizer_ogrnip');
-     copyField(ticket,request.body,'organizer_address');
+
      copyField(ticket,request.body,'seller');
      copyField(ticket,request.body,'seller_inn');
      copyField(ticket,request.body,'seller_orgn');
      copyField(ticket,request.body,'seller_ogrnip');
      copyField(ticket,request.body,'seller_address');
      copyField(ticket,request.body,'buyer_name');
+     
      // TODO: date
      //copyField(ticket,request.body,'buying_date');
+     
+     updateOrganizer(ticket.organizer,request.body,function(err){
+          return cb(err,ticket);
+     });
 }
 
 function copyField(to,from,field){
@@ -457,3 +498,121 @@ function copyField(to,from,field){
      }
 }
 
+// Get all organizers
+//
+// http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-all-organizers
+app.get('/api/v1/organizers',function(request,res,next){
+     db.OrganizerModel.find({},function(err,orgs){
+          if(err){
+               return next(err);
+          }
+
+          if(!orgs || !orgs.length){
+               winston.info('Can not find organizers');
+               return next();
+          }
+
+          var out = [];
+          for(var i=0; i<orgs.length; ++i){
+               //convertOrgToOut(o,orgs[i]);
+               out.push(orgs[i]._id); 
+          }
+          res.json(out);
+     });
+});
+
+// Get organizer by ID
+//
+// http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-organizer
+app.get('/api/v1/organizers/:id',function(request,res,next){
+     if(typeof(request.params.id)==='undefined'){
+          winston.error('No ID');
+          return next();
+     }
+     var id = request.params.id;
+
+     getOrganizerById(id,function(err,org){
+          if(err){
+               return next(err);
+          }
+
+          var out = {};
+          convertOrgToOut(out,org);
+          res.json(out);
+     });
+});
+
+function getOrganizerByInn(inn,cb){
+     db.OrganizerModel.find({organizer_inn:inn},function(err,orgs){
+          if(err){
+               return cb(err,false);
+          }
+
+          if(!orgs || !orgs.length){
+               return cb(null,false,{});
+          }
+          
+          return cb(null,true,orgs[0]);
+     });
+}
+
+
+function getOrganizerById(id,cb){
+     db.OrganizerModel.find({_id:id},function(err,orgs){
+          if(err){
+               return cb(err);
+          }
+
+          if(!orgs || !orgs.length){
+               return cb(new Error('Can not find organizer'));
+          }
+          
+          return cb(null,orgs[0]);
+     });
+}
+
+function createOrganizer(inn,cb){
+     // 1 - find org
+     db.OrganizerModel.find({organizer_inn:inn},function(err,orgs){
+          if(err){
+               return cb(err);
+          }
+
+          if(orgs && orgs.length){
+               return cb(null,orgs[0]._id);
+          }
+
+          // 2 - if not found - create
+          var org = new db.OrganizerModel();
+          org.organizer_inn = inn;
+
+          org.save(function(err){
+               cb(err,org._id);
+          });
+     });
+}
+
+function updateOrganizer(orgId,from,cb){
+     getOrganizerById(orgId,function(err,org){
+          if(err){return cb(err);}
+          
+          // WARNING: can't be changed
+          //copyField(ticket,from,'organizer_inn');
+          copyField(org,from,'organizer');
+          copyField(org,from,'organizer_orgn');
+          copyField(org,from,'organizer_ogrnip');
+          copyField(org,from,'organizer_address');
+
+          org.save(function(err){
+               return cb(err);
+          });
+     });
+}
+
+function convertOrgToOut(to,from){
+     copyField(to,from,'organizer');
+     copyField(to,from,'organizer_inn');
+     copyField(to,from,'organizer_orgn');
+     copyField(to,from,'organizer_ogrnip');
+     copyField(to,from,'organizer_address');
+}
