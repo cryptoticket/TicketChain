@@ -60,7 +60,19 @@ app.post('/api/v1/organizers/:inn/tickets',function(request, res, next){
      }
      winston.info('Adding ticket for INN: ' + inn);
 
-     createNewBlankTicket(inn,function(err,ticket){
+     var sernum = '';
+     if(typeof(request.body.serial_number)!=='undefined'){
+          // TODO: check format!
+          sernum = request.body.serial_number;
+     }
+
+     winston.info('Adding ticket for INN: ' + inn);
+     if(!helpers.validateInn(inn)){
+          winston.error('Bad inn');
+          return next();
+     }
+
+     createNewBlankTicket(inn,sernum,function(err,ticket){
           if(err){
                return next(err);
           }
@@ -318,7 +330,8 @@ function addNewTicketToBatch(batch,inn,n,request,res,next){
      }
 
      // update
-     createNewBlankTicket(inn,function(err,ticket){
+     var emptySernum = '';
+     createNewBlankTicket(inn,emptySernum,function(err,ticket){
           if(err){
                winston.info('Can not create new ticket');
                return next(err);
@@ -391,7 +404,7 @@ app.get('/api/v1/organizers/:inn/batches/:id',function(request, res, next){
      });
 });
 
-function createNewBlankTicket(inn,cb){
+function createNewBlankTicket(inn,optionalSerNum,cb){
      createOrganizer(inn,function(err,id){
           if(err){
                return cb(err);
@@ -403,7 +416,12 @@ function createNewBlankTicket(inn,cb){
 
           // TODO: make unique!!!
           // collisions possible
-          ticket.serial_number = helpers.generateSn();
+          if(optionalSerNum.length){
+               ticket.serial_number = optionalSerNum;
+          }else{
+               ticket.serial_number = helpers.generateSn();
+          }
+
           ticket.created = Date.now();
 
           ticket.organizer = id;

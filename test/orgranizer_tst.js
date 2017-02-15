@@ -164,7 +164,6 @@ describe('Organizer module',function(){
                assert.equal(statusCode,200);
 
                var p = JSON.parse(dataOut);
-               ticketOneSerialNumber = p.serial_number;
 
                console.log('CCC: ');
                console.log(dataOut);
@@ -177,7 +176,6 @@ describe('Organizer module',function(){
           });
      })
 
-     /*
      it('should not get tickets if INN is bad', function(done){
           var INN = '123456789';
           var url = '/api/v1/organizers/' + INN + '/tickets';
@@ -237,7 +235,7 @@ describe('Organizer module',function(){
      })
 
      it('should get updated ticket', function(done){
-          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneSerialNumber;
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + encodeURIComponent(ticketOneSerialNumber);
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -283,7 +281,7 @@ describe('Organizer module',function(){
      })
 
      it('should get updated ticket state', function(done){
-          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneSerialNumber;
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + encodeURIComponent(ticketOneSerialNumber);
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -313,7 +311,7 @@ describe('Organizer module',function(){
      })
 
      it('should get updated ticket state', function(done){
-          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneSerialNumber;
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + encodeURIComponent(ticketOneSerialNumber);
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -341,7 +339,6 @@ describe('Organizer module',function(){
                done();
           });
      })
-     */
 });
 
 describe('Batch module',function(){
