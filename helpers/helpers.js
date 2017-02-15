@@ -56,10 +56,19 @@ function generateResetSig(email,pass){
 function generateSn(){
      var out = '';
 
+     var letters = [
+          'А','Б','В','Г','Д','Е','Ж','З','И','К','Л','М','Н',
+          'О','П','Р','С','Т','У','Ф','Х','Ч','Ш','Э','Ю','Я'
+     ];
+
      // TODO: 2 symbols
      // 'AB12345678'
+     for(var i=0; i<2; ++i){
+          var l = '' + letters[getRandom(0, letters.length - 1)];
+          out = out + l;
+     }
 
-     for(var i=0; i<10; ++i){
+     for(var i=0; i<6; ++i){
           out = out + getRandom(1, 9);
      }
      return out;

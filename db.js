@@ -86,7 +86,8 @@ var Ticket = new Schema({
      seller_address: {type: String, required:false},
 
      buyer_name: {type: String, required:false},
-     buying_date: { type: Date, default: Date.now, required:false }
+     buying_date: { type: Date, default: Date.now, required:false },
+     cancelled_date: { type: Date, default: Date.now, required:false }
 });
 
 

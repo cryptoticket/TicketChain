@@ -153,7 +153,10 @@ describe('Organizer module',function(){
      })
 
      it('should get ticket by SERIAL NUMBER', function(done){
-          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneSerialNumber;
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + encodeURIComponent(ticketOneSerialNumber);
+
+          console.log('URL: ');
+          console.log(url);
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -174,6 +177,7 @@ describe('Organizer module',function(){
           });
      })
 
+     /*
      it('should not get tickets if INN is bad', function(done){
           var INN = '123456789';
           var url = '/api/v1/organizers/' + INN + '/tickets';
@@ -337,6 +341,7 @@ describe('Organizer module',function(){
                done();
           });
      })
+     */
 });
 
 describe('Batch module',function(){

@@ -101,7 +101,9 @@ app.get('/api/v1/organizers/:inn/tickets/:id_or_number',function(request,res,nex
      }
 
      winston.info('INN is: ' + inn);
-     if(id_or_number.length==10){
+
+     //var len = Buffer.byteLength(s, 'utf8');
+     if(id_or_number.length==8){
           return getTicketByNumber(id_or_number,request,res,next);
      }else{
           return getTicketById(id_or_number,request,res,next);
@@ -244,9 +246,12 @@ function changeStateTo(state,request,res,next){
                     }
 
                     ticket.state = 1;
+                    ticket.buying_date = Date.now();
                }else if(state==2){
                     // created or sold -> cancelled
                     ticket.state = 2;
+                    ticket.cancelled_date = Date.now();
+               }else if(state==2){
                }
 
                ticket.save(function(err){
@@ -440,7 +445,8 @@ function convertTicketToOut(t,request,res,next){
           seller_address: t.seller_address,
 
           buyer_name: t.buyer_name,
-          buying_date: t.buying_date
+          buying_date: t.buying_date,
+          cancelled_date: t.cancelled_date
      };
 
      if(t.state==1){
@@ -487,6 +493,7 @@ function fromDataToTicket(ticket,request,cb){
      
      // TODO: date
      //copyField(ticket,request.body,'buying_date');
+     //copyField(ticket,request.body,'cancelled_date');
      
      updateOrganizer(ticket.organizer,request.body,function(err){
           return cb(err,ticket);
