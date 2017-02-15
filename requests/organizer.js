@@ -414,11 +414,13 @@ function createNewBlankTicket(inn,optionalSerNum,cb){
 
           ticket.state = 0;
 
-          // TODO: make unique!!!
-          // collisions possible
           if(optionalSerNum.length){
+               // TODO: check for collisions
+               // and return 409
                ticket.serial_number = optionalSerNum;
           }else{
+               // TODO: make unique!!!
+               // collisions possible
                ticket.serial_number = helpers.generateSn();
           }
 

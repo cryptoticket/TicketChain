@@ -97,7 +97,6 @@ function deployContract1(cb){
      });
 }
 
-/*
 describe('Contract', function() {
      before("Initialize everything", function(done) {
           web3.eth.getAccounts(function(err, as) {
@@ -125,4 +124,3 @@ describe('Contract', function() {
           });
      });
 });
-*/
