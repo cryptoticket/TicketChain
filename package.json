@@ -10,12 +10,15 @@
   "dependencies": {
     "async": "^2.0.0-rc.3",
     "bcrypt": "^0.8.5",
+    "bignumber.js": "^3.0.1",
     "body-parser": "^1.15.0",
     "cluster": "^0.7.7",
     "connect-mongo": "^1.1.0",
     "cookie": "^0.2.3",
     "cookie-parser": "^1.4.1",
     "encoding": "^0.1.12",
+    "ethereumjs-abi": "^0.6.4",
+    "ethereumjs-testrpc": "^3.0.3",
     "express": "^4.13.4",
     "express-jwt": "^3.3.0",
     "facebook-node-sdk": "^0.2.0",
@@ -28,6 +31,8 @@
     "nodemailer": "^0.7.1",
     "password-generator": "^2.0.2",
     "querystring": "^0.2.0",
+    "solc": "^0.4.8",
+    "web3": "^0.18.2",
     "winston": "^2.2.0"
   },
   "engines": {
