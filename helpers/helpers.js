@@ -60,13 +60,38 @@ function generateResetSig(email,pass){
      return hash;
 }
 
+function getLetters(){
+     // 28 letters only, instead of 33
+     // missing:
+     // Ё
+     // Й
+     // Щ
+     // Ь
+     // Ъ
+     var letters = [
+          'А','Б','В','Г','Д','Е','Ж','З','И','К','Л','М','Н',
+          'О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Ы','Э','Ю','Я'
+     ];
+     
+     return letters;
+}
+
+function getLetterPos(l){
+     var letters = getLetters();
+
+     for(var i=0; i<letters.length; ++i){
+          if(letters[i]==l){
+               return i;
+          }
+     }
+
+     return -1;
+}
+
 function generateSn(){
      var out = '';
 
-     var letters = [
-          'А','Б','В','Г','Д','Е','Ж','З','И','К','Л','М','Н',
-          'О','П','Р','С','Т','У','Ф','Х','Ч','Ш','Э','Ю','Я'
-     ];
+     var letters = getLetters();
 
      // TODO: 2 symbols
      // 'AB12345678'
@@ -96,6 +121,7 @@ exports.validateEmail = validateEmail;
 exports.validatePass = validatePass;
 exports.validateShortId = validateShortId;
 
+exports.getLetterPos = getLetterPos;
 exports.generateSn = generateSn;
 
 exports.generateValidationSig = generateValidationSig;

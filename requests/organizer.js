@@ -717,9 +717,78 @@ app.post('/api/v1/organizers/:inn/calculate_ticket_count',function(request, res,
           return next();
      }
 
-     // TODO: fake return
-     res.json({count:42});
+     var ss = request.body.start_series;
+     ss = ss.toUpperCase();
+     var es = request.body.end_series;
+     es = es.toUpperCase();
+
+     var sn = request.body.start_number;
+     var en = request.body.end_number;
+     
+     // TODO: check 
+     if(ss.length!==2){
+          winston.error('Start series is bad');
+          return next();
+     }
+     if(es.length!==2){
+          winston.error('End series is bad');
+          return next();
+     }
+     if(sn.length!==6){
+          winston.error('Start number is bad');
+          return next();
+     }
+     if(en.length!==6){
+          winston.error('End number is bad');
+          return next();
+     }
+
+     var strs = '' + ss + sn;
+     var stre = '' + es + en;
+
+     // Russian lang is truncated (28 instead of 33 letters)
+     //var a = [28,28,10,10,10,10,10,10];
+     var a = [10,10,10,10,10,10,10,10];
+     var p = [7,6,5,4,3,2,1,0];
+
+     var out = 0;
+
+     for(var i=0; i<2; ++i){
+          var letterPosS = helpers.getLetterPos(strs[i]);
+          var letterPosE = helpers.getLetterPos(stre[i]);
+
+          if(letterPosS===-1){
+               winston.error('Bad symbol: ' + strs[i]);
+               return next();
+          }
+          if(letterPosE===-1){
+               winston.error('Bad symbol: ' + stre[i]);
+               return next();
+          }
+
+          var diff = letterPosE - letterPosS;
+
+          var m = diff * Math.pow(a[i],p[i]);
+          out = out + m;
+     }
+
+     for(var i=2; i<8; ++i){
+          var diff = (stre[i] - strs[i]);
+          var m = diff * Math.pow(a[i],p[i]);
+          out = out + m;
+     }
+
+     res.json({count:out});
 });
+
+function getDiffSeries(s,e){
+     return 0;
+}
+
+function getDiffNumbers(s,e){
+     // TODO: abs, swap
+     return e - s;
+}
 
 // TODO: optimize it! Will be very slow soon...
 function checkIfUniqueSerNum(sn,cb){
