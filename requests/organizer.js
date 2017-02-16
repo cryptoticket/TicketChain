@@ -674,3 +674,30 @@ function convertOrgToOut(to,from){
      copyField(to,from,'organizer_ogrnip');
      copyField(to,from,'organizer_address');
 }
+
+// 
+app.post('/api/v1/organizers/:inn/calculate_ticket_count',function(request, res, next){
+     // do not check for INN parameter
+     if(typeof(request.body)==='undefined' || request.body===null){
+          return next();
+     } 
+     if(typeof(request.body.start_series)==='undefined'){
+          winston.error('No start_series provided');
+          return next();
+     }
+     if(typeof(request.body.start_number)==='undefined'){
+          winston.error('No start_number provided');
+          return next();
+     }
+     if(typeof(request.body.end_series)==='undefined'){
+          winston.error('No end_series provided');
+          return next();
+     }
+     if(typeof(request.body.end_number)==='undefined'){
+          winston.error('No end_number provided');
+          return next();
+     }
+
+     // TODO: fake return
+     res.json({count:42});
+});
