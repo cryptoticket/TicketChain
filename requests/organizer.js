@@ -378,8 +378,7 @@ function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
      }
 
      // update
-     var emptySernum = '';
-     createNewBlankTicket(inn,emptySernum,function(err,ticket,isCollision){
+     createNewBlankTicket(inn,strs,function(err,ticket,isCollision){
           if(err){
                winston.info('Can not create new ticket');
                return next(err);
@@ -400,9 +399,30 @@ function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
                }
 
                // continue recursion 
+               strs = incrementSerialNumber(strs);
                addNewTicketToBatch(batch,inn,n - 1, strs,request,res,next);
           });
      });
+}
+
+function incrementSerialNumber(s){
+     var series = s.substring(0,2);
+     var num = Number(s.substring(2,8));
+
+     if(num==999999){
+          // TODO: increase series 
+     }else{
+          num = num + 1;
+     }
+
+     var strNum = '' + num;
+     var addZeroes = (6 - strNum.length);
+     for(var i=0; i<addZeroes; ++i){
+          strNum = '0' + strNum; 
+     }
+
+     var out = series + strNum;
+     return out;
 }
 
 // Get batch
@@ -475,7 +495,6 @@ function createNewBlankTicket(inn,optionalSerNum,cb){
                ticket.serial_number = helpers.generateSn();
           }
 
-          // TODO: 
           checkIfUniqueSerNum(ticket.serial_number,function(err,isUnique){
                if(err){
                     return cb(err);
@@ -485,8 +504,9 @@ function createNewBlankTicket(inn,optionalSerNum,cb){
                }
 
                ticket.created = Date.now();
-
                ticket.organizer = id;
+
+               winston.info('Saving new Ticket: ' + ticket.serial_number);
                ticket.save(function(err){
                     cb(err,ticket);
                });

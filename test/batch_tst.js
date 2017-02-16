@@ -46,6 +46,7 @@ describe('Batch module',function(){
      it('should create batch', function(done){
           var url = '/api/v1/organizers/' + INN + '/batches';
 
+          // only 1 ticket
           var data = { 
                start_series: 'АА',
                start_number: '000000',
@@ -95,6 +96,64 @@ describe('Batch module',function(){
 
                var p = JSON.parse(dataOut);
                assert.equal(p.state,"created");
+
+               done();
+          });
+     })
+
+     it('should create batch 2', function(done){
+          var url = '/api/v1/organizers/' + INN + '/batches';
+
+          // 100 ticket
+          var data = { 
+               start_series: 'АА',
+               start_number: '000001',
+               end_series: 'АА',
+               end_number: '000100',
+          };
+          var postData = JSON.stringify(data);
+
+          var authToken = '';
+          postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.notEqual(p.batch_id, 0);
+               
+               batchOneId = p.batch_id;
+
+               done();
+          });
+     })
+
+     it('should get batch 2', function(done){
+          var url = '/api/v1/organizers/' + INN + '/batches/' + batchOneId;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.length,99);
+
+               ticketOneId = p[0];
+               done();
+          });
+     })
+
+     it('should get ticket from batch 2', function(done){
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.state,"created");
+               assert.equal(p.serial_number,"АА000001");
 
                done();
           });
