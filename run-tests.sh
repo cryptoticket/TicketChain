@@ -5,21 +5,10 @@
 # 
 mocha --reporter spec -t 10000 -g "Organizer"
 
-# TODO:
 #-g "Serial"
+
 
 
 #-g "Contract"
 
-
 #-g "Batch"
-
-
-
-
-
-
-
-#-g "What"
-
-

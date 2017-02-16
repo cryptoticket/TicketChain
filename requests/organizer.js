@@ -62,8 +62,11 @@ app.post('/api/v1/organizers/:inn/tickets',function(request, res, next){
 
      var sernum = '';
      if(typeof(request.body.serial_number)!=='undefined'){
-          // TODO: check format!
           sernum = request.body.serial_number;
+          if(!helpers.validateSernum(sernum)){
+               winston.error('Bad sernum: ' + sernum);
+               return next();
+          }
      }
 
      winston.info('Adding ticket for INN: ' + inn);
@@ -72,9 +75,12 @@ app.post('/api/v1/organizers/:inn/tickets',function(request, res, next){
           return next();
      }
 
-     createNewBlankTicket(inn,sernum,function(err,ticket){
+     createNewBlankTicket(inn,sernum,function(err,ticket,isCollision){
           if(err){
                return next(err);
+          }
+          if(isCollision){
+               return res.send(409,'Serial number already exists');
           }
           
           winston.info('Added ticket: ' + ticket._id + '; serial_number= ' + ticket.serial_number);
@@ -331,10 +337,13 @@ function addNewTicketToBatch(batch,inn,n,request,res,next){
 
      // update
      var emptySernum = '';
-     createNewBlankTicket(inn,emptySernum,function(err,ticket){
+     createNewBlankTicket(inn,emptySernum,function(err,ticket,isCollision){
           if(err){
                winston.info('Can not create new ticket');
                return next(err);
+          }
+          if(isCollision){
+               return res.send(409,'Serial number already exists');
           }
 
           // add ticket to batch
@@ -424,11 +433,21 @@ function createNewBlankTicket(inn,optionalSerNum,cb){
                ticket.serial_number = helpers.generateSn();
           }
 
-          ticket.created = Date.now();
+          // TODO: 
+          checkIfUniqueSerNum(ticket.serial_number,function(err,isUnique){
+               if(err){
+                    return cb(err);
+               }
+               if(!isUnique){
+                    return cb(null,null,true);
+               }
 
-          ticket.organizer = id;
-          ticket.save(function(err){
-               cb(err,ticket);
+               ticket.created = Date.now();
+
+               ticket.organizer = id;
+               ticket.save(function(err){
+                    cb(err,ticket);
+               });
           });
      });
 }
@@ -701,3 +720,17 @@ app.post('/api/v1/organizers/:inn/calculate_ticket_count',function(request, res,
      // TODO: fake return
      res.json({count:42});
 });
+
+// TODO: optimize it! Will be very slow soon...
+function checkIfUniqueSerNum(sn,cb){
+     db.TicketModel.find({serial_number:sn},function(err,tickets){
+          if(err){
+               return cb(err);
+          }
+          if(tickets && tickets.length){
+               return cb(null,false);
+          }
+
+          return cb(null,true);
+     });
+}

@@ -453,7 +453,7 @@ describe('Serial number propagation',function(){
           var url = '/api/v1/organizers/' + INN + '/tickets';
 
           var data = { 
-               serial_number: encodeURIComponent(TEST_SER_NUM)
+               serial_number: TEST_SER_NUM
           };
           var postData = JSON.stringify(data);
 
@@ -467,28 +467,7 @@ describe('Serial number propagation',function(){
 
                var p = JSON.parse(dataOut);
                assert.notEqual(p.id,0);
-               assert.notEqual(p.serial_number,TEST_SER_NUM);
-
-               done();
-          });
-     })
-
-     it('should get tickets', function(done){
-          var url = '/api/v1/organizers/' + INN + '/tickets';
-
-          var authToken = '';
-          getData(9091,url,authToken,function(err,statusCode,dataOut){
-               assert.equal(err,null);
-               assert.equal(statusCode,200);
-               
-               console.log('OUT: ');
-               console.log(dataOut);
-
-               var p = JSON.parse(dataOut);
-               assert.equal(p.length,1);
-               assert.notEqual(p.serial_number,TEST_SER_NUM);
-
-               ticketOneId = p[0];
+               assert.equal(p.serial_number,TEST_SER_NUM);
 
                done();
           });
@@ -498,7 +477,7 @@ describe('Serial number propagation',function(){
           var url = '/api/v1/organizers/' + INN + '/tickets';
 
           var data = { 
-               serial_number: encodeURIComponent(TEST_SER_NUM)
+               serial_number: TEST_SER_NUM
           };
           var postData = JSON.stringify(data);
 

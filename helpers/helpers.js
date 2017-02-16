@@ -18,6 +18,13 @@ function validateInn(inn){
      return (inn.length==10);
 }
 
+function validateSernum(sernum){
+     // TODO: check 2 cyr letters + 6 numbers
+     console.log('sernum len: ' + sernum.length);
+
+     return (sernum.length==8);
+}
+
 function validateEmail(email) { 
      var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
      return re.test(email);
@@ -83,6 +90,8 @@ function capitalizeFirst(s){
 exports.getRandom = getRandom;
 
 exports.validateInn = validateInn;
+exports.validateSernum = validateSernum;
+
 exports.validateEmail = validateEmail;
 exports.validatePass = validatePass;
 exports.validateShortId = validateShortId;
