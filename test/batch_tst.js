@@ -47,7 +47,10 @@ describe('Batch module',function(){
           var url = '/api/v1/organizers/' + INN + '/batches';
 
           var data = { 
-               number_of_tickets: 1 
+               start_series: 'АА',
+               start_number: '000000',
+               end_series: 'АА',
+               end_number: '000001',
           };
           var postData = JSON.stringify(data);
 

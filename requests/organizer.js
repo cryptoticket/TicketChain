@@ -303,11 +303,52 @@ app.post('/api/v1/organizers/:inn/batches',function(request, res, next){
      if(typeof(request.body)==='undefined' || request.body===null){
           return next();
      } 
-     if(typeof(request.body.number_of_tickets)==='undefined'){
-          winston.error('No number_of_tickets provided');
+     if(typeof(request.body.start_series)==='undefined'){
+          winston.error('No start_series provided');
           return next();
      }
-     var n = request.body.number_of_tickets;
+     if(typeof(request.body.start_number)==='undefined'){
+          winston.error('No start_number provided');
+          return next();
+     }
+     if(typeof(request.body.end_series)==='undefined'){
+          winston.error('No end_series provided');
+          return next();
+     }
+     if(typeof(request.body.end_number)==='undefined'){
+          winston.error('No end_number provided');
+          return next();
+     }
+
+     var ss = request.body.start_series;
+     ss = ss.toUpperCase();
+     var es = request.body.end_series;
+     es = es.toUpperCase();
+
+     var sn = request.body.start_number;
+     var en = request.body.end_number;
+     
+     // TODO: check 
+     if(ss.length!==2){
+          winston.error('Start series is bad');
+          return next();
+     }
+     if(es.length!==2){
+          winston.error('End series is bad');
+          return next();
+     }
+     if(sn.length!==6){
+          winston.error('Start number is bad');
+          return next();
+     }
+     if(en.length!==6){
+          winston.error('End number is bad');
+          return next();
+     }
+
+     var strs = '' + ss + sn;
+     var stre = '' + es + en;
+     var n = calculateCount(strs,stre);
      
      createOrganizer(inn,function(err,id){
           if(err){
@@ -324,12 +365,13 @@ app.post('/api/v1/organizers/:inn/batches',function(request, res, next){
                     return next(err);
                }
 
-               addNewTicketToBatch(batch,inn,n,request,res,next);
+               var strs = '' + ss + sn;
+               addNewTicketToBatch(batch,inn,n,strs,request,res,next);
           });
      });
 });
 
-function addNewTicketToBatch(batch,inn,n,request,res,next){
+function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
      if(!n){
           // end recursion
           return res.json({batch_id: batch._id});
@@ -358,7 +400,7 @@ function addNewTicketToBatch(batch,inn,n,request,res,next){
                }
 
                // continue recursion 
-               addNewTicketToBatch(batch,inn,n - 1, request,res,next);
+               addNewTicketToBatch(batch,inn,n - 1, strs,request,res,next);
           });
      });
 }
@@ -746,6 +788,11 @@ app.post('/api/v1/organizers/:inn/calculate_ticket_count',function(request, res,
      var strs = '' + ss + sn;
      var stre = '' + es + en;
 
+     var out = calculateCount(strs,stre);
+     res.json({count:out});
+});
+
+function calculateCount(strs,stre){
      // Russian lang is truncated (28 instead of 33 letters)
      //var a = [28,28,10,10,10,10,10,10];
      var a = [10,10,10,10,10,10,10,10];
@@ -778,16 +825,7 @@ app.post('/api/v1/organizers/:inn/calculate_ticket_count',function(request, res,
           out = out + m;
      }
 
-     res.json({count:out});
-});
-
-function getDiffSeries(s,e){
-     return 0;
-}
-
-function getDiffNumbers(s,e){
-     // TODO: abs, swap
-     return e - s;
+     return out;
 }
 
 // TODO: optimize it! Will be very slow soon...
