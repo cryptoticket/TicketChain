@@ -244,4 +244,108 @@ describe('TicketCount',function(){
                done();
           });
      })
+
+     it('should get count 10', function(done){
+          // starting with АА000000
+          // ending with АЯ55555
+
+          var ss = 'АА';
+          // 10 = 28
+          var se = 'БА';
+          var ns = '000000';
+          var ne = '000000';
+
+          // 28 millions
+          // АА
+          // АБ
+          // АВ
+          // АГ
+          // ..
+          // АЯ000000
+          // АЯ999999
+          //
+          // + a last БА000000
+
+          getTicketCount(ss,se,ns,ne,function(err,count){
+               assert.equal(count,28000001);
+               done();
+          });
+     })
+
+     it('should get count 11', function(done){
+          // 0 0
+          var ss = 'АА';
+          // 3 0 
+          var se = 'ГА';
+
+          var ns = '000000';
+          var ne = '000000';
+
+          // 3x:
+          // 28 millions
+          // АА
+          // АЯ
+          // ..
+
+          // 28 
+          // БА
+          // БЯ
+
+          // 28 
+          // ВА
+          // ВЯ
+
+          // 1 last million 
+          // ГА000000
+          // ГА999999
+
+          // 3 * 28 = 84 
+
+          getTicketCount(ss,se,ns,ne,function(err,count){
+               assert.equal(count,84000001);
+               done();
+          });
+     })
+
+     it('should get count 12', function(done){
+          // 00 
+          var ss = 'АА';
+          // 27.27
+          var se = 'ЯЯ';
+          var ns = '000000';
+          var ne = '000000';
+     
+          // 28x:
+          // 
+          // 28
+          // АА
+          // АБ
+          // АВ
+          // ..
+
+          // 28
+          // БА
+          // ББ
+          // БВ
+          // ..
+
+          // 28 
+          // ЯА
+          // ЯБ
+          // ЯВ
+          // ЯГ
+          // ЯД
+          // ..
+
+          // 1 last million
+          // ЯЯ000000
+          // ЯЯ999999
+
+          // TODO: fix that...
+          // 28 x 28 = 784 + 00000
+          getTicketCount(ss,se,ns,ne,function(err,count){
+               assert.equal(count,784000001);
+               done();
+          });
+     })
 })
