@@ -7,6 +7,7 @@ var http = require('http');
 var https = require('https');
 var winston = require('winston');
 var expressJwt = require('express-jwt');
+var busboy = require('connect-busboy');
 
 var config = require('./config');
 
@@ -78,6 +79,8 @@ app.use(require('body-parser')());
 // cookie parsing support, cookie avail through 'req.cookies'
 app.use(require('cookie-parser')(config.get('cookie_secret')));
 
+app.use(busboy());
+
 // We are going to protect /auth routes with JWT
 app.use('/auth/', expressJwt({secret: secret}));
 
@@ -139,6 +142,7 @@ app.get('/prepShutdown', function(req, res) {
 eval(fs.readFileSync('requests/users.js')+'');
 eval(fs.readFileSync('requests/static_pages.js')+'');
 eval(fs.readFileSync('requests/organizer.js')+'');
+eval(fs.readFileSync('requests/files.js')+'');
 
 function initDb(dbInit){
      db = dbInit;

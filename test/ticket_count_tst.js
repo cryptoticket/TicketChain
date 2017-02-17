@@ -341,7 +341,6 @@ describe('TicketCount',function(){
           // ЯЯ000000
           // ЯЯ999999
 
-          // TODO: fix that...
           // 28 x 28 = 784 + 00000
           getTicketCount(ss,se,ns,ne,function(err,count){
                assert.equal(count,784000000);

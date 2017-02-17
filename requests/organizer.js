@@ -80,7 +80,7 @@ app.post('/api/v1/organizers/:inn/tickets',function(request, res, next){
                return next(err);
           }
           if(isCollision){
-               return res.send(409,'Serial number already exists');
+               return res.status(409).json({collision:sernum});
           }
           
           winston.info('Added ticket: ' + ticket._id + '; serial_number= ' + ticket.serial_number);
@@ -384,7 +384,7 @@ function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
                return next(err);
           }
           if(isCollision){
-               return res.send(409,'Serial number already exists');
+               return res.status(409).json({collision:sernum});
           }
 
           // add ticket to batch
@@ -823,8 +823,8 @@ function calculateCount(strs,stre){
      var letter2PosS = helpers.getLetterPos(strs[1]);
      var letter2PosE = helpers.getLetterPos(stre[1]);
 
-     console.log('E1: ' + letter1PosE);
-     console.log('E2: ' + letter2PosE);
+     //console.log('E1: ' + letter1PosE);
+     //console.log('E2: ' + letter2PosE);
 
      var start = (letter1PosS * 28) + letter2PosS;
      var end = (letter1PosE * 28) + letter2PosE;

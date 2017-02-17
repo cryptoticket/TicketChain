@@ -112,6 +112,14 @@ function capitalizeFirst(s){
      return s.charAt(0).toUpperCase() + other;
 }
 
+function generateFileName(){
+     var o = '';
+     for(var i=0; i<12; ++i){
+          o = o + getRandom(0,9);
+     }
+     return o;
+}
+
 exports.getRandom = getRandom;
 
 exports.validateInn = validateInn;
@@ -123,6 +131,7 @@ exports.validateShortId = validateShortId;
 
 exports.getLetterPos = getLetterPos;
 exports.generateSn = generateSn;
+exports.generateFileName = generateFileName;
 
 exports.generateValidationSig = generateValidationSig;
 exports.generateResetSig = generateResetSig;

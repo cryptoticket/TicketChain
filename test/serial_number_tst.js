@@ -91,6 +91,9 @@ describe('Serial number propagation',function(){
                assert.equal(err,null);
                assert.equal(statusCode,409);
 
+               var p = JSON.parse(dataOut);
+               assert.equal(p.collision,TEST_SER_NUM);
+
                done();
           });
      })
