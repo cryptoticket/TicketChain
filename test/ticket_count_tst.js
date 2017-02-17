@@ -313,7 +313,7 @@ describe('TicketCount',function(){
           // 27.27
           var se = 'ЯЯ';
           var ns = '000000';
-          var ne = '000000';
+          var ne = '999999';
      
           // 28x:
           // 
@@ -344,7 +344,7 @@ describe('TicketCount',function(){
           // TODO: fix that...
           // 28 x 28 = 784 + 00000
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,784000001);
+               assert.equal(count,784000000);
                done();
           });
      })
