@@ -814,8 +814,6 @@ app.post('/api/v1/organizers/:inn/calculate_ticket_count',function(request, res,
 
 function calculateCount(strs,stre){
      // Russian lang is truncated (28 instead of 33 letters)
-     //var a = [28,28,10,10,10,10,10,10];
-     var a = [10,10,10,10,10,10,10,10];
      var p = [7,6,5,4,3,2,1,0];
 
      var out = 0;
@@ -835,18 +833,57 @@ function calculateCount(strs,stre){
 
           var diff = letterPosE - letterPosS;
 
-          var m = diff * Math.pow(a[i],p[i]);
+          var m = diff * Math.pow(10,p[i]);
           out = out + m;
      }
 
      for(var i=2; i<8; ++i){
           var diff = (stre[i] - strs[i]);
-          var m = diff * Math.pow(a[i],p[i]);
+          var m = diff * Math.pow(10,p[i]);
           out = out + m;
      }
 
-     return out;
+     return out + 1;
 }
+
+/*
+function calculateCount(strs,stre){
+     // Russian lang is truncated (28 instead of 33 letters)
+     var p = [7,6,5,4,3,2,1,0];
+
+     var out = 0;
+
+     // 1 letter 
+     var letter1PosS = helpers.getLetterPos(strs[0]);
+     var letter1PosE = helpers.getLetterPos(stre[0]);
+     var diff1 = (letter1PosE - letter1PosS);
+
+     var letter2PosS = helpers.getLetterPos(strs[1]);
+     var letter2PosE = helpers.getLetterPos(stre[1]);
+     var diff2 = (letter2PosE - letter2PosS);
+
+     var variation = 0;
+     for(var i=0; i<=diff1; ++i){
+          for(var j=0; j<=diff2; ++j){
+          }
+     }
+
+     /*
+     console.log('Variation: ' + variation);
+
+     var series1 = strs.substring(0,2);
+     var num1 = Number(strs.substring(2,8));
+
+     var series2 = stre.substring(0,2);
+     var num2 = Number(stre.substring(2,8));
+
+     if(!variation){
+          return (num2 - num1 + 1);
+     }else{
+          return (variation * 1000000) + (num2 - num1);
+     }
+}
+*/
 
 // TODO: optimize it! Will be very slow soon...
 function checkIfUniqueSerNum(sn,cb){

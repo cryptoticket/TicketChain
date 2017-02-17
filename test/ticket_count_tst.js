@@ -71,7 +71,7 @@ describe('TicketCount',function(){
           var ne = '123456';
      
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,0);
+               assert.equal(count,1);
                done();
           });
      })
@@ -83,7 +83,7 @@ describe('TicketCount',function(){
           var ne = '123457';
      
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,1);
+               assert.equal(count,2);
                done();
           });
      })
@@ -95,7 +95,7 @@ describe('TicketCount',function(){
           var ne = '000009';
 
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,9);
+               assert.equal(count,10);
                done();
           });
      })
@@ -107,7 +107,7 @@ describe('TicketCount',function(){
           var ne = '123456';
 
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,0);
+               assert.equal(count,1);
                done();
           });
      })
@@ -119,7 +119,7 @@ describe('TicketCount',function(){
           var ne = '300000';
 
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,200000);
+               assert.equal(count,200001);
                done();
           });
      })
@@ -131,7 +131,7 @@ describe('TicketCount',function(){
           var ne = '300009';
      
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,200009);
+               assert.equal(count,200010);
                done();
           });
      })
@@ -143,9 +143,48 @@ describe('TicketCount',function(){
           var se = 'АБ';
           var ns = '000000';
           var ne = '000000';
+          
+          // 1 million of items:
+          // АА000000
+          // ...
+          // АА999999
+          //
+          // + 1 last
+          // АБ000000
 
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,1000000);
+               assert.equal(count,1000001);
+               done();
+          });
+     })
+
+     it('should get count 7', function(done){
+          var ss = 'АА';
+          var se = 'АВ';
+          var ns = '000000';
+          var ne = '000000';
+
+          // 1 million of items:
+          // АА000000
+          // ...
+          // АА999999
+          //
+
+          // 1 million of items:
+          // АБ000000
+          // ...
+          // АБ999999
+
+          // 1 million of items:
+          // АВ000000
+          // ...
+          // АВ999999
+
+          //... 
+          // 1 last: АВ000000
+
+          getTicketCount(ss,se,ns,ne,function(err,count){
+               assert.equal(count,2000001);
                done();
           });
      })
@@ -156,8 +195,22 @@ describe('TicketCount',function(){
           var ns = '000000';
           var ne = '000000';
 
+          // 1 million of items:
+          // АА000000
+          // ...
+          // АА999999
+          //
+
+          // 1 million of items:
+          // АБ000000
+          // ...
+          // АБ999999
+
+          //... 
+          // 1 last: АЯ000000
+
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,27000000);
+               assert.equal(count,27000001);
                done();
           });
      })
@@ -172,7 +225,7 @@ describe('TicketCount',function(){
           var ne = '555555';
 
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,1555555);
+               assert.equal(count,1555556);
                done();
           });
      })
@@ -187,7 +240,7 @@ describe('TicketCount',function(){
           var ne = '555555';
 
           getTicketCount(ss,se,ns,ne,function(err,count){
-               assert.equal(count,27555555);
+               assert.equal(count,27555556);
                done();
           });
      })
