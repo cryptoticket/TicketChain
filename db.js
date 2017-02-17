@@ -99,6 +99,18 @@ var Batch = new Schema({
      }],
 });
 
+var Task = new Schema({
+     fileName: {type: String, required:true},
+     fileNameReal: {type: String, required:true},
+
+     // 0 - created
+     // 1 - processing
+     // 2 - ready
+     status: {type: Number, required:true},
+
+     batch_id: {type: Number, required:false}
+});
+
 /// \brief Call this one and keep returned object
 function connectToDbCallback(uri,user,pass,cb){
      var options = {
@@ -166,11 +178,13 @@ var UserModel = mongoose.model('User', User);
 var TicketModel = mongoose.model('Ticket', Ticket);
 var OrganizerModel = mongoose.model('Organizer', Organizer);
 var BatchModel = mongoose.model('Batch', Batch);
+var TaskModel = mongoose.model('Task', Task);
 
 module.exports.UserModel = UserModel;
 module.exports.TicketModel = TicketModel;
 module.exports.OrganizerModel = OrganizerModel;
 module.exports.BatchModel = BatchModel;
+module.exports.TaskModel = TaskModel;
 
 // 
 module.exports.blockLogging = blockLogging;
