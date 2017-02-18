@@ -15,7 +15,7 @@ function getRandom(min, max) {
 }
 
 function validateInn(inn){
-     return (inn.length==8) || (inn.length==10);
+     return (inn.length==10) || (inn.length==12);
 }
 
 function validateSernum(sernum){
