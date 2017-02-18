@@ -384,7 +384,7 @@ function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
                return next(err);
           }
           if(isCollision){
-               return res.status(409).json({collision:sernum});
+               return res.status(409).json({collision:strs});
           }
 
           // add ticket to batch
