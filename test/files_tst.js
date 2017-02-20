@@ -84,9 +84,11 @@ describe('Files module',function(){
                assert.equal(err,null);
                assert.equal(statusCode,200);
 
+               console.log('DO: ');
+               console.log(dataOut);
+
                var p = JSON.parse(dataOut);
                assert.equal(p.status,'created');
-               assert.equal(p.batch_id,0);
 
                done();
           });
