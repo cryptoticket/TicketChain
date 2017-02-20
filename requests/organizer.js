@@ -178,7 +178,7 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
           winston.error('Bad id_or_number provided');
           return next();
      }
-     winston.info('Sell tickets ' + id + ' for INN: ' + inn);
+     winston.info('Edit tickets ' + id + ' for INN: ' + inn);
 
      getOrganizerByInn(inn,function(err,orgFound,org){
           if(err){return next(err);}
