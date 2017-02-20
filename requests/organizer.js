@@ -75,19 +75,25 @@ app.post('/api/v1/organizers/:inn/tickets',function(request, res, next){
           return next();
      }
 
-     createNewBlankTicket(inn,sernum,function(err,ticket,isCollision){
+     createOrganizer(inn,function(err,orgId){
           if(err){
                return next(err);
           }
-          if(isCollision){
-               return res.status(409).json({collision:sernum});
-          }
-          
-          winston.info('Added ticket: ' + ticket._id + '; serial_number= ' + ticket.serial_number);
 
-          res.json({ 
-               id: ticket._id, 
-               serial_number: ticket.serial_number
+          createNewBlankTicket(inn,orgId,sernum,function(err,ticket,isCollision){
+               if(err){
+                    return next(err);
+               }
+               if(isCollision){
+                    return res.status(409).json({collision:sernum});
+               }
+               
+               winston.info('Added ticket: ' + ticket._id + '; serial_number= ' + ticket.serial_number);
+
+               res.json({ 
+                    id: ticket._id, 
+                    serial_number: ticket.serial_number
+               });
           });
      });
 });
@@ -130,23 +136,23 @@ app.get('/api/v1/organizers/:inn/tickets/:id_or_number',function(request,res,nex
 
 function getTicketByNumber(num,request,res,next){
      winston.info('Getting ticket by num: ' + num);
-     db.TicketModel.find({serial_number:num},function(err,tickets){
+     db.TicketModel.findOne({serial_number:num},function(err,ticket){
           if(err){
                return next(err);
           }
 
-          return convertTicketToOut(tickets[0],request,res,next);
+          return convertTicketToOut(ticket,request,res,next);
      });
 }
 
 function getTicketById(id,request,res,next){
      winston.info('Getting ticket by ID: ' + id);
-     db.TicketModel.find({_id:id},function(err,tickets){
+     db.TicketModel.findOne({_id:id},function(err,ticket){
           if(err){
                return next(err);
           }
           
-          return convertTicketToOut(tickets[0],request,res,next);
+          return convertTicketToOut(ticket,request,res,next);
      });
 }
 
@@ -178,16 +184,14 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
           if(err){return next(err);}
           if(!orgFound){return next();}
 
-          db.TicketModel.find({organizer:org._id, _id:id},function(err,tickets){
+          db.TicketModel.findOne({organizer:org._id, _id:id},function(err,ticket){
                if(err){
                     return next(err);
                }
-               if(!tickets || !tickets.length){
+               if(typeof(ticket)=='undefined' || !ticket){
                     winston.info('Ticket not found: ' + id);
                     return next();
                }
-
-               var ticket = tickets[0];
 
                fromDataToTicket(ticket,request,function(err,ticketOut){
                     if(err){
@@ -245,16 +249,14 @@ function changeStateTo(state,request,res,next){
           if(err){return next(err);}
           if(!orgFound){return next();}
 
-          db.TicketModel.find({organizer:org._id, _id:id},function(err,tickets){
+          db.TicketModel.findOne({organizer:org._id, _id:id},function(err,ticket){
                if(err){
                     return next(err);
                }
-               if(!tickets || !tickets.length){
+               if(typeof(ticket)=='undefined' || !ticket){
                     winston.info('Ticket not found: ' + id);
                     return next();
                }
-
-               var ticket = tickets[0];
 
                // created->sold
                if(state==1){
@@ -350,14 +352,14 @@ app.post('/api/v1/organizers/:inn/batches',function(request, res, next){
      var stre = '' + es + en;
      var n = calculateCount(strs,stre);
      
-     createOrganizer(inn,function(err,id){
+     createOrganizer(inn,function(err,orgId){
           if(err){
                return cb(err);
           }
 
           // create batch:
           var batch = new db.BatchModel();
-          batch.organizer = id;
+          batch.organizer = orgId;
           batch.tickets = [];
 
           batch.save(function(err){
@@ -366,19 +368,19 @@ app.post('/api/v1/organizers/:inn/batches',function(request, res, next){
                }
 
                var strs = '' + ss + sn;
-               addNewTicketToBatch(batch,inn,n,strs,request,res,next);
+               addNewTicketToBatch(batch,orgId,inn,n,strs,request,res,next);
           });
      });
 });
 
-function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
+function addNewTicketToBatch(batch,orgId,inn,n,strs,request,res,next){
      if(!n){
           // end recursion
           return res.json({batch_id: batch._id});
      }
 
      // update
-     createNewBlankTicket(inn,strs,function(err,ticket,isCollision){
+     createNewBlankTicket(inn,orgId,strs,function(err,ticket,isCollision){
           if(err){
                winston.info('Can not create new ticket');
                return next(err);
@@ -400,7 +402,7 @@ function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
 
                // continue recursion 
                strs = incrementSerialNumber(strs);
-               addNewTicketToBatch(batch,inn,n - 1, strs,request,res,next);
+               addNewTicketToBatch(batch,orgId,inn,n - 1, strs,request,res,next);
           });
      });
 }
@@ -454,18 +456,17 @@ app.get('/api/v1/organizers/:inn/batches/:id',function(request, res, next){
           if(err){return next(err);}
           if(!orgFound){return next();}
 
-          db.BatchModel.find({organizer:org._id, _id:id},function(err,batches){
+          db.BatchModel.findOne({organizer:org._id, _id:id},function(err,batch){
                if(err){
                     return next(err);
                }
 
-               if(!batches || !batches.length){
+               if(typeof(batch)=='undefined'|| !batch){
                     winston.info('Batch not found');
                     return next();
                }
 
                var out = [];
-               var batch = batches[0];
                for(var i=0; i<batch.tickets.length; ++i){
                     out.push(batch.tickets[i].ticketId);
                }
@@ -475,41 +476,33 @@ app.get('/api/v1/organizers/:inn/batches/:id',function(request, res, next){
      });
 });
 
-function createNewBlankTicket(inn,optionalSerNum,cb){
-     createOrganizer(inn,function(err,id){
+function createNewBlankTicket(inn,organizerId,optionalSerNum,cb){
+     var ticket = new db.TicketModel();
+
+     ticket.state = 0;
+
+     if(optionalSerNum.length){
+          ticket.serial_number = optionalSerNum;
+     }else{
+          // TODO: make unique!!!
+          // collisions possible
+          ticket.serial_number = helpers.generateSn();
+     }
+
+     checkIfUniqueSerNum(ticket.serial_number,function(err,isUnique){
           if(err){
                return cb(err);
           }
-
-          var ticket = new db.TicketModel();
-
-          ticket.state = 0;
-
-          if(optionalSerNum.length){
-               // TODO: check for collisions
-               // and return 409
-               ticket.serial_number = optionalSerNum;
-          }else{
-               // TODO: make unique!!!
-               // collisions possible
-               ticket.serial_number = helpers.generateSn();
+          if(!isUnique){
+               return cb(null,null,true);
           }
 
-          checkIfUniqueSerNum(ticket.serial_number,function(err,isUnique){
-               if(err){
-                    return cb(err);
-               }
-               if(!isUnique){
-                    return cb(null,null,true);
-               }
+          ticket.created = Date.now();
+          ticket.organizer = organizerId;
 
-               ticket.created = Date.now();
-               ticket.organizer = id;
-
-               winston.info('Saving new Ticket: ' + ticket.serial_number);
-               ticket.save(function(err){
-                    cb(err,ticket);
-               });
+          winston.info('Saving new Ticket: ' + ticket.serial_number);
+          ticket.save(function(err){
+               cb(err,ticket);
           });
      });
 }
@@ -682,43 +675,43 @@ app.put('/api/v1/organizers/:inn',function(request,res,next){
 });
 
 function getOrganizerByInn(inn,cb){
-     db.OrganizerModel.find({organizer_inn:inn},function(err,orgs){
+     db.OrganizerModel.findOne({organizer_inn:inn},function(err,org){
           if(err){
                return cb(err,false);
           }
 
-          if(!orgs || !orgs.length){
+          if(typeof(org)=='undefined' || !org){
                return cb(null,false,{});
           }
           
-          return cb(null,true,orgs[0]);
+          return cb(null,true,org);
      });
 }
 
 
 function getOrganizerById(id,cb){
-     db.OrganizerModel.find({_id:id},function(err,orgs){
+     db.OrganizerModel.findOne({_id:id},function(err,org){
           if(err){
                return cb(err);
           }
 
-          if(!orgs || !orgs.length){
+          if(typeof(org)=='undefined' || !org){
                return cb(new Error('Can not find organizer'));
           }
           
-          return cb(null,orgs[0]);
+          return cb(null,org);
      });
 }
 
 function createOrganizer(inn,cb){
      // 1 - find org
-     db.OrganizerModel.find({organizer_inn:inn},function(err,orgs){
+     db.OrganizerModel.findOne({organizer_inn:inn},function(err,org){
           if(err){
                return cb(err);
           }
 
-          if(orgs && orgs.length){
-               return cb(null,orgs[0]._id);
+          if(typeof(org)!=='undefined' && org){
+               return cb(null,org._id);
           }
 
           // 2 - if not found - create
@@ -839,11 +832,11 @@ function calculateCount(strs,stre){
 
 // TODO: optimize it! Will be very slow soon...
 function checkIfUniqueSerNum(sn,cb){
-     db.TicketModel.find({serial_number:sn},function(err,tickets){
+     db.TicketModel.findOne({serial_number:sn},function(err,ticket){
           if(err){
                return cb(err);
           }
-          if(tickets && tickets.length){
+          if(typeof(ticket)!=='undefined' && ticket){
                return cb(null,false);
           }
 
