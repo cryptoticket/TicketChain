@@ -34,6 +34,23 @@ describe('Files module',function(){
           done();
      });
 
+     it('should process CSV file',function(done){
+          var fileName = 'test/data/one.csv';
+          var fileNameOut = 'files/one.csv';
+          fs.createReadStream(fileName).pipe(fs.createWriteStream(fileNameOut));
+
+          assert.equal(fs.existsSync(fileNameOut),true);
+
+          helpers.processFile('one.csv',0,function(err){
+               assert.equal(err,null);
+
+               fs.unlinkSync(fileNameOut);
+
+               done();
+          });
+     });
+
+     /*
      it('should upload CSV',function(done){
           var fileName = 'test/data/one.csv';
           fs.stat(fileName, function(err, stats) {
@@ -95,5 +112,6 @@ describe('Files module',function(){
                done();
           });
      })
+     */
 });
 

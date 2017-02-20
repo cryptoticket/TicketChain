@@ -51,7 +51,7 @@ app.post('/api/v1/csv_job',function(req, res, next) {
                          task.status = 1;
                          task.save(function(err){
                               // Do the processing
-                              processFile(generatedFileName,task._id,function(err){
+                              helpers.processFile(generatedFileName,task._id,function(err){
                                    // ready
                                    task.status = 2;
                                    task.save(function(err){
@@ -106,11 +106,3 @@ app.get('/api/v1/csv_job/:job_id',function(req, res, next) {
      });
 });
 
-
-function processFile(file,jobId,cb){
-     // TODO:
-     winston.info('Process job: ' + jobId);
-     console.log('Process job: ' + jobId);
-
-     return cb(null);
-}
