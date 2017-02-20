@@ -51,7 +51,7 @@ describe('Batch module',function(){
                start_series: 'АА',
                start_number: '000000',
                end_series: 'АА',
-               end_number: '000001',
+               end_number: '000000',
           };
           var postData = JSON.stringify(data);
 
@@ -136,7 +136,7 @@ describe('Batch module',function(){
                assert.equal(statusCode,200);
 
                var p = JSON.parse(dataOut);
-               assert.equal(p.length,99);
+               assert.equal(p.length,100);
 
                ticketOneId = p[0];
                done();
