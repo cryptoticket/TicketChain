@@ -40,7 +40,8 @@ describe('Files module',function(){
                assert.equal(err,null);
                assert.notEqual(stats.size,0);
 
-               var url = 'http://localhost:9091/api/v1/csv_job';
+               var isBlocking = '?blocking=1';
+               var url = 'http://localhost:9091/api/v1/csv_job' + isBlocking;
 
                restler.post(url, {
                     multipart: true,
@@ -88,7 +89,8 @@ describe('Files module',function(){
                console.log(dataOut);
 
                var p = JSON.parse(dataOut);
-               assert.equal(p.status,'created');
+               //assert.equal(p.status,'created');
+               assert.equal(p.status,'ready');
 
                done();
           });

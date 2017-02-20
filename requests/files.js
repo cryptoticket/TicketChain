@@ -7,6 +7,9 @@ var knox  = require('knox');
 app.post('/api/v1/csv_job',function(req, res, next) {
      winston.info('POST File');
 
+     // for tests
+     var blocking = (typeof(req.query.blocking)!=='undefined');
+
      var fstream;
 
      req.pipe(req.busboy);
@@ -42,7 +45,23 @@ app.post('/api/v1/csv_job',function(req, res, next) {
                          fileName: generatedFileName,
                          job_id: task._id
                     };
-                    res.json(out);
+
+                    if(blocking){
+                         // processing
+                         task.status = 1;
+                         task.save(function(err){
+                              // Do the processing
+                              processFile(generatedFileName,task._id,function(err){
+                                   // ready
+                                   task.status = 2;
+                                   task.save(function(err){
+                                        res.json(out);
+                                   });
+                              });
+                         });
+                    }else{
+                         res.json(out);
+                    }
                });
           });
      });
@@ -86,3 +105,12 @@ app.get('/api/v1/csv_job/:job_id',function(req, res, next) {
           return res.json(out);
      });
 });
+
+
+function processFile(file,jobId,cb){
+     // TODO:
+     winston.info('Process job: ' + jobId);
+     console.log('Process job: ' + jobId);
+
+     return cb(null);
+}
