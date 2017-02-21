@@ -160,6 +160,8 @@ function processFile(fileName,jobId,inn,cb){
                     if(isCollision){
                          collisions.push(sernum);
                     }
+
+                    console.log('IS COLLISION: ' + isCollision);
                     if(!err && !isCollision){
                          // add to batch!
                          batch.tickets.push({ticketId: ticket._id});

@@ -11,6 +11,7 @@ var knox  = require('knox');
 
 var JOB_1_ID = 0;
 var BATCH_1_ID = 0;
+var BATCH_3_ID = 0;
 
 var JOB_2_ID = 0;
 var JOB_3_ID = 0;
@@ -170,7 +171,6 @@ describe('Files module',function(){
           });
      })
 
-     /*
      it('should upload and process CSV file 2',function(done){
           // will sell ticket with sernum АА123456
           var fileName = 'test/data/one.csv';
@@ -221,9 +221,7 @@ describe('Files module',function(){
                done();
           });
      })
-     */
 
-     /*
      it('should upload and process CSV file 3 with collision',function(done){
           // collision АА123456
           var fileName = 'test/data/two.csv';
@@ -245,18 +243,31 @@ describe('Files module',function(){
                assert.equal(err,null);
                assert.equal(statusCode,200);
 
-               console.log('DO: ');
-               console.log(dataOut);
-
                var p = JSON.parse(dataOut);
                //assert.equal(p.status,'created');
                assert.equal(p.status,'ready');
+               assert.notEqual(typeof(p.batch_id),'undefined');
                assert.notEqual(p.batch_id,0);
+
+               BATCH_ID_3 = p.batch_id;
 
                done();
           });
      })
-     */
 
+     it('should get batch that was created by task 3', function(done){
+          var url = '/api/v1/organizers/' + INN + '/batches/' + BATCH_ID_3;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.length,0);
+
+               done();
+          });
+     })
 });
 
