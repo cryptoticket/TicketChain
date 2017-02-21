@@ -123,65 +123,6 @@ function generateFileName(){
      return o;
 }
 
-
-function processFile(fileName,jobId,cb){
-     // TODO:
-     winston.info('Process job: ' + jobId);
-     console.log('Process job: ' + jobId);
-
-     var filePath = 'files/' + fileName;
-     if(!fs.existsSync(filePath)){
-          return cb(new Error('File does not exist: ' + fileName));
-     }
-
-     console.log('1');
-
-     var lr = new lineByLine(filePath);
-     lr.on('error', function (err) {
-          return cb(err);
-     });
-
-     lr.on('line', function (line) {
-          lr.pause();
-
-          processLine(line,function(err){
-               // TODO: catch error
-
-               lr.resume();
-          });
-     });
-     lr.on('end', function () {
-          // All lines read, file is closed now.
-          cb(null);
-     });
-}
-
-function processLine(line,cb){
-     console.log('Line: ');
-     console.log(line);
-
-     var words = line.split(',');
-
-     var action = words[1];
-     var num = words[2];
-
-     if(action=='билет'){
-          if(num && num.length){
-               console.log('Update ticket with num: ' + num);
-          }else{
-               console.log('Update ticket');
-          }
-     }else {
-          if(num && num.length){
-               console.log('Create new blank form with number');
-          }else{
-               console.log('Create new blank form with any number');
-          }
-     }
-
-     cb(null);
-}
-
 exports.getRandom = getRandom;
 
 exports.validateInn = validateInn;
@@ -202,4 +143,3 @@ exports.encodeUrlDec = encodeUrlDec;
 exports.decodeUrlEnc = decodeUrlEnc;
 
 exports.capitalizeFirst = capitalizeFirst;
-exports.processFile = processFile;

@@ -1,5 +1,2 @@
-ИНН Организатора,Зарезервировать бланк или продать билет?,ID/Номер бланка,price_rub,is_paper_ticket,issuer,issuer_inn,issuer_ogrn,issuer_ogrnip,issuer_address,event_title,event_place_title,event_date,event_place_address,row,seat,ticket_category,seller,seller_inn,seller_ogrn,seller_ogrnip,seller_address,buyer_name,buying_date
-1234567891,бланк,,,,,,,,,,,,,,,,,,,,,,
 1234567891,бланк,АА123456,,,,,,,,,,,,,,,,,,,,,
-1234567891,билет,,,,,,,,,,,,,,,,,,,,,,
-1234567891,билет,ББ999111,120, true,TicketsCloud,2346787891,,,,Алиса в стране чудес ,МХАТ им Чехова,12.03.2017 17:00,,12,5А,1,Касса,,,,,Акентьев Антон Андреевич,20.02.2017 12:18
+1234567891,билет,АА123456,120, true,TicketsCloud,2346787891,,,,Алиса в стране чудес ,МХАТ им Чехова,12.03.2017 17:00,,12,5А,1,Касса,,,,,Акентьев Антон Андреевич,20.02.2017 12:18

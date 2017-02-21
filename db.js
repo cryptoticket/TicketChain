@@ -102,6 +102,7 @@ var Batch = new Schema({
 var Task = new Schema({
      fileName: {type: String, required:true},
      fileNameReal: {type: String, required:true},
+     organizer_inn: {type: String, required:true},
 
      // 0 - created
      // 1 - processing

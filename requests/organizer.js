@@ -74,29 +74,40 @@ app.post('/api/v1/organizers/:inn/tickets',function(request, res, next){
           winston.error('Bad inn');
           return next();
      }
+     
+     newBlankTicket(inn,sernum,function(err,isCollision,ticket){
+          if(err){return next(err);}
 
+          if(isCollision){
+               return res.status(409).json({collision:sernum});
+          }
+
+          res.json({ 
+               id: ticket._id, 
+               serial_number: ticket.serial_number
+          });
+     });
+});
+
+function newBlankTicket(inn,sernum,cb){
      createOrganizer(inn,function(err,orgId){
           if(err){
-               return next(err);
+               return cb(err);
           }
 
           createNewBlankTicket(inn,orgId,sernum,function(err,ticket,isCollision){
                if(err){
-                    return next(err);
+                    return cb(err);
                }
                if(isCollision){
-                    return res.status(409).json({collision:sernum});
+                    return cb(null,true);
                }
                
                winston.info('Added ticket: ' + ticket._id + '; serial_number= ' + ticket.serial_number);
-
-               res.json({ 
-                    id: ticket._id, 
-                    serial_number: ticket.serial_number
-               });
+               return cb(null,false,ticket);     
           });
      });
-});
+}
 
 
 // Get a ticket by ID or SERIAL_NUMBER. 
@@ -843,3 +854,4 @@ function checkIfUniqueSerNum(sn,cb){
           return cb(null,true);
      });
 }
+
