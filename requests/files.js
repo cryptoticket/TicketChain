@@ -64,12 +64,13 @@ app.post('/api/v1/organizers/:inn/csv_job',function(req, res, next) {
                          task.status = 1;
                          task.save(function(err){
                               // Do the processing
-                              processFile(generatedFileName,task._id,task.organizer_inn,function(err,colls,errors){
+                              processFile(generatedFileName,task._id,task.organizer_inn,function(err,colls,errors,batchId){
                                    // TODO: process errors, colls
 
 
                                    // ready
                                    task.status = 2;
+                                   task.batch_id = batchId; 
                                    task.save(function(err){
                                         res.json(out);
                                    });
@@ -105,8 +106,6 @@ app.get('/api/v1/organizers/:inn/csv_job/:job_id',function(req, res, next) {
           var task = tasks[0];
 
           var out = {
-               // still not ready...so no batch_id
-               // TODO: 
                batch_id: task.batch_id
           }
 
@@ -141,6 +140,11 @@ function processFile(fileName,jobId,inn,cb){
           var errors = [];
           var lineIndex = 0;
 
+          // create batch
+          var batch = new db.BatchModel();
+          batch.organizer = orgId;
+          batch.tickets = [];
+
           var lr = new lineByLine(filePath);
           lr.on('error', function (err) {
                return cb(err);
@@ -156,6 +160,10 @@ function processFile(fileName,jobId,inn,cb){
                     if(isCollision){
                          collisions.push(sernum);
                     }
+                    if(!err && !isCollision){
+                         // add to batch!
+                         batch.tickets.push({ticketId: ticket._id});
+                    }
 
                     lineIndex = lineIndex + 1;
                     lr.resume();
@@ -163,8 +171,10 @@ function processFile(fileName,jobId,inn,cb){
           });
           lr.on('end', function () {
                // All lines read, file is closed now.
-
-               cb(null,collisions,errors);
+               winston.info('Saving batch');
+               batch.save(function(err){
+                    cb(err,collisions,errors,batch._id);
+               });
           });
      });
 }

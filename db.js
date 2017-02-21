@@ -109,7 +109,7 @@ var Task = new Schema({
      // 2 - ready
      status: {type: Number, required:true},
 
-     batch_id: {type: Number, required:false}
+     batch_id: {type: Schema.ObjectId, required:false}
 });
 
 /// \brief Call this one and keep returned object

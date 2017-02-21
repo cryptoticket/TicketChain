@@ -10,7 +10,10 @@ var restler = require('restler');
 var knox  = require('knox');
 
 var JOB_1_ID = 0;
+var BATCH_1_ID = 0;
+
 var JOB_2_ID = 0;
+var JOB_3_ID = 0;
 
 var INN = '1234567890';
 
@@ -128,6 +131,10 @@ describe('Files module',function(){
                var p = JSON.parse(dataOut);
                //assert.equal(p.status,'created');
                assert.equal(p.status,'ready');
+               assert.notEqual(typeof(p.batch_id),'undefined');
+               assert.notEqual(p.batch_id,0);
+
+               BATCH_ID_1 = p.batch_id;
 
                done();
           });
@@ -148,6 +155,22 @@ describe('Files module',function(){
           });
      })
 
+     it('should get batch that was created by task 1', function(done){
+          var url = '/api/v1/organizers/' + INN + '/batches/' + BATCH_ID_1;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.length,1);
+
+               done();
+          });
+     })
+
+     /*
      it('should upload and process CSV file 2',function(done){
           // will sell ticket with sernum АА123456
           var fileName = 'test/data/one.csv';
@@ -172,10 +195,8 @@ describe('Files module',function(){
                var p = JSON.parse(dataOut);
                assert.equal(p.state,'sold');
 
-               // {"id":"58ac3dc9f71bccc2ac068fea","serial_number":"АА123456","state":"sold","price_rub":120,"is_paper_ticket":true,"issuer":"TicketsCloud","issuer_inn":"2346787891","issuer_orgn":"","issuer_ogrnip":"","issuer_address":"","event_title":"Алиса в стране чудес ","event_place_title":"МХАТ им Чехова","event_date":"2017-02-21T13:16:57.949Z","event_place_address":"","row":"12","seat":"5А","ticket_category":1,"seller":"Касса","seller_inn":"","seller_orgn":"","seller_ogrnip":"","seller_address":"","buyer_name":"Акентьев Антон Андреевич","buying_date":"2017-02-21T13:16:57.949Z","cancelled_date":"2017-02-21T13:16:57.949Z","organizer_inn":"1234567890"}
-
-               console.log('DO: ');
-               console.log(dataOut);
+               //console.log('DO: ');
+               //console.log(dataOut);
 
                assert.equal(p.price_rub, 120);
                assert.equal(p.is_paper_ticket, true);
@@ -200,5 +221,42 @@ describe('Files module',function(){
                done();
           });
      })
+     */
+
+     /*
+     it('should upload and process CSV file 3 with collision',function(done){
+          // collision АА123456
+          var fileName = 'test/data/two.csv';
+          callFileProcessing(fileName,function(err,jobId){
+               assert.equal(err,null);
+               assert.notEqual(jobId,0);
+
+               JOB_3_ID = jobId;
+
+               done();
+          });
+     });
+
+     it('should get file job #3 info - collision should be detected', function(done){
+          var url = '/api/v1/organizers/' + INN + '/csv_job/' + JOB_3_ID;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               console.log('DO: ');
+               console.log(dataOut);
+
+               var p = JSON.parse(dataOut);
+               //assert.equal(p.status,'created');
+               assert.equal(p.status,'ready');
+               assert.notEqual(p.batch_id,0);
+
+               done();
+          });
+     })
+     */
+
 });
 

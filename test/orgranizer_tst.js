@@ -21,8 +21,6 @@ var ticketOneSerialNumber = 0;
 var INN = '1234567890';
 var TEST_SER_NUM = 'АБ123456';
 
-var batchOneId = 0;
-
 describe('Organizer module',function(){
      before(function(done){
           var uri  = 'mongodb://localhost/tests';
