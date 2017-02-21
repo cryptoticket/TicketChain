@@ -151,6 +151,9 @@ function getTicketByNumber(num,request,res,next){
           if(err){
                return next(err);
           }
+          if(!ticket){
+               return next();
+          }
 
           return convertTicketToOut(ticket,request,res,next);
      });
@@ -251,29 +254,40 @@ function changeStateTo(state,request,res,next){
      }
      var id = request.params.id;
      if(!id || !id.length){
-          winston.error('Bad id_or_number provided');
+          winston.error('Bad id provided');
           return next();
      }
      winston.info('Sell tickets ' + id + ' for INN: ' + inn);
 
+     changeStateInternal(inn,id,state,function(err){
+          if(err){
+               return next(err);
+          }
+
+          // Good!
+          res.json({});
+     });
+}
+
+function changeStateInternal(inn,id,state,cb){
      getOrganizerByInn(inn,function(err,orgFound,org){
-          if(err){return next(err);}
-          if(!orgFound){return next();}
+          if(err){return cb(err);}
+          if(!orgFound){return cb(new Error('No org found: ' + inn));}
 
           db.TicketModel.findOne({organizer:org._id, _id:id},function(err,ticket){
                if(err){
-                    return next(err);
+                    return cb(err);
                }
                if(typeof(ticket)=='undefined' || !ticket){
                     winston.info('Ticket not found: ' + id);
-                    return next();
+                    return cb(new Error('No ticket found: ' + id));
                }
 
                // created->sold
                if(state==1){
-                    if(ticket.state!=0){
+                    if(ticket.state!==0){
                          winston.info('Ticket state is BAD: ' + ticket.state);
-                         return next();
+                         return cb(new Error('Ticket in bad state: ' + id));
                     }
 
                     ticket.state = 1;
@@ -287,11 +301,10 @@ function changeStateTo(state,request,res,next){
 
                ticket.save(function(err){
                     if(err){
-                         return next(err);
+                         return cb(err);
                     }
 
-                    // Good!
-                    res.json({});
+                    cb(null);
                });
           });
      });

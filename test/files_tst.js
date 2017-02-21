@@ -275,3 +275,101 @@ describe('Files module',function(){
      })
 });
 
+
+describe('Files module 2',function(){
+     before(function(done){
+          var uri  = 'mongodb://localhost/tests';
+
+          var conn = db.connectToDb(uri,'','');
+          db.removeDb(function(){
+               server.initDb(db);
+
+               server.startHttp(9091);
+               done();   // ok
+          });
+     });
+
+     after(function(done){
+          server.stop();
+          db.removeDb(function(){});
+          db.disconnectDb();
+          done();
+     });
+
+     it('should create ticket with custom sernumber', function(done){
+          var url = '/api/v1/organizers/' + INN + '/tickets';
+
+          var data = { 
+               serial_number: 'АА123456'
+          };
+          var postData = JSON.stringify(data);
+
+          var authToken = '';
+          postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               //console.log('Data: ');
+               //console.log(dataOut);
+
+               var p = JSON.parse(dataOut);
+               assert.notEqual(p.id,0);
+               assert.notEqual(p.serial_number,0);
+
+               done();
+          });
+     })
+
+     it('should upload and process CSV file',function(done){
+          // will create single blank ticket with sernum АА123456
+          var fileName = 'test/data/cancel.csv';
+          callFileProcessing(fileName,function(err,jobId){
+               assert.equal(err,null);
+               assert.notEqual(jobId,0);
+
+               JOB_1_ID = jobId;
+
+               done();
+          });
+     });
+
+     it('should get file job info', function(done){
+          var url = '/api/v1/organizers/' + INN + '/csv_job/' + JOB_1_ID;
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               console.log('DO: ');
+               console.log(dataOut);
+
+               var p = JSON.parse(dataOut);
+               //assert.equal(p.status,'created');
+               assert.equal(p.status,'ready');
+               assert.notEqual(typeof(p.batch_id),'undefined');
+               assert.notEqual(p.batch_id,0);
+               assert.equal(p.errors.length,0);
+               assert.equal(p.collisions.length,0);
+
+               BATCH_ID_1 = p.batch_id;
+
+               done();
+          });
+     })
+
+     it('should get blank ticket', function(done){
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + encodeURIComponent('АА123456');
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.state,'cancelled');
+
+               done();
+          });
+     })
+});

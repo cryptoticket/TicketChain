@@ -274,7 +274,7 @@ describe('Organizer module',function(){
           var authToken = '';
           postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
                assert.equal(err,null);
-               assert.equal(statusCode,404);
+               assert.equal(statusCode,500);
                done();
           });
      })

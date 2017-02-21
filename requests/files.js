@@ -107,7 +107,6 @@ app.get('/api/v1/organizers/:inn/csv_job/:job_id',function(req, res, next) {
           return next();
      }
      var id = req.params.job_id;
-     // TODO: check id
 
      db.TaskModel.find({_id:id},function(err,tasks){
           if(err){
@@ -221,9 +220,6 @@ function processFile(fileName,jobId,inn,cb){
 }
 
 function processLine(inn,line,orgId,cb){
-     console.log('Line: ');
-     console.log(line);
-
      var words = line.split(',');
 
      var action = words[1];
@@ -237,10 +233,18 @@ function processLine(inn,line,orgId,cb){
                return updateTicketWithNum(inn,num,words,orgId,cb);
           }else{
                console.log('Update ticket');
+
+               // TODO: 
+               return cb(new Error('NOT SUPPORTED YET!'));
           }
      }else if(action=='забраковать'){
-          // TODO:
+          console.log('Cancell ticket with num: ' + num);
+          winston.info('Cancell ticket with num: ' + num);
 
+          if(!num || !num.length){
+               return cb(new Error('Bad num'));
+          }
+          return cancelTicket(inn,num,words,orgId,cb);
      }else{
           if(num && num.length){
                console.log('Create new blank form with number: ' + num);
@@ -249,10 +253,15 @@ function processLine(inn,line,orgId,cb){
                return createNewBlankWithNum(inn,num,words,orgId,cb);
           }else{
                console.log('Create new blank form with any number');
+               winston.info('Create new blank form with any number');
+
+               var num = helpers.generateSn();
+
+               // TODO: 
+               // checkIfUniqueSerNum(ticket.serial_number,function(err,isUnique){
+               return createNewBlankWithNum(inn,num,words,orgId,cb);
           }
      }
-
-     cb(null);
 }
 
 function updateTicketWithNum(inn,sernum,words,orgId,cb){
@@ -296,8 +305,22 @@ function updateTicketWithNum(inn,sernum,words,orgId,cb){
      });
 }
 
+function cancelTicket(inn,num,words,orgId,cb){
+     db.TicketModel.findOne({organizer:orgId, serial_number:num},function(err,ticket){
+          if(err){return cb(err);}
+          if(!ticket){return cb(new Error('No ticket found'));}
+
+          // "cancelled"
+          changeStateInternal(inn,ticket._id,2,function(err){
+               // err,isCollision,ticket,sernum
+               return cb(err,false,ticket,num);
+          });
+     });
+}
+
 function convertWordsToData(from,data){
      // TODO: add checks
+
      // return 'Error: ' + bad data...
 
      convertFromWords(data,from,'priceRub',3);
