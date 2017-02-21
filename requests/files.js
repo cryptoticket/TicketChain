@@ -284,7 +284,7 @@ function convertWordsToData(from,data){
 }
 
 function convertFromWords(to,from,name,index){
-     to[name] = from[index];
+     to[name] = from[index].trim();
 }
 
 function createNewBlankWithNum(inn,sernum,words,orgId,cb){

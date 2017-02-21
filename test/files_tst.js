@@ -101,49 +101,6 @@ describe('Files module',function(){
           });
      })
 
-     /*
-     it('should process CSV file',function(done){
-          // ИНН Организатора,
-          // Зарезервировать бланк или продать билет
-          // ID/Номер бланка
-          // price_rub
-          // is_paper_ticket
-          // issuer
-          // issuer_inn
-          // issuer_ogrn
-          // issuer_ogrnip
-          // issuer_address
-          // event_title
-          // event_place_title
-          // event_date
-          // event_place_address
-          // row
-          // seat
-          // ticket_category
-          // seller
-          // seller_inn
-          // seller_ogrn
-          // seller_ogrnip
-          // seller_address
-          // buyer_name
-          // buying_date
-
-          var fileName = 'test/data/one.csv';
-          var fileNameOut = 'files/one.csv';
-          fs.createReadStream(fileName).pipe(fs.createWriteStream(fileNameOut));
-
-          assert.equal(fs.existsSync(fileNameOut),true);
-
-          helpers.processFile('one.csv',0,INN,function(err){
-               assert.equal(err,null);
-
-               fs.unlinkSync(fileNameOut);
-
-               done();
-          });
-     });
-     */
-
      it('should upload and process CSV file',function(done){
           // will create single blank ticket with sernum АА123456
           var fileName = 'test/data/blank.csv';
@@ -214,6 +171,31 @@ describe('Files module',function(){
 
                var p = JSON.parse(dataOut);
                assert.equal(p.state,'sold');
+
+               // {"id":"58ac3dc9f71bccc2ac068fea","serial_number":"АА123456","state":"sold","price_rub":120,"is_paper_ticket":true,"issuer":"TicketsCloud","issuer_inn":"2346787891","issuer_orgn":"","issuer_ogrnip":"","issuer_address":"","event_title":"Алиса в стране чудес ","event_place_title":"МХАТ им Чехова","event_date":"2017-02-21T13:16:57.949Z","event_place_address":"","row":"12","seat":"5А","ticket_category":1,"seller":"Касса","seller_inn":"","seller_orgn":"","seller_ogrnip":"","seller_address":"","buyer_name":"Акентьев Антон Андреевич","buying_date":"2017-02-21T13:16:57.949Z","cancelled_date":"2017-02-21T13:16:57.949Z","organizer_inn":"1234567890"}
+
+               console.log('DO: ');
+               console.log(dataOut);
+
+               assert.equal(p.price_rub, 120);
+               assert.equal(p.is_paper_ticket, true);
+               assert.equal(p.issuer, 'TicketsCloud');
+               assert.equal(p.issuer_inn, '2346787891');
+               assert.equal(p.event_title, 'Алиса в стране чудес');
+               assert.equal(p.event_place_title, 'МХАТ им Чехова');
+               // TODO:
+               //assert.equal(p.event_date, '');
+
+               assert.equal(p.row, '12');
+               assert.equal(p.seat, '5А');
+               assert.equal(p.ticket_category, 1);
+               assert.equal(p.seller, 'Касса');
+               assert.equal(p.buyer_name, 'Акентьев Антон Андреевич');
+
+               // TODO:
+               //assert.equal(p.buying_date, '');
+               //assert.equal(p.cancelled_date, '');
+               assert.equal(p.organizer_inn,'1234567890');
 
                done();
           });
