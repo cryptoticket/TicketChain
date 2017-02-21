@@ -6,8 +6,10 @@ var config = require('./config');
 var db = require('./db');
 var server = require('./server');
 
+var workAsTaskProcessor = typeof(process.env.IS_TASK_PROCESSOR)!=='undfined');
+
 //////////// Params:
-if(config.get("cluster") && cluster.isMaster) {
+if(config.get("cluster") && cluster.isMaster && !workAsTaskProcessor) {
      // Count the machine's CPUs
      //var cpuCount = require('os').cpus().length + 2;
      var cpuCount = config.get('cluster_nodes');
@@ -86,36 +88,41 @@ db.connectToDbCallback(
 // Start server
 var port = (process.env.PORT || config.get('http_port'));
 
-server.initDb(db);
+if(workAsTaskProcessor){
+     console.log('Starting as a task processor');
 
-if(config.get('enable_http')){
-     server.startHttp(port);
-     winston.info("Listening (http) on " + port);
+     setTimeout(server.processSingleCsvFileTask, 1000, 'processor');
+}else{
+     server.initDb(db);
+
+     if(config.get('enable_http')){
+          server.startHttp(port);
+          winston.info("Listening (http) on " + port);
+     }
+
+     if(config.get('enable_https')){
+          var https_port = config.get('https_port');
+          server.startHttps(https_port);
+          winston.info('Listening (https) on ' + https_port);
+     }
+
+     // If we run under root -> reduce rights
+     // Notice that running under root is required when we start under
+     // daemon/forever. Or if we use 'priveleged ports' (not recommended!)
+     //
+     // If we run this code under Docker container -> then we run
+     // it under 'non-root' account that is GOOD. Just set some port like 8080
+     // to EXPOSE from here
+     var nodeUserGid = config.get('process_user');
+     var nodeUserUid = config.get('process_group');
+
+     if(!process.getuid()){
+          // crash
+          //console.log('DO NOT RUN UNDER ROOT!!!');
+          //assert.equal(0,1);	
+
+          console.log('WARNING: Reducing rights from ROOT to ' + nodeUserUid);
+          process.setgid(nodeUserGid);
+          process.setuid(nodeUserUid);
+     }
 }
-
-if(config.get('enable_https')){
-     var https_port = config.get('https_port');
-     server.startHttps(https_port);
-     winston.info('Listening (https) on ' + https_port);
-}
-
-// If we run under root -> reduce rights
-// Notice that running under root is required when we start under
-// daemon/forever. Or if we use 'priveleged ports' (not recommended!)
-//
-// If we run this code under Docker container -> then we run
-// it under 'non-root' account that is GOOD. Just set some port like 8080
-// to EXPOSE from here
-var nodeUserGid = config.get('process_user');
-var nodeUserUid = config.get('process_group');
-
-if(!process.getuid()){
-     // crash
-     //console.log('DO NOT RUN UNDER ROOT!!!');
-     //assert.equal(0,1);	
-
-     console.log('WARNING: Reducing rights from ROOT to ' + nodeUserUid);
-     process.setgid(nodeUserGid);
-     process.setuid(nodeUserUid);
-}
-
