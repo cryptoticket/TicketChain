@@ -181,6 +181,8 @@ function processLine(inn,line,orgId,cb){
      if(action=='билет'){
           if(num && num.length){
                console.log('Update/sell ticket with num: ' + num);
+               winston.info('Update/sell ticket with num: ' + num);
+
                return updateTicketWithNum(inn,num,words,orgId,cb);
           }else{
                console.log('Update ticket');
@@ -191,6 +193,8 @@ function processLine(inn,line,orgId,cb){
      }else{
           if(num && num.length){
                console.log('Create new blank form with number: ' + num);
+               winston.info('Create new blank form with number: ' + num);
+
                return createNewBlankWithNum(inn,num,words,orgId,cb);
           }else{
                console.log('Create new blank form with any number');
@@ -200,10 +204,87 @@ function processLine(inn,line,orgId,cb){
      cb(null);
 }
 
-function updateTicketWithNum(inn,num,words,orgId,cb){
-       
+function updateTicketWithNum(inn,sernum,words,orgId,cb){
+     getOrganizerByInn(inn,function(err,orgFound,org){
+          if(err){return cb(err);}
+          if(!orgFound){return cb();}
 
-     cb(null);
+          db.TicketModel.findOne({organizer:org._id, serial_number:sernum},function(err,ticket){
+               if(err){
+                    return cb(err);
+               }
+               if(typeof(ticket)=='undefined' || !ticket){
+                    return cb(new Error('Ticket not found' + id));
+               }
+
+               // convert 
+               var convertedData = {};
+               var err = convertWordsToData(words,convertedData);
+               if(err){
+                    return cb(err);
+               }
+
+               // update
+               fromDataToTicket(ticket,convertedData,function(err,ticketOut){
+                    if(err){
+                         return cb(err);
+                    }
+
+                    ticketOut.state = 1;     // sold
+
+                    ticketOut.save(function(err){
+                         if(err){
+                              return cb(err);
+                         }
+
+                         //res.json({});
+                         cb(null,false,ticketOut,ticketOut.serial_number);
+                    });
+               });
+          });
+     });
+}
+
+function convertWordsToData(from,data){
+     // TODO: add checks
+     // return 'Error: ' + bad data...
+
+     convertFromWords(data,from,'priceRub',3);
+     convertFromWords(data,from,'isPaperTicket',4);
+     convertFromWords(data,from,'issuer',5);
+     convertFromWords(data,from,'issuer_inn',6);
+     convertFromWords(data,from,'issuer_orgn',7);
+     convertFromWords(data,from,'issuer_ogrnip',8);
+     convertFromWords(data,from,'issuer_address',9);
+     convertFromWords(data,from,'event_title',10);
+     convertFromWords(data,from,'event_place_title',11);
+     // TODO: date
+     //convertFromWords(data,from,'event_date',12);
+     convertFromWords(data,from,'event_place_address',13);
+     convertFromWords(data,from,'row',14);
+     convertFromWords(data,from,'seat',15);
+     convertFromWords(data,from,'ticket_category',16);
+
+     //convertFromWords(data,from,'organizer',);
+
+     convertFromWords(data,from,'seller',17);
+     convertFromWords(data,from,'seller_inn',18);
+     convertFromWords(data,from,'seller_orgn',19);
+     convertFromWords(data,from,'seller_ogrnip',20);
+     convertFromWords(data,from,'seller_address',21);
+     convertFromWords(data,from,'buyer_name',22);
+     
+     // TODO: date
+     //convertFromWords(data,from,'buying_date',23);
+
+     //convertFromWords(data,from,'cancelled_date');
+
+     // no error
+     return null;
+}
+
+function convertFromWords(to,from,name,index){
+     to[name] = from[index];
 }
 
 function createNewBlankWithNum(inn,sernum,words,orgId,cb){
@@ -215,7 +296,7 @@ function createNewBlankWithNum(inn,sernum,words,orgId,cb){
                return cb(null,true,null,sernum);
           }
           
-          winston.info('Added ticket: ' + ticket._id + '; serial_number= ' + ticket.serial_number);
+          winston.info('Created new ticket: ' + ticket._id + '; serial_number= ' + ticket.serial_number);
           return cb(null,false,ticket);     
      });
 }

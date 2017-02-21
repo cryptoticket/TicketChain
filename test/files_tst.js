@@ -10,6 +10,7 @@ var restler = require('restler');
 var knox  = require('knox');
 
 var JOB_1_ID = 0;
+var JOB_2_ID = 0;
 
 var INN = '1234567890';
 
@@ -190,5 +191,32 @@ describe('Files module',function(){
           });
      })
 
+     it('should upload and process CSV file 2',function(done){
+          // will sell ticket with sernum АА123456
+          var fileName = 'test/data/one.csv';
+          callFileProcessing(fileName,function(err,jobId){
+               assert.equal(err,null);
+               assert.notEqual(jobId,0);
+
+               JOB_2_ID = jobId;
+
+               done();
+          });
+     });
+
+     it('should get update info for ticket', function(done){
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + encodeURIComponent('АА123456');
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.state,'sold');
+
+               done();
+          });
+     })
 });
 

@@ -204,7 +204,7 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
                     return next();
                }
 
-               fromDataToTicket(ticket,request,function(err,ticketOut){
+               fromDataToTicket(ticket,request.body,function(err,ticketOut){
                     if(err){
                          return next(err);
                     }
@@ -570,37 +570,37 @@ function convertTicketToOut(t,request,res,next){
      });
 }
 
-function fromDataToTicket(ticket,request,cb){
-     copyField(ticket,request.body,'priceRub');
-     copyField(ticket,request.body,'isPaperTicket');
-     copyField(ticket,request.body,'issuer');
-     copyField(ticket,request.body,'issuer_inn');
-     copyField(ticket,request.body,'issuer_orgn');
-     copyField(ticket,request.body,'issuer_ogrnip');
-     copyField(ticket,request.body,'issuer_address');
-     copyField(ticket,request.body,'event_title');
-     copyField(ticket,request.body,'event_place_title');
+function fromDataToTicket(ticket,from,cb){
+     copyField(ticket,from,'priceRub');
+     copyField(ticket,from,'isPaperTicket');
+     copyField(ticket,from,'issuer');
+     copyField(ticket,from,'issuer_inn');
+     copyField(ticket,from,'issuer_orgn');
+     copyField(ticket,from,'issuer_ogrnip');
+     copyField(ticket,from,'issuer_address');
+     copyField(ticket,from,'event_title');
+     copyField(ticket,from,'event_place_title');
      // TODO: date
-     //copyField(ticket,request.body,'event_date');
-     copyField(ticket,request.body,'event_place_address');
-     copyField(ticket,request.body,'row');
-     copyField(ticket,request.body,'seat');
-     copyField(ticket,request.body,'ticket_category');
+     //copyField(ticket,from,'event_date');
+     copyField(ticket,from,'event_place_address');
+     copyField(ticket,from,'row');
+     copyField(ticket,from,'seat');
+     copyField(ticket,from,'ticket_category');
 
-     //copyField(ticket,request.body,'organizer');
+     //copyField(ticket,from,'organizer');
 
-     copyField(ticket,request.body,'seller');
-     copyField(ticket,request.body,'seller_inn');
-     copyField(ticket,request.body,'seller_orgn');
-     copyField(ticket,request.body,'seller_ogrnip');
-     copyField(ticket,request.body,'seller_address');
-     copyField(ticket,request.body,'buyer_name');
+     copyField(ticket,from,'seller');
+     copyField(ticket,from,'seller_inn');
+     copyField(ticket,from,'seller_orgn');
+     copyField(ticket,from,'seller_ogrnip');
+     copyField(ticket,from,'seller_address');
+     copyField(ticket,from,'buyer_name');
      
      // TODO: date
-     //copyField(ticket,request.body,'buying_date');
-     //copyField(ticket,request.body,'cancelled_date');
+     //copyField(ticket,from,'buying_date');
+     //copyField(ticket,from,'cancelled_date');
      
-     updateOrganizer(ticket.organizer,request.body,function(err){
+     updateOrganizer(ticket.organizer,from,function(err){
           return cb(err,ticket);
      });
 }
