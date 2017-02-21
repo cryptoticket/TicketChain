@@ -109,7 +109,16 @@ var Task = new Schema({
      // 2 - ready
      status: {type: Number, required:true},
 
-     batch_id: {type: Schema.ObjectId, required:false}
+     batch_id: {type: Schema.ObjectId, required:false},
+
+     // each item is a line index
+	error_indexes: [{
+		index: {type:Number, required:false},
+     }],
+     // each item is a serial_number
+	collisions: [{
+		serial_number: {type:String, required:false},
+     }]
 });
 
 /// \brief Call this one and keep returned object

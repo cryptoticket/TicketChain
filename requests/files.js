@@ -65,12 +65,14 @@ app.post('/api/v1/organizers/:inn/csv_job',function(req, res, next) {
                          task.save(function(err){
                               // Do the processing
                               processFile(generatedFileName,task._id,task.organizer_inn,function(err,colls,errors,batchId){
-                                   // TODO: process errors, colls
-
-
                                    // ready
                                    task.status = 2;
                                    task.batch_id = batchId; 
+
+                                   setErrorsToTask(errors,task);
+                                   setCollisionsToTask(colls,task);
+
+                                   // TODO: if something throws exception during processFile -> task will not be updated...
                                    task.save(function(err){
                                         res.json(out);
                                    });
@@ -82,8 +84,22 @@ app.post('/api/v1/organizers/:inn/csv_job',function(req, res, next) {
                });
           });
      });
-
 });
+
+// each item is a line index
+function setErrorsToTask(errors,task){
+     for(var i=0; i<errors.length; ++i){
+          // process it here
+          task.error_indexes.push({index: errors[i]});
+     }
+}
+
+// each item is a sernum
+function setCollisionsToTask(colls,task){
+     for(var i=0; i<colls.length; ++i){
+          task.collisions.push({serial_number: colls[i]});
+     }
+}
 
 app.get('/api/v1/organizers/:inn/csv_job/:job_id',function(req, res, next) {
      if(typeof(req.params.job_id)==='undefined'){
@@ -117,9 +133,32 @@ app.get('/api/v1/organizers/:inn/csv_job/:job_id',function(req, res, next) {
                out.status = 'ready';
           }
 
+          convertErrorsOut(task,out);
+          convertCollisionsOut(task,out);
+
           return res.json(out);
      });
 });
+
+function convertErrorsOut(task,out){
+     out.errors = [];
+     if(!task.errors){
+          return;
+     }
+     for(var i=0; i<task.errors.length; ++i){
+          out.errors.push(task.errors[i].index);
+     }
+}
+
+function convertCollisionsOut(task,out){
+     out.collisions = [];
+     if(!task.collisions){
+          return;
+     }
+     for(var i=0; i<task.collisions.length; ++i){
+          out.collisions.push(task.collisions[i].serial_number);
+     }
+}
 
 
 function processFile(fileName,jobId,inn,cb){

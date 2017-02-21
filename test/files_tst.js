@@ -134,6 +134,8 @@ describe('Files module',function(){
                assert.equal(p.status,'ready');
                assert.notEqual(typeof(p.batch_id),'undefined');
                assert.notEqual(p.batch_id,0);
+               assert.equal(p.errors.length,0);
+               assert.equal(p.collisions.length,0);
 
                BATCH_ID_1 = p.batch_id;
 
@@ -244,10 +246,12 @@ describe('Files module',function(){
                assert.equal(statusCode,200);
 
                var p = JSON.parse(dataOut);
-               //assert.equal(p.status,'created');
                assert.equal(p.status,'ready');
                assert.notEqual(typeof(p.batch_id),'undefined');
                assert.notEqual(p.batch_id,0);
+               assert.equal(p.errors.length,0);
+               assert.equal(p.collisions.length,1);
+               assert.equal(p.collisions[0],'АА123456');
 
                BATCH_ID_3 = p.batch_id;
 
