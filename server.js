@@ -213,6 +213,7 @@ function processSingleCsvFileTask(cb){
           }
 
           console.log('Processing single task: ' + task._id);
+          console.log(task);
 
           // 2 - process it
           // see 'requests/files.js'
