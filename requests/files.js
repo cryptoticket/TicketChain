@@ -138,7 +138,9 @@ function convertCollisionsOut(task,out){
 function processCsvFile(fileName,jobId,inn,cb){
      // 1 - set to processing 
      db.TaskModel.findOne({_id:jobId},function(err,task){
-          if(err){return cb(err);}
+          if(err){
+               return cb(err);
+          }
           if(!task){
                winston.error('No tasks found: ' + jobId);
                return cb();
@@ -157,23 +159,15 @@ function processCsvFile(fileName,jobId,inn,cb){
                     }
 
                     // 3 - set status to "ready"
-                    db.TaskModel.findOne({_id:jobId},function(err,task2){
-                         if(err){return cb(err);}
-                         if(!task2){
-                              winston.error('No tasks found: ' + jobId);
-                              return cb();
-                         }
+                    task.status = 2;
+                    task.batch_id = batchId; 
 
-                         task2.status = 2;
-                         task2.batch_id = batchId; 
+                    setErrorsToTask(errors,task);
+                    setCollisionsToTask(colls,task);
 
-                         setErrorsToTask(errors,task2);
-                         setCollisionsToTask(colls,task2);
-
-                         // TODO: if something throws exception during processFile -> task will not be updated...
-                         task2.save(function(err){
-                              cb(err);
-                         });
+                    // TODO: if something throws exception during processFile -> task will not be updated...
+                    task.save(function(err){
+                         cb(err);
                     });
                });
           });
