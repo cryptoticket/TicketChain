@@ -154,13 +154,10 @@ function processCsvFile(fileName,jobId,inn,cb){
 
                // 2 - process
                processCsvFileInt(fileName,jobId,inn,function(err,colls,errors,batchId){
-                    /*
-                    // even if error -> remove that task
-
                     if(err){
-                         return cb(err);
+                         // WARNING: even if error -> skip this task
+                         return cb();
                     }
-                    */
 
                     // 3 - set status to "ready"
                     task.status = 2;
