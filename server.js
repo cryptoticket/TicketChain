@@ -219,8 +219,11 @@ function processSingleCsvFileTask(cb){
           // see 'requests/files.js'
           console.log('Start processing: ' + task._id);
           processCsvFile(task.fileNameReal,task._id,task.organizer_inn,function(err){
-               console.log('End processing: ' + task._id);
+               if(err){
+                    console.log('Error: ' + err);
+               }
 
+               console.log('End processing: ' + task._id);
                cb(err);
           });
      });
