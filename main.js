@@ -152,6 +152,6 @@ function onTimeout(){
      index++;
 
      server.processSingleCsvFileTask(function(err){
-          tm = setTimeout(onTimeout, 100, 'processor');
+          tm = setTimeout(onTimeout, 5000, 'processor');
      });
 }
