@@ -101,37 +101,37 @@ if(workAsTaskProcessor){
      //addTestTasks(function(err){
           tm = setTimeout(onTimeout, 1000, 'processor');
      //});
-}else{
-     if(config.get('enable_http')){
-          server.startHttp(port);
-          winston.info("Listening (http) on " + port);
-     }
+}
 
-     if(config.get('enable_https')){
-          var https_port = config.get('https_port');
-          server.startHttps(https_port);
-          winston.info('Listening (https) on ' + https_port);
-     }
+if(config.get('enable_http')){
+     server.startHttp(port);
+     winston.info("Listening (http) on " + port);
+}
 
-     // If we run under root -> reduce rights
-     // Notice that running under root is required when we start under
-     // daemon/forever. Or if we use 'priveleged ports' (not recommended!)
-     //
-     // If we run this code under Docker container -> then we run
-     // it under 'non-root' account that is GOOD. Just set some port like 8080
-     // to EXPOSE from here
-     var nodeUserGid = config.get('process_user');
-     var nodeUserUid = config.get('process_group');
+if(config.get('enable_https')){
+     var https_port = config.get('https_port');
+     server.startHttps(https_port);
+     winston.info('Listening (https) on ' + https_port);
+}
 
-     if(!process.getuid()){
-          // crash
-          //console.log('DO NOT RUN UNDER ROOT!!!');
-          //assert.equal(0,1);	
+// If we run under root -> reduce rights
+// Notice that running under root is required when we start under
+// daemon/forever. Or if we use 'priveleged ports' (not recommended!)
+//
+// If we run this code under Docker container -> then we run
+// it under 'non-root' account that is GOOD. Just set some port like 8080
+// to EXPOSE from here
+var nodeUserGid = config.get('process_user');
+var nodeUserUid = config.get('process_group');
 
-          console.log('WARNING: Reducing rights from ROOT to ' + nodeUserUid);
-          process.setgid(nodeUserGid);
-          process.setuid(nodeUserUid);
-     }
+if(!process.getuid()){
+     // crash
+     //console.log('DO NOT RUN UNDER ROOT!!!');
+     //assert.equal(0,1);	
+
+     console.log('WARNING: Reducing rights from ROOT to ' + nodeUserUid);
+     process.setgid(nodeUserGid);
+     process.setuid(nodeUserUid);
 }
 
 function addTestTasks(cb){
