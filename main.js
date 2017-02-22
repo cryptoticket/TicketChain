@@ -6,8 +6,9 @@ var config = require('./config');
 var db = require('./db');
 var server = require('./server');
 
-//var workAsTaskProcessor = typeof(process.env.IS_TASK_PROCESSOR)!=='undfined');
-var workAsTaskProcessor = true;
+var workAsTaskProcessor = (typeof(process.env.IS_TASK_PROCESSOR)!=='undefined');
+
+//var workAsTaskProcessor = true;
 
 //////////// Params:
 if(config.get("cluster") && cluster.isMaster && !workAsTaskProcessor) {
@@ -96,7 +97,10 @@ server.initDb(db);
 if(workAsTaskProcessor){
      console.log('Starting as a task processor');
 
-     tm = setTimeout(onTimeout, 1000, 'processor');
+     // for tests
+     //addTestTasks(function(err){
+          tm = setTimeout(onTimeout, 1000, 'processor');
+     //});
 }else{
      if(config.get('enable_http')){
           server.startHttp(port);
@@ -130,11 +134,24 @@ if(workAsTaskProcessor){
      }
 }
 
+function addTestTasks(cb){
+     var task = new db.TaskModel;
+
+     task.fileName = 'one.csv';
+     task.fileNameReal = 'test1.csv';
+     task.status = 0;
+     task.organizer_inn = '1234567890';
+
+     task.save(function(err){
+          cb(err);
+     });
+}
+
 function onTimeout(){
      console.log('Timeout...' + index);
      index++;
 
      server.processSingleCsvFileTask(function(err){
-          tm = setTimeout(onTimeout, 1000, 'processor');
+          tm = setTimeout(onTimeout, 100, 'processor');
      });
 }
