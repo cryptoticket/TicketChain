@@ -305,7 +305,7 @@ function updateTicketWithNum(inn,sernum,words,orgId,cb){
                     return cb(err);
                }
                if(typeof(ticket)=='undefined' || !ticket){
-                    return cb(new Error('Ticket not found' + id));
+                    return cb(new Error('Ticket not found' + sernum));
                }
 
                // convert 
