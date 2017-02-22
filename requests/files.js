@@ -154,11 +154,13 @@ function processCsvFile(fileName,jobId,inn,cb){
 
                // 2 - process
                processCsvFileInt(fileName,jobId,inn,function(err,colls,errors,batchId){
+                    /*
+                    // even if error -> remove that task
+
                     if(err){
                          return cb(err);
                     }
-
-                    console.log('555');
+                    */
 
                     // 3 - set status to "ready"
                     task.status = 2;
@@ -169,8 +171,6 @@ function processCsvFile(fileName,jobId,inn,cb){
 
                     // TODO: if something throws exception during processFile -> task will not be updated...
                     task.save(function(err){
-                         console.log('666');
-
                          cb(err);
                     });
                });
