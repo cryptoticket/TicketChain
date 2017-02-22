@@ -61,7 +61,7 @@ function callFileProcessing(fileName,cb){
      });
 }
 
-describe('Files module',function(){
+describe('Files module 1',function(){
      before(function(done){
           var uri  = 'mongodb://localhost/tests';
 

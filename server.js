@@ -200,9 +200,29 @@ function stop(){
      }
 }
 
-function processSingleCsvFileTask(){
-     // TODO: 
+function processSingleCsvFileTask(cb){
+     // 1 - get available tasks
+     var task = db.TaskModel.findOne({status:0},function(err,task){
+          if(err){
+               console.log('Error processing task: ' + err);
+               return cb(err);
+          }
+          if(!task){
+               console.log('No tasks found');
+               return cb();
+          }
 
+          console.log('Processing single task: ' + task._id);
+
+          // 2 - process it
+          // see 'requests/files.js'
+          console.log('Start processing: ' + task._id);
+          processCsvFile(task.fileNameReal,task._id,task.organizer_inn,function(err){
+               console.log('End processing: ' + task._id);
+
+               cb(err);
+          });
+     });
 }
 
 exports.initDb    = initDb;

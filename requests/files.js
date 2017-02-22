@@ -49,6 +49,7 @@ app.post('/api/v1/organizers/:inn/csv_job',function(req, res, next) {
                task.status = 0;
                task.organizer_inn = '1234567890';
 
+               console.log('Saving task: ' + task._id);
                task.save(function(err){
                     if(err){
                          return next(err);
@@ -60,23 +61,13 @@ app.post('/api/v1/organizers/:inn/csv_job',function(req, res, next) {
                     };
 
                     if(blocking){
-                         // processing
-                         task.status = 1;
-                         task.save(function(err){
-                              // Do the processing
-                              processFile(generatedFileName,task._id,task.organizer_inn,function(err,colls,errors,batchId){
-                                   // ready
-                                   task.status = 2;
-                                   task.batch_id = batchId; 
+                         // Do the processing
+                         processCsvFile(generatedFileName,task._id,task.organizer_inn,function(err){
+                              if(err){
+                                   return next(err);
+                              }
 
-                                   setErrorsToTask(errors,task);
-                                   setCollisionsToTask(colls,task);
-
-                                   // TODO: if something throws exception during processFile -> task will not be updated...
-                                   task.save(function(err){
-                                        res.json(out);
-                                   });
-                              });
+                              res.json(out);
                          });
                     }else{
                          res.json(out);
@@ -85,21 +76,6 @@ app.post('/api/v1/organizers/:inn/csv_job',function(req, res, next) {
           });
      });
 });
-
-// each item is a line index
-function setErrorsToTask(errors,task){
-     for(var i=0; i<errors.length; ++i){
-          // process it here
-          task.error_indexes.push({index: errors[i]});
-     }
-}
-
-// each item is a sernum
-function setCollisionsToTask(colls,task){
-     for(var i=0; i<colls.length; ++i){
-          task.collisions.push({serial_number: colls[i]});
-     }
-}
 
 app.get('/api/v1/organizers/:inn/csv_job/:job_id',function(req, res, next) {
      if(typeof(req.params.job_id)==='undefined'){
@@ -159,8 +135,62 @@ function convertCollisionsOut(task,out){
      }
 }
 
+function processCsvFile(fileName,jobId,inn,cb){
+     // 1 - set to processing 
+     var task = db.TaskModel.findOne({_id:jobId},function(err,task){
+          if(err){
+               return cb(err);
+          }
+          if(!task){
+               winston.error('No tasks found: ' + jobId);
+               return cb();
+          }
 
-function processFile(fileName,jobId,inn,cb){
+          task.state = 1;
+          task.save(function(err){
+               if(err){
+                    return cb(err);
+               }
+
+               // 2 - process
+               processCsvFileInt(fileName,jobId,inn,function(err,colls,errors,batchId){
+                    if(err){
+                         return cb(err);
+                    }
+
+                    // 3 - set status to "ready"
+                    task.status = 2;
+                    task.batch_id = batchId; 
+
+                    setErrorsToTask(errors,task);
+                    setCollisionsToTask(colls,task);
+
+                    // TODO: if something throws exception during processFile -> task will not be updated...
+                    task.save(function(err){
+                         cb(err);
+                    });
+               });
+          });
+     });
+}
+
+// each item is a line index
+function setErrorsToTask(errors,task){
+     for(var i=0; i<errors.length; ++i){
+          // process it here
+          task.error_indexes.push({index: errors[i]});
+     }
+}
+
+// each item is a sernum
+function setCollisionsToTask(colls,task){
+     for(var i=0; i<colls.length; ++i){
+          task.collisions.push({serial_number: colls[i]});
+     }
+}
+
+
+function processCsvFileInt(fileName,jobId,inn,cb){
      winston.info('Process job: ' + jobId);
      console.log('Process job: ' + jobId);
 

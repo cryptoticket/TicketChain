@@ -6,7 +6,8 @@ var config = require('./config');
 var db = require('./db');
 var server = require('./server');
 
-var workAsTaskProcessor = typeof(process.env.IS_TASK_PROCESSOR)!=='undfined');
+//var workAsTaskProcessor = typeof(process.env.IS_TASK_PROCESSOR)!=='undfined');
+var workAsTaskProcessor = true;
 
 //////////// Params:
 if(config.get("cluster") && cluster.isMaster && !workAsTaskProcessor) {
@@ -87,14 +88,16 @@ db.connectToDbCallback(
      
 // Start server
 var port = (process.env.PORT || config.get('http_port'));
+var tm = 0;
+var index = 0;
+
+server.initDb(db);
 
 if(workAsTaskProcessor){
      console.log('Starting as a task processor');
 
-     setTimeout(server.processSingleCsvFileTask, 1000, 'processor');
+     tm = setTimeout(onTimeout, 1000, 'processor');
 }else{
-     server.initDb(db);
-
      if(config.get('enable_http')){
           server.startHttp(port);
           winston.info("Listening (http) on " + port);
@@ -125,4 +128,13 @@ if(workAsTaskProcessor){
           process.setgid(nodeUserGid);
           process.setuid(nodeUserUid);
      }
+}
+
+function onTimeout(){
+     console.log('Timeout...' + index);
+     index++;
+
+     server.processSingleCsvFileTask(function(err){
+          tm = setTimeout(onTimeout, 1000, 'processor');
+     });
 }
