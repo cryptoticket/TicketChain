@@ -37,7 +37,7 @@ app.post('/api/v1/organizers/:inn/csv_job',function(req, res, next) {
 
           winston.info('Got file: ' + filename + ' -> ' + generatedFileName); 
 
-          fstream = fs.createWriteStream(__dirname + '/files/' + generatedFileName);
+          fstream = fs.createWriteStream('files/' + generatedFileName);
           file.pipe(fstream);
 
           fstream.on('close', function () {
@@ -200,7 +200,7 @@ function processCsvFileInt(fileName,jobId,inn,cb){
 
      var filePath = 'files/' + fileName;
      if(!fs.existsSync(filePath)){
-          return cb(new Error('File does not exist: ' + fileName));
+          return cb(new Error('File does not exist: ' + filePath));
      }
 
      createOrganizer(inn,function(err,orgId){
