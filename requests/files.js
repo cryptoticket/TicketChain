@@ -149,7 +149,6 @@ function processCsvFile(fileName,jobId,inn,cb){
           }
 
           console.log('333');
-          if(!task){
           task.state = 1;
           task.save(function(err){
                if(err){
