@@ -21,6 +21,14 @@ function validateInn(inn){
      return (inn.length==10) || (inn.length==12);
 }
 
+function validateOgrn(ogrn){
+     return (ogrn.length==13);
+}
+
+function validateOgrnip(ogrnip){
+     return (ogrnip.length==15);
+}
+
 function validateSernum(sernum){
      // TODO: check 2 cyr letters + 6 numbers
      console.log('sernum len: ' + sernum.length);
@@ -126,6 +134,8 @@ function generateFileName(){
 exports.getRandom = getRandom;
 
 exports.validateInn = validateInn;
+exports.validateOgrn = validateOgrn;
+exports.validateOgrnip = validateOgrnip;
 exports.validateSernum = validateSernum;
 
 exports.validateEmail = validateEmail;

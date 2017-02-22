@@ -296,6 +296,10 @@ function processLine(inn,line,orgId,cb){
 }
 
 function updateTicketWithNum(inn,sernum,words,orgId,cb){
+     if(!helpers.validateSernum(sernum)){
+          return cb(new Error('Bad custom serial num: ' + sernum));
+     }
+
      getOrganizerByInn(inn,function(err,orgFound,org){
           if(err){return cb(err);}
           if(!orgFound){return cb();}
@@ -337,6 +341,10 @@ function updateTicketWithNum(inn,sernum,words,orgId,cb){
 }
 
 function cancelTicket(inn,num,words,orgId,cb){
+     if(!helpers.validateSernum(num)){
+          return cb(new Error('Bad custom serial num: ' + num));
+     }
+
      db.TicketModel.findOne({organizer:orgId, serial_number:num},function(err,ticket){
           if(err){return cb(err);}
           if(!ticket){return cb(new Error('No ticket found'));}
@@ -350,9 +358,6 @@ function cancelTicket(inn,num,words,orgId,cb){
 }
 
 function convertWordsToData(from,data){
-     // TODO: add checks
-
-     // return 'Error: ' + bad data...
 
      convertFromWords(data,from,'priceRub',3);
      convertFromWords(data,from,'isPaperTicket',4);
@@ -389,10 +394,16 @@ function convertWordsToData(from,data){
 }
 
 function convertFromWords(to,from,name,index){
-     to[name] = from[index].trim();
+     if(typeof(from[index])!=='undefined' && from[index]){
+          to[name] = from[index].trim();
+     }
 }
 
 function createNewBlankWithNum(inn,sernum,words,orgId,cb){
+     if(!helpers.validateSernum(sernum)){
+          return cb(new Error('Bad custom serial num: ' + num));
+     }
+
      createNewBlankTicket(inn,orgId,sernum,function(err,ticket,isCollision){
           if(err){
                return cb(err);

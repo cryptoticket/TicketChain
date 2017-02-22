@@ -583,7 +583,33 @@ function convertTicketToOut(t,request,res,next){
      });
 }
 
+function isExists(field){
+     return (typeof(field)!=='undefined') && (field);
+}
+
 function fromDataToTicket(ticket,from,cb){
+     // TODO: add checks
+     if(isExists(from.issuer_inn) && !helpers.validateInn(from.issuer_inn)){
+          return 'Bad issuer_inn: ' + from.issuer_inn;          
+     }
+     if(isExists(from.seller_inn) && !helpers.validateInn(from.seller_inn)){
+          return 'Bad seller_inn: ' + from.seller_inn;          
+     }
+
+     if(isExists(from.issuer_orgn) && !helpers.validateOgrn(from.issuer_orgn)){
+          return 'Bad issuer_ogrn: ' + from.issuer_orgn;          
+     }
+     if(isExists(from.seller_orgn) && !helpers.validateOgrn(from.seller_orgn)){
+          return 'Bad seller_ogrn: ' + from.seller_orgn;          
+     }
+
+     if(isExists(from.issuer_ogrnip) && !helpers.validateOgrnip(from.issuer_ogrnip)){
+          return 'Bad issuer_ogrnip: ' + from.issuer_ogrnip;          
+     }
+     if(isExists(from.seller_ogrnip) && !helpers.validateOgrnip(from.seller_ogrnip)){
+          return 'Bad seller_ogrnip: ' + from.seller_ogrnip;          
+     }
+
      copyField(ticket,from,'priceRub');
      copyField(ticket,from,'isPaperTicket');
      copyField(ticket,from,'issuer');
