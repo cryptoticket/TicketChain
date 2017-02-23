@@ -284,9 +284,9 @@ describe('Files module 1',function(){
 
                var p = JSON.parse(dataOut);
 
-               assert.equal(p.totalTickets,1);
+               assert.equal(p.totalTickets,2);
                assert.equal(p.sold,1);
-               assert.equal(p.blank,0);
+               assert.equal(p.blank,1);
                assert.equal(p.cancelled,0);
 
                done();

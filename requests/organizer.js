@@ -912,7 +912,7 @@ app.get('/api/v1/organizers/:inn/stats',function(request,res,next){
           if(err){return next(err);}
           if(!orgFound){return next();}
 
-          db.TicketModel.find({organizer:org._id, status: 0},function(err,tickets){
+          db.TicketModel.find({organizer:org._id, state: 0},function(err,tickets){
                if(err){
                     return next(err);
                }
@@ -920,7 +920,7 @@ app.get('/api/v1/organizers/:inn/stats',function(request,res,next){
                console.log('Found blank tickets: ' + tickets.length);
                out.blank = tickets.length;
 
-               db.TicketModel.find({organizer:org._id, status: 1},function(err,tickets2){
+               db.TicketModel.find({organizer:org._id, state: 1},function(err,tickets2){
                     if(err){
                          return next(err);
                     }
@@ -928,7 +928,7 @@ app.get('/api/v1/organizers/:inn/stats',function(request,res,next){
                     console.log('Found sold tickets: ' + tickets2.length);
                     out.sold = tickets2.length;
 
-                    db.TicketModel.find({organizer:org._id, status: 2},function(err,tickets3){
+                    db.TicketModel.find({organizer:org._id, state: 2},function(err,tickets3){
                          if(err){
                               return next(err);
                          }
