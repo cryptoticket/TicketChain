@@ -113,8 +113,8 @@ describe('Organizer module',function(){
                assert.equal(err,null);
                assert.equal(statusCode,200);
                
-               console.log('OUT: ');
-               console.log(dataOut);
+               //console.log('OUT: ');
+               //console.log(dataOut);
 
                var p = JSON.parse(dataOut);
                assert.equal(p.length,1);
@@ -144,8 +144,6 @@ describe('Organizer module',function(){
                assert.notEqual(p.id.length,0);
                assert.equal(p.organizer_inn,INN);
 
-               // TODO: check format
-
                ticketOneSerialNumber = p.serial_number;
                done();
           });
@@ -164,10 +162,9 @@ describe('Organizer module',function(){
 
                var p = JSON.parse(dataOut);
 
-               console.log('CCC: ');
-               console.log(dataOut);
+               //console.log('CCC: ');
+               //console.log(dataOut);
 
-               // TODO: check format
                assert.notEqual(p.serial_number.length,0);
                assert.equal(p.state,"created");
 
@@ -244,6 +241,10 @@ describe('Organizer module',function(){
                var p = JSON.parse(dataOut);
                assert.equal(p.issuer_ogrn,'1234567890123');
 
+               assert.equal(typeof(p.event_date),'undefined');
+               assert.equal(typeof(p.buying_date),'undefined');
+               assert.equal(typeof(p.cancelled_date),'undefined');
+
                done();
           });
      })
@@ -292,6 +293,10 @@ describe('Organizer module',function(){
                assert.equal(p.state,"sold");
                assert.equal(p.price_rub, 110);
 
+               assert.equal(typeof(p.event_date),'undefined');
+               assert.notEqual(typeof(p.buying_date),'undefined');
+               assert.equal(typeof(p.cancelled_date),'undefined');
+
                done();
           });
      })
@@ -322,6 +327,10 @@ describe('Organizer module',function(){
                var p = JSON.parse(dataOut);
                assert.equal(p.state,"cancelled");
 
+               assert.equal(typeof(p.event_date),'undefined');
+               assert.notEqual(typeof(p.buying_date),'undefined');
+               assert.notEqual(typeof(p.cancelled_date),'undefined');
+
                done();
           });
      })
@@ -337,6 +346,42 @@ describe('Organizer module',function(){
           postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
                assert.equal(err,null);
                assert.equal(statusCode,200);
+               done();
+          });
+     })
+
+     //////////////////////////
+     it('should edit ticket data', function(done){
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId;
+
+          var data = { 
+               event_date: '2017-02-10T15:25:28.508Z' 
+          };
+          var postData = JSON.stringify(data);
+
+          var authToken = '';
+          putDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               done();
+          });
+     })
+
+     it('should get updated ticket with date', function(done){
+          var url = '/api/v1/organizers/' + INN + '/tickets/' + encodeURIComponent(ticketOneSerialNumber);
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               //console.log('P: ');
+               //console.log(p);
+
+               assert.equal(p.event_date,'2017-02-10T15:25:28.508Z');
+
                done();
           });
      })

@@ -634,8 +634,7 @@ function fromDataToTicket(ticket,from,cb){
      copyField(ticket,from,'issuer_address');
      copyField(ticket,from,'event_title');
      copyField(ticket,from,'event_place_title');
-     // TODO: date
-     //copyField(ticket,from,'event_date');
+
      copyField(ticket,from,'event_place_address');
      copyField(ticket,from,'row');
      copyField(ticket,from,'seat');
@@ -651,8 +650,9 @@ function fromDataToTicket(ticket,from,cb){
      copyField(ticket,from,'buyer_name');
      
      // TODO: date
-     //copyField(ticket,from,'buying_date');
-     //copyField(ticket,from,'cancelled_date');
+     copyField(ticket,from,'event_date');
+     copyField(ticket,from,'buying_date');
+     copyField(ticket,from,'cancelled_date');
      
      updateOrganizer(ticket.organizer,from,function(err){
           return cb(err,ticket);
