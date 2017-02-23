@@ -391,4 +391,23 @@ describe('Files module 2',function(){
                done();
           });
      })
+
+     it('should get stats', function(done){
+          var url = '/api/v1/organizers/' + INN + '/stats';
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+
+               assert.equal(p.totalTickets,1);
+               assert.equal(p.sold,0);
+               assert.equal(p.blank,0);
+               assert.equal(p.cancelled,1);
+
+               done();
+          });
+     })
 });
