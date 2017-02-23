@@ -57,8 +57,8 @@ var Ticket = new Schema({
      state: {type: Number, required:true},
      created: { type: Date, default: Date.now, required: true},
 
-     priceRub: {type: Number, required:false},
-     isPaperTicket: {type: Boolean, required:false},
+     price_rub: {type: Number, required:false},
+     is_paper_ticket: {type: Boolean, required:false},
 
      issuer: {type: String, required:false},
      // WARNING: inn is required!

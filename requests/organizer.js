@@ -537,8 +537,8 @@ function convertTicketToOut(t,request,res,next){
           serial_number: t.serial_number,
           state: 'created',
 
-          price_rub: t.priceRub,
-          is_paper_ticket: t.isPaperTicket,
+          price_rub: t.price_rub,
+          is_paper_ticket: t.is_paper_ticket,
 
           issuer: t.issuer,
           issuer_inn: t.issuer_inn,
@@ -610,8 +610,8 @@ function fromDataToTicket(ticket,from,cb){
           return 'Bad seller_ogrnip: ' + from.seller_ogrnip;          
      }
 
-     copyField(ticket,from,'priceRub');
-     copyField(ticket,from,'isPaperTicket');
+     copyField(ticket,from,'price_rub');
+     copyField(ticket,from,'is_paper_ticket');
      copyField(ticket,from,'issuer');
      copyField(ticket,from,'issuer_inn');
      copyField(ticket,from,'issuer_orgn');
@@ -893,4 +893,54 @@ function checkIfUniqueSerNum(sn,cb){
           return cb(null,true);
      });
 }
+
+app.get('/api/v1/organizers/:inn/stats',function(request,res,next){
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No INN');
+          return next();
+     }
+     var inn = request.params.inn;
+
+     var out = {
+          totalTickets: 0,
+          blank: 0,
+          sold: 0,
+          cancelled: 0
+     };
+
+     getOrganizerByInn(inn,function(err,orgFound,org){
+          if(err){return next(err);}
+          if(!orgFound){return next();}
+
+          db.TicketModel.find({organizer:org._id, status: 0},function(err,tickets){
+               if(err){
+                    return next(err);
+               }
+
+               console.log('Found blank tickets: ' + tickets.length);
+               out.blank = tickets.length;
+
+               db.TicketModel.find({organizer:org._id, status: 1},function(err,tickets2){
+                    if(err){
+                         return next(err);
+                    }
+
+                    console.log('Found sold tickets: ' + tickets2.length);
+                    out.sold = tickets2.length;
+
+                    db.TicketModel.find({organizer:org._id, status: 2},function(err,tickets3){
+                         if(err){
+                              return next(err);
+                         }
+
+                         console.log('Found cancelled tickets: ' + tickets3.length);
+                         out.cancelled = tickets3.length;
+
+                         out.totalTickets = out.blank + out.sold + out.cancelled;
+                         res.json(out);
+                    });
+               });
+          });
+     });
+});
 
