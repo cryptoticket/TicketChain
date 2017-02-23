@@ -26,7 +26,7 @@ function callFileProcessing(fileName,cb){
           assert.notEqual(stats.size,0);
 
           var isBlocking = '?blocking=1';
-          var url = 'http://localhost:9091/api/v1/organizers/' + INN + '/csv_job' + isBlocking;
+          var url = 'http://localhost:9091/api/v1/organizers/' + INN + '/csv_jobs' + isBlocking;
 
           restler.post(url, {
                multipart: true,
@@ -119,7 +119,7 @@ describe('Files module 1',function(){
      });
 
      it('should get file job info', function(done){
-          var url = '/api/v1/organizers/' + INN + '/csv_job/' + JOB_1_ID;
+          var url = '/api/v1/organizers/' + INN + '/csv_jobs/' + JOB_1_ID;
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -238,7 +238,7 @@ describe('Files module 1',function(){
      });
 
      it('should get file job #3 info - collision should be detected', function(done){
-          var url = '/api/v1/organizers/' + INN + '/csv_job/' + JOB_3_ID;
+          var url = '/api/v1/organizers/' + INN + '/csv_jobs/' + JOB_3_ID;
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
@@ -353,7 +353,7 @@ describe('Files module 2',function(){
      });
 
      it('should get file job info', function(done){
-          var url = '/api/v1/organizers/' + INN + '/csv_job/' + JOB_1_ID;
+          var url = '/api/v1/organizers/' + INN + '/csv_jobs/' + JOB_1_ID;
 
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){

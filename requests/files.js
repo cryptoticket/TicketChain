@@ -6,7 +6,7 @@ var assert = require('assert');
 var knox  = require('knox');
 var lineByLine = require('line-by-line');
 
-app.post('/api/v1/organizers/:inn/csv_job',function(req, res, next) {
+app.post('/api/v1/organizers/:inn/csv_jobs',function(req, res, next) {
      if(typeof(req.params.inn)==='undefined'){
           winston.error('No inn');
           return next();
@@ -77,7 +77,7 @@ app.post('/api/v1/organizers/:inn/csv_job',function(req, res, next) {
      });
 });
 
-app.get('/api/v1/organizers/:inn/csv_job/:job_id',function(req, res, next) {
+app.get('/api/v1/organizers/:inn/csv_jobs/:job_id',function(req, res, next) {
      if(typeof(req.params.job_id)==='undefined'){
           winston.error('No job_id provided');
           return next();
