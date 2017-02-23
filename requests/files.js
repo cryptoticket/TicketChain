@@ -358,7 +358,6 @@ function cancelTicket(inn,num,words,orgId,cb){
 }
 
 function convertWordsToData(from,data){
-
      convertFromWords(data,from,'price_rub',3);
      convertFromWords(data,from,'is_paper_ticket',4);
      convertFromWords(data,from,'issuer',5);
@@ -368,8 +367,6 @@ function convertWordsToData(from,data){
      convertFromWords(data,from,'issuer_address',9);
      convertFromWords(data,from,'event_title',10);
      convertFromWords(data,from,'event_place_title',11);
-     // TODO: date
-     //convertFromWords(data,from,'event_date',12);
      convertFromWords(data,from,'event_place_address',13);
      convertFromWords(data,from,'row',14);
      convertFromWords(data,from,'seat',15);
@@ -384,10 +381,9 @@ function convertWordsToData(from,data){
      convertFromWords(data,from,'seller_address',21);
      convertFromWords(data,from,'buyer_name',22);
      
-     // TODO: date
-     //convertFromWords(data,from,'buying_date',23);
-
-     //convertFromWords(data,from,'cancelled_date');
+     convertFromWords(data,from,'event_date',12);
+     convertFromWords(data,from,'buying_date',23);
+     convertFromWords(data,from,'cancelled_date',24);
 
      // no error
      return null;
