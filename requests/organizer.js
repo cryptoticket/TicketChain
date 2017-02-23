@@ -259,7 +259,7 @@ function changeStateTo(state,request,res,next){
      }
      winston.info('Sell tickets ' + id + ' for INN: ' + inn);
 
-     changeStateInternal(inn,id,state,function(err){
+     changeStateInternal(request,inn,id,state,function(err){
           if(err){
                return next(err);
           }
@@ -269,7 +269,7 @@ function changeStateTo(state,request,res,next){
      });
 }
 
-function changeStateInternal(inn,id,state,cb){
+function changeStateInternal(request,inn,id,state,cb){
      getOrganizerByInn(inn,function(err,orgFound,org){
           if(err){return cb(err);}
           if(!orgFound){return cb(new Error('No org found: ' + inn));}
@@ -296,16 +296,31 @@ function changeStateInternal(inn,id,state,cb){
                     // created or sold -> cancelled
                     ticket.state = 2;
                     ticket.cancelled_date = Date.now();
-               }else if(state==2){
                }
 
-               ticket.save(function(err){
-                    if(err){
-                         return cb(err);
-                    }
+               if(!request){
+                    ticket.save(function(err){
+                         if(err){
+                              return cb(err);
+                         }
 
-                    cb(null);
-               });
+                         cb(null);
+                    });
+               }else{
+                    fromDataToTicket(ticket,request.body,function(err,ticketOut){
+                         if(err){
+                              return cb(err);
+                         }
+
+                         ticketOut.save(function(err){
+                              if(err){
+                                   return cb(err);
+                              }
+
+                              cb(null);
+                         });
+                    });
+               }
           });
      });
 }

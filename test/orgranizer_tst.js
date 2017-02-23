@@ -253,6 +253,7 @@ describe('Organizer module',function(){
 
           // TODO: can take data here
           var data = { 
+               price_rub: 110
           };
           var postData = JSON.stringify(data);
 
@@ -289,6 +290,7 @@ describe('Organizer module',function(){
 
                var p = JSON.parse(dataOut);
                assert.equal(p.state,"sold");
+               assert.equal(p.price_rub, 110);
 
                done();
           });

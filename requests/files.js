@@ -350,7 +350,7 @@ function cancelTicket(inn,num,words,orgId,cb){
           if(!ticket){return cb(new Error('No ticket found'));}
 
           // "cancelled"
-          changeStateInternal(inn,ticket._id,2,function(err){
+          changeStateInternal(null,inn,ticket._id,2,function(err){
                // err,isCollision,ticket,sernum
                return cb(err,false,ticket,num);
           });
