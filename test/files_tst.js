@@ -206,8 +206,7 @@ describe('Files module 1',function(){
                assert.equal(p.issuer_inn, '2346787891');
                assert.equal(p.event_title, 'Алиса в стране чудес');
                assert.equal(p.event_place_title, 'МХАТ им Чехова');
-               // TODO:
-               //assert.equal(p.event_date, '');
+               assert.equal(p.event_date, '2017-02-20T19:00:00.000Z');
 
                assert.equal(p.row, '12');
                assert.equal(p.seat, '5А');

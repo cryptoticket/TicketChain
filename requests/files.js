@@ -390,8 +390,12 @@ function convertWordsToData(from,data){
 }
 
 function convertFromWords(to,from,name,index){
-     if(typeof(from[index])!=='undefined' && from[index]){
-          to[name] = from[index].trim();
+     try {
+          if(typeof(from[index])!=='undefined' && from[index]){
+               to[name] = from[index].trim();
+          }
+     }catch(e){
+
      }
 }
 
