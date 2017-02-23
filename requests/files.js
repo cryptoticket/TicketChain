@@ -363,7 +363,7 @@ function convertWordsToData(from,data){
      convertFromWords(data,from,'is_paper_ticket',4);
      convertFromWords(data,from,'issuer',5);
      convertFromWords(data,from,'issuer_inn',6);
-     convertFromWords(data,from,'issuer_orgn',7);
+     convertFromWords(data,from,'issuer_ogrn',7);
      convertFromWords(data,from,'issuer_ogrnip',8);
      convertFromWords(data,from,'issuer_address',9);
      convertFromWords(data,from,'event_title',10);
@@ -379,7 +379,7 @@ function convertWordsToData(from,data){
 
      convertFromWords(data,from,'seller',17);
      convertFromWords(data,from,'seller_inn',18);
-     convertFromWords(data,from,'seller_orgn',19);
+     convertFromWords(data,from,'seller_ogrn',19);
      convertFromWords(data,from,'seller_ogrnip',20);
      convertFromWords(data,from,'seller_address',21);
      convertFromWords(data,from,'buyer_name',22);

@@ -42,7 +42,7 @@ var Organizer = new Schema({
      organizer: {type: String, required:false},
 
      organizer_inn: {type: String, required:false},
-     organizer_orgn: {type: String, required:false},
+     organizer_ogrn: {type: String, required:false},
      organizer_ogrnip: {type: String, required:false},
      organizer_address: {type: String, required:false},
 });
@@ -63,7 +63,7 @@ var Ticket = new Schema({
      issuer: {type: String, required:false},
      // WARNING: inn is required!
      issuer_inn: {type: String, required:false},
-     issuer_orgn: {type: String, required:false},
+     issuer_ogrn: {type: String, required:false},
      issuer_ogrnip: {type: String, required:false},
      issuer_address: {type: String, required:false},
 
@@ -81,7 +81,7 @@ var Ticket = new Schema({
 
      seller: {type: String, required:false},
      seller_inn: {type: String, required:false},
-     seller_orgn: {type: String, required:false},
+     seller_ogrn: {type: String, required:false},
      seller_ogrnip: {type: String, required:false},
      seller_address: {type: String, required:false},
 

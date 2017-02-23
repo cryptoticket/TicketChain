@@ -542,7 +542,7 @@ function convertTicketToOut(t,request,res,next){
 
           issuer: t.issuer,
           issuer_inn: t.issuer_inn,
-          issuer_orgn: t.issuer_orgn,
+          issuer_ogrn: t.issuer_ogrn,
           issuer_ogrnip: t.issuer_ogrnip,
           issuer_address: t.issuer_address,
 
@@ -558,7 +558,7 @@ function convertTicketToOut(t,request,res,next){
 
           seller: t.seller,
           seller_inn: t.seller_inn,
-          seller_orgn: t.seller_orgn,
+          seller_ogrn: t.seller_ogrn,
           seller_ogrnip: t.seller_ogrnip,
           seller_address: t.seller_address,
 
@@ -596,11 +596,11 @@ function fromDataToTicket(ticket,from,cb){
           return 'Bad seller_inn: ' + from.seller_inn;          
      }
 
-     if(isExists(from.issuer_orgn) && !helpers.validateOgrn(from.issuer_orgn)){
-          return 'Bad issuer_ogrn: ' + from.issuer_orgn;          
+     if(isExists(from.issuer_ogrn) && !helpers.validateOgrn(from.issuer_ogrn)){
+          return 'Bad issuer_ogrn: ' + from.issuer_ogrn;          
      }
-     if(isExists(from.seller_orgn) && !helpers.validateOgrn(from.seller_orgn)){
-          return 'Bad seller_ogrn: ' + from.seller_orgn;          
+     if(isExists(from.seller_ogrn) && !helpers.validateOgrn(from.seller_ogrn)){
+          return 'Bad seller_ogrn: ' + from.seller_ogrn;          
      }
 
      if(isExists(from.issuer_ogrnip) && !helpers.validateOgrnip(from.issuer_ogrnip)){
@@ -614,7 +614,7 @@ function fromDataToTicket(ticket,from,cb){
      copyField(ticket,from,'is_paper_ticket');
      copyField(ticket,from,'issuer');
      copyField(ticket,from,'issuer_inn');
-     copyField(ticket,from,'issuer_orgn');
+     copyField(ticket,from,'issuer_ogrn');
      copyField(ticket,from,'issuer_ogrnip');
      copyField(ticket,from,'issuer_address');
      copyField(ticket,from,'event_title');
@@ -630,7 +630,7 @@ function fromDataToTicket(ticket,from,cb){
 
      copyField(ticket,from,'seller');
      copyField(ticket,from,'seller_inn');
-     copyField(ticket,from,'seller_orgn');
+     copyField(ticket,from,'seller_ogrn');
      copyField(ticket,from,'seller_ogrnip');
      copyField(ticket,from,'seller_address');
      copyField(ticket,from,'buyer_name');
@@ -781,7 +781,7 @@ function updateOrganizer(orgId,from,cb){
           // WARNING: can't be changed
           //copyField(ticket,from,'organizer_inn');
           copyField(org,from,'organizer');
-          copyField(org,from,'organizer_orgn');
+          copyField(org,from,'organizer_ogrn');
           copyField(org,from,'organizer_ogrnip');
           copyField(org,from,'organizer_address');
 
@@ -794,7 +794,7 @@ function updateOrganizer(orgId,from,cb){
 function convertOrgToOut(to,from){
      copyField(to,from,'organizer');
      copyField(to,from,'organizer_inn');
-     copyField(to,from,'organizer_orgn');
+     copyField(to,from,'organizer_ogrn');
      copyField(to,from,'organizer_ogrnip');
      copyField(to,from,'organizer_address');
 }

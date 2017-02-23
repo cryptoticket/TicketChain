@@ -220,7 +220,7 @@ describe('Organizer module',function(){
           var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId;
 
           var data = { 
-               issuer_orgn: '1234567890123'
+               issuer_ogrn: '1234567890123'
           };
           var postData = JSON.stringify(data);
 
@@ -242,7 +242,7 @@ describe('Organizer module',function(){
                assert.equal(statusCode,200);
 
                var p = JSON.parse(dataOut);
-               assert.equal(p.issuer_orgn,'1234567890123');
+               assert.equal(p.issuer_ogrn,'1234567890123');
 
                done();
           });
