@@ -99,8 +99,7 @@ app.get('/api/v1/organizers/:inn/csv_jobs/:job_id',function(req, res, next) {
           var out = {
                batch_id: task.batch_id,
                file_name: task.fileName,
-               // TODO: 
-               processed_items: 0 
+               processed_items: 0            // TODO
           }
 
           if(!task.status){
