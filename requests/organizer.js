@@ -23,7 +23,12 @@ app.get('/api/v1/organizers/:inn/tickets',function(request,res,next){
           if(err){return next(err);}
           if(!orgFound){return next();}
 
-          db.TicketModel.paginate({organizer:org._id},{page:request.query.page,limit:request.query.limit},function(err,tickets){
+          db.TicketModel.paginate({organizer:org._id},{
+               sort:{serial_number:1},
+               page:request.query.page,
+               limit:request.query.limit},
+
+          function(err,tickets){
                if(err){
                     return next(err);
                }
@@ -311,14 +316,11 @@ function changeStateInternal(request,inn,id,state,cb){
                               return cb(err);
                          }
 
-                         console.log('3...');
                          ticketOut.save(function(err){
                               if(err){
-                                   console.log('4...' + err);
                                    return cb(err);
                               }
 
-                              console.log('5...');
                               cb(null);
                          });
                     });
