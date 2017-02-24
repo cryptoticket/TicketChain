@@ -520,6 +520,10 @@ function createNewBlankTicket(inn,organizerId,optionalSerNum,cb){
      ticket.state = 0;
 
      if(optionalSerNum.length){
+          if(optionalSerNum.length!=8){
+               return cb(new Error('Bad custom ser num: ' + optionalSerNum));
+          }
+
           ticket.serial_number = optionalSerNum;
      }else{
           // TODO: make unique!!!
