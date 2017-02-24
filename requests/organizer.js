@@ -311,11 +311,14 @@ function changeStateInternal(request,inn,id,state,cb){
                               return cb(err);
                          }
 
+                         console.log('3...');
                          ticketOut.save(function(err){
                               if(err){
+                                   console.log('4...' + err);
                                    return cb(err);
                               }
 
+                              console.log('5...');
                               cb(null);
                          });
                     });

@@ -254,7 +254,25 @@ describe('Organizer module',function(){
 
           // TODO: can take data here
           var data = { 
-               price_rub: 110
+               buyer_name: "Семин Андрей",
+               event_place_address:"Москва Картеный ряд",
+               event_place_title:"МХАТ",
+               event_title:"Щелкунчик",
+               id:"58b04f5a299e2500113cb81b",
+               is_paper_ticket:true,
+               organizer_inn:"111111111111",
+               price_rub:110,
+               row:"6",
+               seat:"10Б",
+               seller:"ООО ОблакоБилетов",
+               seller_address:"Москва",
+               seller_inn:"123123123123",
+               seller_ogrn:"1231231231231",
+               seller_ogrnip:"123123123812389",
+               serial_number:"АА000001",
+               state:"created",
+               //ticket_category:"Первая"
+               ticket_category:1
           };
           var postData = JSON.stringify(data);
 
