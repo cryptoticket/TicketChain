@@ -1,8 +1,6 @@
 var helpers = require('./helpers/helpers.js');
 var db_helpers = require('./helpers/db_helpers.js');
 
-var assert = require('assert');
-
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
@@ -19,29 +17,30 @@ app.get('/api/v1/organizers/:inn/tickets',function(request,res,next){
           winston.error('Bad inn');
           return next();
      }
-     winston.info('Asking tickets for INN: ' + inn);
+     winston.info('Asking tickets for INN: ' + inn + ' page=' + request.query.page + ' limit= ' + request.query.limit);
 
      getOrganizerByInn(inn,function(err,orgFound,org){
           if(err){return next(err);}
           if(!orgFound){return next();}
 
-          db.TicketModel.find({organizer:org._id},function(err,tickets){
+          db.TicketModel.paginate({organizer:org._id},{page:request.query.page,limit:request.query.limit},function(err,tickets){
                if(err){
                     return next(err);
                }
 
-               console.log('Found tickets: ' + tickets.length);
+               console.log('Found tickets: ' + tickets.docs.length);
 
                var arr = [];
 
-               for(var i=0; i<tickets.length; ++i){
-                    arr.push(tickets[i]._id);
+               for(var i=0; i<tickets.docs.length; ++i){
+                    arr.push(tickets.docs[i]._id);
                }
 
                res.json(arr);
           });
      });
 });
+
 
 // Create new blank ticket to reserve it.
 // Postcondition: blank ticket has been created.

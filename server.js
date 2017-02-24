@@ -1,6 +1,7 @@
 var application_root = __dirname;
 
 var express = require('express');
+var paginate = require('express-paginate');
 
 var fs = require('fs');
 var http = require('http');
@@ -118,6 +119,14 @@ app.use(function(err, req, res, next){
      res.send(500, 'Something went wrong! Contact administrator');
 });
 
+app.all(function(req, res, next) {
+     if(req.query.limit<50) {
+          req.query.limit = 50;
+     }
+
+     next();
+});
+
 // Remove X-Powered-by: Express header...
 app.disable('x-powered-by');
 
@@ -137,6 +146,9 @@ app.get('/prepShutdown', function(req, res) {
           res.end();
      }
 });
+
+// limit, max limit
+app.use(paginate.middleware(50, 300));
 
 // This is main APIs file
 eval(fs.readFileSync('requests/users.js')+'');

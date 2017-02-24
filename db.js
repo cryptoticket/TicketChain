@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+var mongoosePaginate = require('mongoose-paginate');
+
 var winston = require('winston');
 var async = require('async');
 
@@ -89,7 +91,7 @@ var Ticket = new Schema({
      buying_date: { type: Date, required:false },
      cancelled_date: { type: Date, required:false }
 });
-
+Ticket.plugin(mongoosePaginate);
 
 var Batch = new Schema({
      organizer: {type: Schema.ObjectId, required:true},
@@ -98,6 +100,7 @@ var Batch = new Schema({
 		ticketId: {type:Schema.ObjectId, required:true},
      }],
 });
+//Batch.plugin(mongoosePaginate);
 
 var Task = new Schema({
      fileName: {type: String, required:true},

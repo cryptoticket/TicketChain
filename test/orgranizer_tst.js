@@ -387,3 +387,107 @@ describe('Organizer module',function(){
      })
 });
 
+
+describe('Pagination module',function(){
+     before(function(done){
+          var uri  = 'mongodb://localhost/tests';
+
+          var conn = db.connectToDb(uri,'','');
+          db.removeDb(function(){
+               server.initDb(db);
+
+               server.startHttp(9091);
+               done();   // ok
+          });
+     });
+
+     after(function(done){
+          server.stop();
+          db.removeDb(function(){});
+          db.disconnectDb();
+          done();
+     });
+
+     it('should create batch', function(done){
+          var url = '/api/v1/organizers/' + INN + '/batches';
+
+          // only 1 ticket
+          var data = { 
+               start_series: 'АА',
+               start_number: '000000',
+               end_series: 'АА',
+               end_number: '000123',
+          };
+          var postData = JSON.stringify(data);
+
+          var authToken = '';
+          postDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.notEqual(p.batch_id, 0);
+               
+               batchOneId = p.batch_id;
+
+               done();
+          });
+     })
+
+     it('should get ticket page 1', function(done){
+          // default ?page=1&limit=50
+          var url = '/api/v1/organizers/' + INN + '/tickets';
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+               
+               //console.log('OUT: ');
+               //console.log(dataOut);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.length,50);
+
+               done();
+          });
+     });
+
+     it('should get ticket page 2', function(done){
+          // default ?page=1&limit=50
+          var url = '/api/v1/organizers/' + INN + '/tickets?page=2';
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+               
+               //console.log('OUT: ');
+               //console.log(dataOut);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.length,50);
+
+               done();
+          });
+     });
+
+     it('should get ticket page 3', function(done){
+          // default ?page=1&limit=50
+          var url = '/api/v1/organizers/' + INN + '/tickets?page=3';
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+               
+               //console.log('OUT: ');
+               //console.log(dataOut);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.length,24);
+
+               done();
+          });
+     });
+});
