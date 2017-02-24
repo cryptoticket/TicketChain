@@ -497,7 +497,10 @@ app.get('/api/v1/organizers/:inn/batches/:id',function(request, res, next){
 
      getOrganizerByInn(inn,function(err,orgFound,org){
           if(err){return next(err);}
-          if(!orgFound){return next();}
+          if(!orgFound){
+               winston.error('No org is found: ' + inn); 
+               return next();
+          }
 
           db.BatchModel.findOne({organizer:org._id, _id:id},function(err,batch){
                if(err){
@@ -514,6 +517,7 @@ app.get('/api/v1/organizers/:inn/batches/:id',function(request, res, next){
                     out.push(batch.tickets[i].ticketId);
                }
 
+               winston.info('Returning data for batch: ' + id);
                res.json(out);
           });
      });
