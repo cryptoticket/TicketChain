@@ -452,6 +452,24 @@ describe('Pagination module',function(){
           });
      })
 
+     it('should get ticket count', function(done){
+          var url = '/api/v1/organizers/' + INN + '/ticket_count';
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+               
+               //console.log('OUT: ');
+               //console.log(dataOut);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.count,124);
+
+               done();
+          });
+     });
+
      it('should get ticket page 1', function(done){
           // default ?page=1&limit=50
           var url = '/api/v1/organizers/' + INN + '/tickets';

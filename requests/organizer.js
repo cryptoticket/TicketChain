@@ -4,6 +4,38 @@ var db_helpers = require('./helpers/db_helpers.js');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+// Get total ticket count for current organizer
+//
+// http://docs.ticketchain.apiary.io/#reference/0/tickets/get-ticket-count
+app.get('/api/v1/organizers/:inn/ticket_count',function(request,res,next){
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No inn');
+          return next();
+     }
+     var inn = request.params.inn;
+     if(!helpers.validateInn(inn)){
+          winston.error('Bad inn');
+          return next();
+     }
+     winston.info('Asking tickets for INN: ' + inn + ' page=' + request.query.page + ' limit= ' + request.query.limit);
+
+     getOrganizerByInn(inn,function(err,orgFound,org){
+          if(err){return next(err);}
+          if(!orgFound){return next();}
+
+          db.TicketModel.find({organizer:org._id}).count(function(err,count){
+               if(err){return next(err);}
+
+               var out = {
+                    count: count
+               };
+
+               return res.json(out);
+          });
+     });
+});
+
+
 // Get all issued by particular company tickets. Returns array of ticket IDs.
 // 
 // http://docs.ticketchain.apiary.io/#reference/0/tickets-collection/get-all-ticket-issued-by-organizer
