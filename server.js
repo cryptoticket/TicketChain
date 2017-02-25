@@ -227,6 +227,9 @@ function processSingleCsvFileTask(cb){
           console.log('Processing single task: ' + task._id);
           console.log(task);
 
+          winston.info('Processing single task: ' + task._id);
+          winston.info(task);
+
           // 2 - process it
           // see 'requests/files.js'
           console.log('Start processing: ' + task._id);
