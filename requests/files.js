@@ -202,13 +202,13 @@ function processCsvFileInt(fileName,jobId,inn,cb){
           return cb(new Error('File does not exist: ' + filePath));
      }
 
-     console.log('Create organizer: ' + inn);
+     winston.info('Create organizer: ' + inn);
      createOrganizer(inn,function(err,orgId){
           if(err){
                return cb(err);
           }
 
-          console.log('Created organizer: ' + inn);
+          winston.info('Created organizer: ' + inn);
 
           var collisions = [];
           var errors = [];

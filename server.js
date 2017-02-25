@@ -224,21 +224,18 @@ function processSingleCsvFileTask(cb){
                return cb();
           }
 
-          console.log('Processing single task: ' + task._id);
-          console.log(task);
-
           winston.info('Processing single task: ' + task._id);
           winston.info(task);
 
           // 2 - process it
           // see 'requests/files.js'
-          console.log('Start processing: ' + task._id);
+          winston.info('Start processing: ' + task._id);
           processCsvFile(task.fileNameReal,task._id,task.organizer_inn,function(err){
                if(err){
                     console.log('Error: ' + err);
                }
 
-               console.log('End processing: ' + task._id);
+               winston.info('End processing: ' + task._id);
                cb(err);
           });
      });
