@@ -47,7 +47,7 @@ app.post('/api/v1/organizers/:inn/csv_jobs',function(req, res, next) {
                task.fileName = filename;
                task.fileNameReal = generatedFileName;
                task.status = 0;
-               task.organizer_inn = '1234567890';
+               task.organizer_inn = inn;
 
                console.log('Saving task: ' + task._id);
                task.save(function(err){
