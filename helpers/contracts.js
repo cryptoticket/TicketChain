@@ -2,8 +2,10 @@ var solc = require('solc');
 var Web3 = require('web3');
 var fs = require('fs');
 
-// TODO:
-var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8989"));
+var config = require('../config');
+
+var web3 = new Web3(new Web3.providers.HttpProvider(
+     process.env.MONGODB_USER || config.get('ethereum:test_node')));
 
 var g_creator = 0;
 var g_abi;
@@ -49,18 +51,15 @@ function deployTicket(ticket,cb){
      var date_created = 0;
      var price_kop = 100;
      var is_paper_ticket = false;
-
      var event_title = "";
      var event_place_title = "";
      var event_date = "";
      var event_place_address = "";
-
-     var row = "12";
-     var seat = "5A";
+     var row = "";
+     var seat = "";
      var ticket_category = "";
-
-     var buyer_name = "Anton Akentiev";
-     var buying_date = 100;
+     var buyer_name = "";
+     var buying_date = 0;
 
      tempContract.new(
           date_created,

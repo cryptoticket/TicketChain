@@ -50,5 +50,9 @@
           "min_pass_len": 6,
           "expires_minutes": 60,
           "salt": "$2a$10$ywsX7h.cOCxsvMHgDjQih."
+     },
+
+     "ethereum":{
+          "test_node":"http://localhost:8989"
      }
 }
