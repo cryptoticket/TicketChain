@@ -25,8 +25,9 @@ describe('Users module',function(){
           db.removeDb(function(){
                server.initDb(db);
 
-               server.startHttp(9091);
-               done();   // ok
+               server.startHttp(9091,function(err){
+                    done();   // ok
+               });
           });
      });
 

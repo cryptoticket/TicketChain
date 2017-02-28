@@ -4,6 +4,9 @@ var db_helpers = require('./helpers/db_helpers.js');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+//var BigNumber = require('bignumber.js');
+//var unit = new BigNumber(Math.pow(10,18));
+
 // Get total ticket count for current organizer
 //
 // http://docs.ticketchain.apiary.io/#reference/0/tickets/get-ticket-count
@@ -583,9 +586,20 @@ function createNewBlankTicket(inn,organizerId,optionalSerNum,cb){
           ticket.created = Date.now();
           ticket.organizer = organizerId;
 
-          winston.info('Saving new Ticket: ' + ticket.serial_number);
-          ticket.save(function(err){
-               cb(err,ticket);
+          winston.info('Deploying new ticket to Blockchain');
+          contract_helpers.deployTicket(ticket,function(err,contractTicketAddress){
+               if(err){
+                    winston.error('Can not deploy new ticket');
+                    return cb(err);
+               }
+
+               winston.info('Contract address: ' + contractTicketAddress);
+               ticket.contract_address = '' + contractTicketAddress;
+
+               winston.info('Saving new Ticket: ' + ticket.serial_number);
+               ticket.save(function(err){
+                    cb(err,ticket);
+               });
           });
      });
 }
@@ -623,7 +637,9 @@ function convertTicketToOut(t,request,res,next){
 
           buyer_name: t.buyer_name,
           buying_date: t.buying_date,
-          cancelled_date: t.cancelled_date
+          cancelled_date: t.cancelled_date,
+
+          contract_address: t.contract_address
      };
 
      if(t.state==1){
@@ -1002,4 +1018,5 @@ app.get('/api/v1/organizers/:inn/stats',function(request,res,next){
           });
      });
 });
+
 

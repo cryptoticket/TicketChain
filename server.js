@@ -10,6 +10,7 @@ var winston = require('winston');
 var expressJwt = require('express-jwt');
 var busboy = require('connect-busboy');
 
+var contract_helpers = require('./helpers/contracts.js');
 var config = require('./config');
 
 ///////////// Global variables ))
@@ -160,15 +161,33 @@ function initDb(dbInit){
      db = dbInit;
 }
 
-function startHttp(port){
-     this.httpServer = http.createServer(app).listen(port);
+function startHttp(port,cb){
+     contract_helpers.getAccount(function(err){
+          if(err){
+               console.log('Can not get ETH accounts...' + err);
+               winston.error('Can not get ETH accounts... ' + err);
+               return cb(err);
+          }
 
-     this.httpServer.on('connection', function(sock) {
-          winston.info('Client connected from ' + sock.remoteAddress);
-     });
-     
-     this.httpServer.on('request', function(req,resp) {
-          winston.info('REQ: ' + req.connection.remoteAddress + '.URL: ' + req.url);
+          contract_helpers.compileTicket(function(err){
+               if(err){
+                    console.log('Can not compile contract...' + err);
+                    winston.error('Can not compile contract... ' + err);
+                    return cb(err);
+               }
+
+               this.httpServer = http.createServer(app).listen(port);
+
+               this.httpServer.on('connection', function(sock) {
+                    winston.info('Client connected from ' + sock.remoteAddress);
+               });
+               
+               this.httpServer.on('request', function(req,resp) {
+                    winston.info('REQ: ' + req.connection.remoteAddress + '.URL: ' + req.url);
+               });
+
+               cb(null);
+          });
      });
 }
 

@@ -29,8 +29,9 @@ describe('Organizer module',function(){
           db.removeDb(function(){
                server.initDb(db);
 
-               server.startHttp(9091);
-               done();   // ok
+               server.startHttp(9091,function(err){
+                    done(err);   // ok
+               });
           });
      });
 
@@ -405,7 +406,6 @@ describe('Organizer module',function(){
      })
 });
 
-
 describe('Pagination module',function(){
      before(function(done){
           var uri  = 'mongodb://localhost/tests';
@@ -414,8 +414,9 @@ describe('Pagination module',function(){
           db.removeDb(function(){
                server.initDb(db);
 
-               server.startHttp(9091);
-               done();   // ok
+               server.startHttp(9091,function(err){
+                    done(err);   // ok
+               });
           });
      });
 

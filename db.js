@@ -89,7 +89,9 @@ var Ticket = new Schema({
 
      buyer_name: {type: String, required:false},
      buying_date: { type: Date, required:false },
-     cancelled_date: { type: Date, required:false }
+     cancelled_date: { type: Date, required:false},
+
+     contract_address: {type:String, required: false}
 });
 Ticket.plugin(mongoosePaginate);
 

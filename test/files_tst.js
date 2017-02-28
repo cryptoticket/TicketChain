@@ -69,8 +69,9 @@ describe('Files module 1',function(){
           db.removeDb(function(){
                server.initDb(db);
 
-               server.startHttp(9091);
-               done();   // ok
+               server.startHttp(9091,function(err){
+                    done(err);   // ok
+               });
           });
      });
 
@@ -302,8 +303,9 @@ describe('Files module 2',function(){
           db.removeDb(function(){
                server.initDb(db);
 
-               server.startHttp(9091);
-               done();   // ok
+               server.startHttp(9091,function(err){
+                    done(err);   // ok
+               });
           });
      });
 

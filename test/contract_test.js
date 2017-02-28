@@ -4,7 +4,6 @@ var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8989"));
 
 var fs = require('fs');
 var assert = require('assert');
-var async = require('async');
 var BigNumber = require('bignumber.js');
 
 var abi;
@@ -54,7 +53,7 @@ function deployContract1(cb){
           var ticket_category = "";
 
           var buyer_name = "Anton Akentiev";
-          var buying_date = "12.02.2017";
+          var buying_date = 100;
 
           tempContract.new(
                date_created,
@@ -122,5 +121,87 @@ describe('Contract', function() {
 
                done();
           });
+     });
+
+     it('should set issuer',function(done){
+          var issuer = "TicketsCloud";
+          var issuer_inn = "1234567890";
+          var issuer_orgn = "1234567890123";
+          var issuer_ogrnip = "123456789012345";
+          var issuer_address = "Moscow";
+
+          contract.setIssuer(
+                    issuer,
+                    issuer_inn,
+                    issuer_orgn,
+                    issuer_ogrnip,
+                    issuer_address,
+               {
+                    from: creator,               
+                    gasPrice: 2000000,
+                    gas: 3000000
+               },function(err,result){
+                    assert.equal(err,null);
+
+                    done();
+               }
+          );
+     });
+
+     it('should set seller',function(done){
+          var issuer = "TicketLand";
+          var issuer_inn = "1234567890";
+          var issuer_orgn = "1234567890123";
+          var issuer_ogrnip = "123456789012345";
+          var issuer_address = "Spb";
+
+          contract.setSeller(
+                    issuer,
+                    issuer_inn,
+                    issuer_orgn,
+                    issuer_ogrnip,
+                    issuer_address,
+               {
+                    from: creator,               
+                    gasPrice: 2000000,
+                    gas: 3000000
+               },function(err,result){
+                    assert.equal(err,null);
+
+                    done();
+               }
+          );
+     });
+
+     it('should set organizer',function(done){
+          var issuer = "МХАТ";
+          var issuer_inn = "1234567890";
+          var issuer_orgn = "1234567890123";
+          var issuer_ogrnip = "123456789012345";
+          var issuer_address = "Москва";
+
+          contract.setOrganizer(
+                    issuer,
+                    issuer_inn,
+                    issuer_orgn,
+                    issuer_ogrnip,
+                    issuer_address,
+               {
+                    from: creator,               
+                    gasPrice: 2000000,
+                    gas: 3000000
+               },function(err,result){
+                    assert.equal(err,null);
+
+                    web3.eth.getTransactionReceipt(result, function(err, r){
+                         assert.equal(err, null);
+
+                         console.log('Result: ');
+                         console.log(r);
+
+                         done();
+                    });
+               }
+          );
      });
 });
