@@ -8,6 +8,17 @@ var assert = require('assert');
 
 var bcrypt = require('bcrypt');
 
+
+function isExists(field){
+     return (typeof(field)!=='undefined') && (field);
+}
+
+function copyField(to,from,field){
+     if(field in from){
+          to[field] = from[field];
+     }
+}
+
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 function getRandom(min, max) {
@@ -121,9 +132,116 @@ function createNewUser(name,lastName,email,pass,facebookID,needValidation,cb){
      });
 }
 
+function getOrganizerByInn(inn,cb){
+     db.OrganizerModel.findOne({organizer_inn:inn},function(err,org){
+          if(err){
+               return cb(err,false);
+          }
+
+          if(typeof(org)=='undefined' || !org){
+               return cb(null,false,{});
+          }
+          
+          return cb(null,true,org);
+     });
+}
+
+
+function getOrganizerById(id,cb){
+     db.OrganizerModel.findOne({_id:id},function(err,org){
+          if(err){
+               return cb(err);
+          }
+
+          if(typeof(org)=='undefined' || !org){
+               return cb(new Error('Can not find organizer'));
+          }
+          
+          return cb(null,org);
+     });
+}
+
+function fromDataToTicket(ticket,from,cb){
+     if(isExists(from.issuer_inn) && !helpers.validateInn(from.issuer_inn)){
+          return 'Bad issuer_inn: ' + from.issuer_inn;          
+     }
+     if(isExists(from.seller_inn) && !helpers.validateInn(from.seller_inn)){
+          return 'Bad seller_inn: ' + from.seller_inn;          
+     }
+
+     if(isExists(from.issuer_ogrn) && !helpers.validateOgrn(from.issuer_ogrn)){
+          return 'Bad issuer_ogrn: ' + from.issuer_ogrn;          
+     }
+     if(isExists(from.seller_ogrn) && !helpers.validateOgrn(from.seller_ogrn)){
+          return 'Bad seller_ogrn: ' + from.seller_ogrn;          
+     }
+
+     if(isExists(from.issuer_ogrnip) && !helpers.validateOgrnip(from.issuer_ogrnip)){
+          return 'Bad issuer_ogrnip: ' + from.issuer_ogrnip;          
+     }
+     if(isExists(from.seller_ogrnip) && !helpers.validateOgrnip(from.seller_ogrnip)){
+          return 'Bad seller_ogrnip: ' + from.seller_ogrnip;          
+     }
+
+     copyField(ticket,from,'price_rub');
+     copyField(ticket,from,'is_paper_ticket');
+     copyField(ticket,from,'issuer');
+     copyField(ticket,from,'issuer_inn');
+     copyField(ticket,from,'issuer_ogrn');
+     copyField(ticket,from,'issuer_ogrnip');
+     copyField(ticket,from,'issuer_address');
+     copyField(ticket,from,'event_title');
+     copyField(ticket,from,'event_place_title');
+
+     copyField(ticket,from,'event_place_address');
+     copyField(ticket,from,'row');
+     copyField(ticket,from,'seat');
+     copyField(ticket,from,'ticket_category');
+
+     //copyField(ticket,from,'organizer');
+
+     copyField(ticket,from,'seller');
+     copyField(ticket,from,'seller_inn');
+     copyField(ticket,from,'seller_ogrn');
+     copyField(ticket,from,'seller_ogrnip');
+     copyField(ticket,from,'seller_address');
+     copyField(ticket,from,'buyer_name');
+     
+     // TODO: date
+     copyField(ticket,from,'event_date');
+     copyField(ticket,from,'buying_date');
+     copyField(ticket,from,'cancelled_date');
+
+     return cb(null,ticket);
+}
+
+function fromDataToOrganizer(orgId,from,cb){
+     getOrganizerById(orgId,function(err,org){
+          if(err){return cb(err);}
+          
+          // WARNING: can't be changed
+          //copyField(ticket,from,'organizer_inn');
+          copyField(org,from,'organizer');
+          copyField(org,from,'organizer_ogrn');
+          copyField(org,from,'organizer_ogrnip');
+          copyField(org,from,'organizer_address');
+
+          org.save(function(err){
+               return cb(err);
+          });
+     });
+}
+
+
 /////////////////////////////////////////////
 exports.findUserByEmail = findUserByEmail;
 exports.generateNewUserId = generateNewUserId;
 
 exports.getUser = getUser;
 exports.createNewUser = createNewUser;
+
+exports.getOrganizerByInn = getOrganizerByInn;
+exports.getOrganizerById = getOrganizerById;
+exports.fromDataToOrganizer = fromDataToOrganizer;
+
+exports.fromDataToTicket = fromDataToTicket;

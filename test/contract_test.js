@@ -149,18 +149,18 @@ describe('Contract', function() {
      });
 
      it('should set seller',function(done){
-          var issuer = "TicketLand";
-          var issuer_inn = "1234567890";
-          var issuer_orgn = "1234567890123";
-          var issuer_ogrnip = "123456789012345";
-          var issuer_address = "Spb";
+          var s = "TicketLand";
+          var inn = "1234567890";
+          var orgn = "1234567890123";
+          var ogrnip = "123456789012345";
+          var address = "Spb";
 
           contract.setSeller(
-                    issuer,
-                    issuer_inn,
-                    issuer_orgn,
-                    issuer_ogrnip,
-                    issuer_address,
+                    s,
+                    inn,
+                    orgn,
+                    ogrnip,
+                    address,
                {
                     from: creator,               
                     gasPrice: 2000000,

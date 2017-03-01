@@ -1,6 +1,8 @@
 var solc = require('solc');
 var Web3 = require('web3');
 var fs = require('fs');
+var winston = require('winston');
+var db_helpers = require('../helpers/db_helpers.js');
 
 var config = require('../config');
 
@@ -19,6 +21,8 @@ function getAccounts(cb){
           }
 
           g_creator = accounts[0];
+
+          console.log('CREATOR: ' + g_creator);
           cb(null);
      });
 }
@@ -103,8 +107,95 @@ function deployTicket(ticket,cb){
      );
 }
 
+function copyOrganizer(ticket,contract,cb){
+     cb(null);
+
+     db_helpers.getOrganizerById(ticket.organizer,function(err,org){
+          if(err){return cb(err);}
+
+          contract.setOrganizer(
+                    (org.organizer || contract.issuer), 
+                    (org.organizer_inn || contract.issuer_inn),
+                    (org.organizer_orgn || contract.issuer_orgn),
+                    (org.organizer_ogrnip || contract.issuer_ogrnip),
+                    (org.organizer_address || contract.issuer_address),
+               {
+                    from: g_creator,               
+                    gasPrice: 2000000,
+                    gas: 3000000
+               },function(err,result){
+                    if(err){return cb(err);}
+
+                    web3.eth.getTransactionReceipt(result, function(err, r){
+                         winston.info('Organizer transaction info: ' + r.transactionHash);
+                         cb(err);
+                    });
+               }
+          );
+     });
+}
+
+function copyIssuer(ticket,contract,cb){
+     contract.setSeller(
+               (ticket.issuer || contract.issuer), 
+               (ticket.issuer_inn || contract.issuer_inn),
+               (ticket.issuer_orgn || contract.issuer_orgn),
+               (ticket.issuer_ogrnip || contract.issuer_ogrnip),
+               (ticket.issuer_address || contract.issuer_address),
+          {
+               from: g_creator,               
+               gasPrice: 2000000,
+               gas: 3000000
+          },function(err,result){
+               if(err){return cb(err);}
+
+               web3.eth.getTransactionReceipt(result, function(err, r){
+                    winston.info('Issuer transaction info: ' + r.transactionHash);
+                    cb(err);
+               });
+          }
+     );
+}
+
+function copySeller(ticket,contract,cb){
+     contract.setSeller(
+               (ticket.seller || contract.seller), 
+               (ticket.seller_inn || contract.seller_inn),
+               (ticket.seller_orgn || contract.seller_orgn),
+               (ticket.seller_ogrnip || contract.seller_ogrnip),
+               (ticket.seller_address || contract.seller_address),
+          {
+               from: g_creator,               
+               gasPrice: 2000000,
+               gas: 3000000
+          },function(err,result){
+               if(err){return cb(err);}
+
+               web3.eth.getTransactionReceipt(result, function(err, r){
+                    winston.info('Seller transaction info: ' + r.transactionHash);
+                    cb(err);
+               });
+          }
+     );
+}
+
+function updateContract(ticket,cb){
+     winston.info('--> Updating contract: ' + ticket.contract_address);
+     var contract = web3.eth.contract(g_abi).at(ticket.contract_address);
+
+     copyOrganizer(ticket,contract,function(err){
+          copySeller(ticket,contract,function(err){
+               copyIssuer(ticket,contract,function(err){
+                    cb(null);
+               });
+          });
+     });
+
+}
+
 /////////////////
 exports.getAccount = getAccounts;
 exports.compileTicket = compileTicket;
 
 exports.deployTicket = deployTicket;
+exports.updateContract = updateContract;
