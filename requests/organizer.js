@@ -22,18 +22,58 @@ app.get('/api/v1/organizers/:inn/ticket_count',function(request,res,next){
      }
      winston.info('Asking tickets for INN: ' + inn + ' page=' + request.query.page + ' limit= ' + request.query.limit);
 
-     db_helpers.getOrganizerByInn(inn,function(err,orgFound,org){
+     db.TicketModel.find({organizer_inn:inn}).count(function(err,count){
           if(err){return next(err);}
-          if(!orgFound){return next();}
 
-          db.TicketModel.find({organizer:org._id}).count(function(err,count){
-               if(err){return next(err);}
+          var out = {
+               count: count
+          };
 
-               var out = {
-                    count: count
-               };
+          return res.json(out);
+     });
+});
 
-               return res.json(out);
+app.get('/api/v1/organizers/:inn/stats',function(request,res,next){
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No INN');
+          return next();
+     }
+     var inn = request.params.inn;
+
+     var out = {
+          totalTickets: 0,
+          blank: 0,
+          sold: 0,
+          cancelled: 0
+     };
+     
+     db.TicketModel.find({organizer_inn:inn,state: 0},function(err,tickets){
+          if(err){
+               return next(err);
+          }
+
+          console.log('Found blank tickets: ' + tickets.length);
+          out.blank = tickets.length;
+
+          db.TicketModel.find({organizer_inn:inn, state: 1},function(err,tickets2){
+               if(err){
+                    return next(err);
+               }
+
+               console.log('Found sold tickets: ' + tickets2.length);
+               out.sold = tickets2.length;
+
+               db.TicketModel.find({organizer_inn:inn, state: 2},function(err,tickets3){
+                    if(err){
+                         return next(err);
+                    }
+
+                    console.log('Found cancelled tickets: ' + tickets3.length);
+                    out.cancelled = tickets3.length;
+
+                    out.totalTickets = out.blank + out.sold + out.cancelled;
+                    res.json(out);
+               });
           });
      });
 });
@@ -53,31 +93,26 @@ app.get('/api/v1/organizers/:inn/tickets',function(request,res,next){
           return next();
      }
      winston.info('Asking tickets for INN: ' + inn + ' page=' + request.query.page + ' limit= ' + request.query.limit);
+     
+     db.TicketModel.paginate({organizer_inn:inn},{
+          sort:{serial_number:1},
+          page:request.query.page,
+          limit:request.query.limit},
 
-     db_helpers.getOrganizerByInn(inn,function(err,orgFound,org){
-          if(err){return next(err);}
-          if(!orgFound){return next();}
+     function(err,tickets){
+          if(err){
+               return next(err);
+          }
 
-          db.TicketModel.paginate({organizer:org._id},{
-               sort:{serial_number:1},
-               page:request.query.page,
-               limit:request.query.limit},
+          console.log('Found tickets: ' + tickets.docs.length);
 
-          function(err,tickets){
-               if(err){
-                    return next(err);
-               }
+          var arr = [];
 
-               console.log('Found tickets: ' + tickets.docs.length);
+          for(var i=0; i<tickets.docs.length; ++i){
+               arr.push(tickets.docs[i]._id);
+          }
 
-               var arr = [];
-
-               for(var i=0; i<tickets.docs.length; ++i){
-                    arr.push(tickets.docs[i]._id);
-               }
-
-               res.json(arr);
-          });
+          res.json(arr);
      });
 });
 
@@ -129,22 +164,16 @@ app.post('/api/v1/organizers/:inn/tickets',function(request, res, next){
 });
 
 function newBlankTicket(inn,sernum,cb){
-     createOrganizer(inn,function(err,orgId){
+     createNewBlankTicket(inn,/*orgId,*/sernum,function(err,ticket,isCollision){
           if(err){
                return cb(err);
           }
-
-          createNewBlankTicket(inn,orgId,sernum,function(err,ticket,isCollision){
-               if(err){
-                    return cb(err);
-               }
-               if(isCollision){
-                    return cb(null,true);
-               }
-               
-               winston.info('Added ticket: ' + ticket._id + '; serial_number= ' + ticket.serial_number);
-               return cb(null,false,ticket);     
-          });
+          if(isCollision){
+               return cb(null,true);
+          }
+          
+          winston.info('Added ticket: ' + ticket._id + '; serial_number= ' + ticket.serial_number);
+          return cb(null,false,ticket);     
      });
 }
 
@@ -233,44 +262,33 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
      }
      winston.info('Edit tickets ' + id + ' for INN: ' + inn);
 
-     db_helpers.getOrganizerByInn(inn,function(err,orgFound,org){
-          if(err){return next(err);}
-          if(!orgFound){return next();}
+     db.TicketModel.findOne({organizer_inn:inn, _id:id},function(err,ticket){
+          if(err){
+               return next(err);
+          }
+          if(typeof(ticket)=='undefined' || !ticket){
+               winston.info('Ticket not found: ' + id);
+               return next();
+          }
 
-          db.TicketModel.findOne({organizer:org._id, _id:id},function(err,ticket){
+          db_helpers.fromDataToTicket(ticket,request.body,function(err,ticketOut){
                if(err){
                     return next(err);
                }
-               if(typeof(ticket)=='undefined' || !ticket){
-                    winston.info('Ticket not found: ' + id);
-                    return next();
-               }
 
-               db_helpers.fromDataToTicket(ticket,request.body,function(err,ticketOut){
+               contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
                     if(err){
                          return next(err);
                     }
 
-                    db_helpers.updateOrganizer(ticketOut.organizer,request.body,function(err){
+                    // TODO: if contract is update, but DB will fail...
+                    // -> problems
+                    ticketOut.save(function(err){
                          if(err){
                               return next(err);
                          }
 
-                         contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
-                              if(err){
-                                   return next(err);
-                              }
-          
-                              // TODO: if contract is update, but DB will fail...
-                              // -> problems
-                              ticketOut.save(function(err){
-                                   if(err){
-                                        return next(err);
-                                   }
-
-                                   res.json({});
-                              });
-                         });
+                         res.json({});
                     });
                });
           });
@@ -323,70 +341,59 @@ function changeStateTo(state,request,res,next){
 }
 
 function changeStateInternal(request,inn,id,state,cb){
-     db_helpers.getOrganizerByInn(inn,function(err,orgFound,org){
-          if(err){return cb(err);}
-          if(!orgFound){return cb(new Error('No org found: ' + inn));}
+     db.TicketModel.findOne({organizer_inn:inn, _id:id},function(err,ticket){
+          if(err){
+               return cb(err);
+          }
+          if(typeof(ticket)=='undefined' || !ticket){
+               winston.info('Ticket not found: ' + id);
+               return cb(new Error('No ticket found: ' + id));
+          }
 
-          db.TicketModel.findOne({organizer:org._id, _id:id},function(err,ticket){
-               if(err){
-                    return cb(err);
-               }
-               if(typeof(ticket)=='undefined' || !ticket){
-                    winston.info('Ticket not found: ' + id);
-                    return cb(new Error('No ticket found: ' + id));
+          // created->sold
+          if(state==1){
+               if(ticket.state!==0){
+                    winston.info('Ticket state is BAD: ' + ticket.state);
+                    return cb(new Error('Ticket in bad state: ' + id));
                }
 
-               // created->sold
-               if(state==1){
-                    if(ticket.state!==0){
-                         winston.info('Ticket state is BAD: ' + ticket.state);
-                         return cb(new Error('Ticket in bad state: ' + id));
+               ticket.state = 1;
+               ticket.buying_date = Date.now();
+          }else if(state==2){
+               // created or sold -> cancelled
+               ticket.state = 2;
+               ticket.cancelled_date = Date.now();
+          }
+
+          if(!request){
+               ticket.save(function(err){
+                    if(err){
+                         return cb(err);
                     }
 
-                    ticket.state = 1;
-                    ticket.buying_date = Date.now();
-               }else if(state==2){
-                    // created or sold -> cancelled
-                    ticket.state = 2;
-                    ticket.cancelled_date = Date.now();
-               }
+                    cb(null);
+               });
+          }else{
+               db_helpers.fromDataToTicket(ticket,request.body,function(err,ticketOut){
+                    if(err){
+                         return cb(err);
+                    }
 
-               if(!request){
-                    ticket.save(function(err){
+                    contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
                          if(err){
                               return cb(err);
                          }
 
-                         cb(null);
-                    });
-               }else{
-                    db_helpers.fromDataToTicket(ticket,request.body,function(err,ticketOut){
-                         if(err){
-                              return cb(err);
-                         }
-
-                         db_helpers.updateOrganizer(ticketOut.organizer,request.body,function(err){
+                         ticketOut.save(function(err){
                               if(err){
-                                   return next(err);
+                                   return cb(err);
                               }
 
-                              contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
-                                   if(err){
-                                        return cb(err);
-                                   }
-
-                                   ticketOut.save(function(err){
-                                        if(err){
-                                             return cb(err);
-                                        }
-
-                                        cb(null);
-                                   });
-                              });
+                              cb(null);
                          });
                     });
-               }
-          });
+               });
+          }
      });
 }
 
@@ -456,14 +463,17 @@ app.post('/api/v1/organizers/:inn/batches',function(request, res, next){
      var stre = '' + es + en;
      var n = calculateCount(strs,stre);
      
+     /*
      createOrganizer(inn,function(err,orgId){
           if(err){
                return cb(err);
           }
+     */
 
           // create batch:
           var batch = new db.BatchModel();
-          batch.organizer = orgId;
+          //batch.organizer = orgId;
+          batch.organizer_inn = inn;
           batch.tickets = [];
 
           batch.save(function(err){
@@ -472,19 +482,20 @@ app.post('/api/v1/organizers/:inn/batches',function(request, res, next){
                }
 
                var strs = '' + ss + sn;
-               addNewTicketToBatch(batch,orgId,inn,n,strs,request,res,next);
+               addNewTicketToBatch(batch/*,orgId*/,inn,n,strs,request,res,next);
           });
-     });
+
+     //});
 });
 
-function addNewTicketToBatch(batch,orgId,inn,n,strs,request,res,next){
+function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
      if(!n){
           // end recursion
           return res.json({batch_id: batch._id});
      }
 
      // update
-     createNewBlankTicket(inn,orgId,strs,function(err,ticket,isCollision){
+     createNewBlankTicket(inn,/*orgId,*/strs,function(err,ticket,isCollision){
           if(err){
                winston.info('Can not create new ticket');
                return next(err);
@@ -506,7 +517,7 @@ function addNewTicketToBatch(batch,orgId,inn,n,strs,request,res,next){
 
                // continue recursion 
                strs = incrementSerialNumber(strs);
-               addNewTicketToBatch(batch,orgId,inn,n - 1, strs,request,res,next);
+               addNewTicketToBatch(batch,inn,n - 1, strs,request,res,next);
           });
      });
 }
@@ -556,35 +567,27 @@ app.get('/api/v1/organizers/:inn/batches/:id',function(request, res, next){
      }
      winston.info('Get batch ' + id + ' for INN: ' + inn);
 
-     db_helpers.getOrganizerByInn(inn,function(err,orgFound,org){
-          if(err){return next(err);}
-          if(!orgFound){
-               winston.error('No org is found: ' + inn); 
+     db.BatchModel.findOne({organizer_inn:inn, _id:id},function(err,batch){
+          if(err){
+               return next(err);
+          }
+
+          if(typeof(batch)=='undefined'|| !batch){
+               winston.info('Batch not found');
                return next();
           }
 
-          db.BatchModel.findOne({organizer:org._id, _id:id},function(err,batch){
-               if(err){
-                    return next(err);
-               }
+          var out = [];
+          for(var i=0; i<batch.tickets.length; ++i){
+               out.push(batch.tickets[i].ticketId);
+          }
 
-               if(typeof(batch)=='undefined'|| !batch){
-                    winston.info('Batch not found');
-                    return next();
-               }
-
-               var out = [];
-               for(var i=0; i<batch.tickets.length; ++i){
-                    out.push(batch.tickets[i].ticketId);
-               }
-
-               winston.info('Returning data for batch: ' + id);
-               res.json(out);
-          });
+          winston.info('Returning data for batch: ' + id);
+          res.json(out);
      });
 });
 
-function createNewBlankTicket(inn,organizerId,optionalSerNum,cb){
+function createNewBlankTicket(inn,/*organizerId,*/optionalSerNum,cb){
      var ticket = new db.TicketModel();
 
      ticket.state = 0;
@@ -610,7 +613,9 @@ function createNewBlankTicket(inn,organizerId,optionalSerNum,cb){
           }
 
           ticket.created = Date.now();
-          ticket.organizer = organizerId;
+          ticket.organizer_inn = inn; 
+
+          //ticket.organizer = organizerId;
 
           winston.info('Deploying new ticket to Blockchain');
           contract_helpers.deployTicket(ticket,function(err,contractTicketAddress){
@@ -655,6 +660,12 @@ function convertTicketToOut(t,request,res,next){
           
           ticket_category: t.ticket_category,
 
+          organizer: t.organizer,
+          organizer_inn: t.organizer_inn,
+          organizer_ogrn: t.organizer_ogrn,
+          organizer_ogrnip: t.organizer_ogrnip,
+          organizer_address: t.organizer_address,
+
           seller: t.seller,
           seller_inn: t.seller_inn,
           seller_ogrn: t.seller_ogrn,
@@ -674,14 +685,7 @@ function convertTicketToOut(t,request,res,next){
           out.state = 'cancelled';
      }
 
-     db_helpers.getOrganizerById(t.organizer,function(err,org){
-          if(err){
-               return next(err);
-          }
-
-          convertOrgToOut(out,org);
-          res.json(out);
-     });
+     res.json(out);
 }
 
 
@@ -695,7 +699,7 @@ function copyField(to,from,field){
 //
 // http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-all-organizers
 app.get('/api/v1/organizers',function(request,res,next){
-     db.OrganizerModel.find({},function(err,orgs){
+     db.TicketModel.distinct('organizer_inn',function(err,orgs){
           if(err){
                return next(err);
           }
@@ -707,13 +711,13 @@ app.get('/api/v1/organizers',function(request,res,next){
 
           var out = [];
           for(var i=0; i<orgs.length; ++i){
-               //convertOrgToOut(o,orgs[i]);
                out.push(orgs[i].organizer_inn); 
           }
           res.json(out);
      });
 });
 
+/*
 // Get organizer by INN
 //
 // http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-organizer
@@ -733,14 +737,15 @@ app.get('/api/v1/organizers/:inn',function(request,res,next){
           }
 
           var out = {};
-          convertOrgToOut(out,org);
           res.json(out);
      });
 });
+*/
 
 // Update organizer by INN 
 //
 // http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/update-an-organizer
+/*
 app.put('/api/v1/organizers/:inn',function(request,res,next){
      if(typeof(request.params.inn)==='undefined'){
           winston.error('No INN');
@@ -764,7 +769,9 @@ app.put('/api/v1/organizers/:inn',function(request,res,next){
           });
      });
 });
+*/
 
+/*
 function createOrganizer(inn,cb){
      // 1 - find org
      db.OrganizerModel.findOne({organizer_inn:inn},function(err,org){
@@ -785,6 +792,7 @@ function createOrganizer(inn,cb){
           });
      });
 }
+*/
 
 function convertOrgToOut(to,from){
      copyField(to,from,'organizer');
@@ -888,55 +896,5 @@ function checkIfUniqueSerNum(sn,cb){
           return cb(null,true);
      });
 }
-
-app.get('/api/v1/organizers/:inn/stats',function(request,res,next){
-     if(typeof(request.params.inn)==='undefined'){
-          winston.error('No INN');
-          return next();
-     }
-     var inn = request.params.inn;
-
-     var out = {
-          totalTickets: 0,
-          blank: 0,
-          sold: 0,
-          cancelled: 0
-     };
-
-     db_helpers.getOrganizerByInn(inn,function(err,orgFound,org){
-          if(err){return next(err);}
-          if(!orgFound){return next();}
-
-          db.TicketModel.find({organizer:org._id, state: 0},function(err,tickets){
-               if(err){
-                    return next(err);
-               }
-
-               console.log('Found blank tickets: ' + tickets.length);
-               out.blank = tickets.length;
-
-               db.TicketModel.find({organizer:org._id, state: 1},function(err,tickets2){
-                    if(err){
-                         return next(err);
-                    }
-
-                    console.log('Found sold tickets: ' + tickets2.length);
-                    out.sold = tickets2.length;
-
-                    db.TicketModel.find({organizer:org._id, state: 2},function(err,tickets3){
-                         if(err){
-                              return next(err);
-                         }
-
-                         console.log('Found cancelled tickets: ' + tickets3.length);
-                         out.cancelled = tickets3.length;
-
-                         out.totalTickets = out.blank + out.sold + out.cancelled;
-                         res.json(out);
-                    });
-               });
-          });
-     });
-});
 
 

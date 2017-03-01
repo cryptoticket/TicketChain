@@ -108,29 +108,25 @@ function deployTicket(ticket,cb){
 }
 
 function copyOrganizer(ticket,contract,cb){
-     db_helpers.getOrganizerById(ticket.organizer,function(err,org){
-          if(err){return cb(err);}
+     contract.setOrganizer(
+               (ticket.organizer || contract.issuer), 
+               (ticket.organizer_inn || contract.issuer_inn),
+               (ticket.organizer_orgn || contract.issuer_orgn),
+               (ticket.organizer_ogrnip || contract.issuer_ogrnip),
+               (ticket.organizer_address || contract.issuer_address),
+          {
+               from: g_creator,               
+               gasPrice: 2000000,
+               gas: 3000000
+          },function(err,result){
+               if(err){return cb(err);}
 
-          contract.setOrganizer(
-                    (org.organizer || contract.issuer), 
-                    (org.organizer_inn || contract.issuer_inn),
-                    (org.organizer_orgn || contract.issuer_orgn),
-                    (org.organizer_ogrnip || contract.issuer_ogrnip),
-                    (org.organizer_address || contract.issuer_address),
-               {
-                    from: g_creator,               
-                    gasPrice: 2000000,
-                    gas: 3000000
-               },function(err,result){
-                    if(err){return cb(err);}
-
-                    web3.eth.getTransactionReceipt(result, function(err, r){
-                         winston.info('Organizer transaction info: ' + r.transactionHash);
-                         cb(err);
-                    });
-               }
-          );
-     });
+               web3.eth.getTransactionReceipt(result, function(err, r){
+                    winston.info('Organizer transaction info: ' + r.transactionHash);
+                    cb(err);
+               });
+          }
+     );
 }
 
 function copyIssuer(ticket,contract,cb){

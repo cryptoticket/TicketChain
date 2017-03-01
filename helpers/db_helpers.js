@@ -132,6 +132,7 @@ function createNewUser(name,lastName,email,pass,facebookID,needValidation,cb){
      });
 }
 
+/*
 function getOrganizerByInn(inn,cb){
      db.OrganizerModel.findOne({organizer_inn:inn},function(err,org){
           if(err){
@@ -160,6 +161,7 @@ function getOrganizerById(id,cb){
           return cb(null,org);
      });
 }
+*/
 
 function fromDataToTicket(ticket,from,cb){
      if(isExists(from.issuer_inn) && !helpers.validateInn(from.issuer_inn)){
@@ -249,9 +251,11 @@ exports.generateNewUserId = generateNewUserId;
 exports.getUser = getUser;
 exports.createNewUser = createNewUser;
 
+/*
 exports.getOrganizerByInn = getOrganizerByInn;
 exports.getOrganizerById = getOrganizerById;
 exports.updateOrganizer = updateOrganizer;
+*/
 
 exports.fromDataToTicket = fromDataToTicket;
 exports.fromDataToOrganizer  = fromDataToOrganizer;

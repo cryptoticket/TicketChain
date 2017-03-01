@@ -48,7 +48,11 @@ describe('Organizer module',function(){
           var authToken = '';
           getData(9091,url,authToken,function(err,statusCode,dataOut){
                assert.equal(err,null);
-               assert.equal(statusCode,404);
+               assert.equal(statusCode,200);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.length,0);
+
                done();
           });
      })
@@ -92,6 +96,7 @@ describe('Organizer module',function(){
           });
      })
 
+     /*
      it('should get organizer by INN', function(done){
           var url = '/api/v1/organizers/' + orgOneInn;
 
@@ -105,6 +110,7 @@ describe('Organizer module',function(){
                done();
           });
      })
+     */
 
      it('should get tickets', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets';

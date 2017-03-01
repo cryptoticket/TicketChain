@@ -42,7 +42,6 @@ User.statics.findByFacebookID = function(id,cb){
 
 var Organizer = new Schema({
      organizer: {type: String, required:false},
-
      organizer_inn: {type: String, required:false},
      organizer_ogrn: {type: String, required:false},
      organizer_ogrnip: {type: String, required:false},
@@ -79,7 +78,13 @@ var Ticket = new Schema({
      
      ticket_category: {type: Number, required:false},
 
-     organizer: {type: Schema.ObjectId, required: true},
+     //organizer: {type: Schema.ObjectId, required: true},
+
+     organizer: {type: String, required:false},
+     organizer_inn: {type: String, required:false},
+     organizer_ogrn: {type: String, required:false},
+     organizer_ogrnip: {type: String, required:false},
+     organizer_address: {type: String, required:false},
 
      seller: {type: String, required:false},
      seller_inn: {type: String, required:false},
@@ -96,7 +101,8 @@ var Ticket = new Schema({
 Ticket.plugin(mongoosePaginate);
 
 var Batch = new Schema({
-     organizer: {type: Schema.ObjectId, required:true},
+     organizer_inn: {type: String, required:false},
+     //organizer: {type: Schema.ObjectId, required:true},
 
 	tickets: [{
 		ticketId: {type:Schema.ObjectId, required:true},

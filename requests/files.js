@@ -202,60 +202,51 @@ function processCsvFileInt(fileName,jobId,inn,cb){
           return cb(new Error('File does not exist: ' + filePath));
      }
 
-     winston.info('Create organizer: ' + inn);
-     createOrganizer(inn,function(err,orgId){
-          if(err){
-               return cb(err);
-          }
+     var collisions = [];
+     var errors = [];
+     var lineIndex = 0;
 
-          winston.info('Created organizer: ' + inn);
+     // create batch
+     var batch = new db.BatchModel();
+     batch.organizer_inn = inn;
+     batch.tickets = [];
 
-          var collisions = [];
-          var errors = [];
-          var lineIndex = 0;
+     var lr = new lineByLine(filePath);
+     lr.on('error', function (err) {
+          return cb(err);
+     });
 
-          // create batch
-          var batch = new db.BatchModel();
-          batch.organizer = orgId;
-          batch.tickets = [];
+     lr.on('line', function (line) {
+          lr.pause();
 
-          var lr = new lineByLine(filePath);
-          lr.on('error', function (err) {
-               return cb(err);
+          processLine(inn,line,function(err,isCollision,ticket,sernum){
+               if(err){
+                    errors.push(lineIndex);
+               }
+               if(isCollision){
+                    collisions.push(sernum);
+               }
+
+               console.log('IS COLLISION: ' + isCollision);
+               if(!err && !isCollision){
+                    // add to batch!
+                    batch.tickets.push({ticketId: ticket._id});
+               }
+
+               lineIndex = lineIndex + 1;
+               lr.resume();
           });
-
-          lr.on('line', function (line) {
-               lr.pause();
-
-               processLine(inn,line,orgId,function(err,isCollision,ticket,sernum){
-                    if(err){
-                         errors.push(lineIndex);
-                    }
-                    if(isCollision){
-                         collisions.push(sernum);
-                    }
-
-                    console.log('IS COLLISION: ' + isCollision);
-                    if(!err && !isCollision){
-                         // add to batch!
-                         batch.tickets.push({ticketId: ticket._id});
-                    }
-
-                    lineIndex = lineIndex + 1;
-                    lr.resume();
-               });
-          });
-          lr.on('end', function () {
-               // All lines read, file is closed now.
-               winston.info('Saving batch');
-               batch.save(function(err){
-                    cb(err,collisions,errors,batch._id);
-               });
+     });
+     lr.on('end', function () {
+          // All lines read, file is closed now.
+          winston.info('Saving batch');
+          batch.save(function(err){
+               cb(err,collisions,errors,batch._id);
           });
      });
 }
 
-function processLine(inn,line,orgId,cb){
+function processLine(inn,line,cb){
      var words = line.split(',');
 
      var action = words[1];
@@ -266,7 +257,7 @@ function processLine(inn,line,orgId,cb){
                console.log('Update/sell ticket with num: ' + num);
                winston.info('Update/sell ticket with num: ' + num);
 
-               return updateTicketWithNum(inn,num,words,orgId,cb);
+               return updateTicketWithNum(inn,num,words,cb);
           }else{
                console.log('Update ticket');
 
@@ -280,13 +271,13 @@ function processLine(inn,line,orgId,cb){
           if(!num || !num.length){
                return cb(new Error('Bad num'));
           }
-          return cancelTicket(inn,num,words,orgId,cb);
+          return cancelTicket(inn,num,words,cb);
      }else{
           if(num && num.length){
                console.log('Create new blank form with number: ' + num);
                winston.info('Create new blank form with number: ' + num);
 
-               return createNewBlankWithNum(inn,num,words,orgId,cb);
+               return createNewBlankWithNum(inn,num,words,cb);
           }else{
                console.log('Create new blank form with any number');
                winston.info('Create new blank form with any number');
@@ -295,62 +286,57 @@ function processLine(inn,line,orgId,cb){
 
                // TODO: 
                // checkIfUniqueSerNum(ticket.serial_number,function(err,isUnique){
-               return createNewBlankWithNum(inn,num,words,orgId,cb);
+               return createNewBlankWithNum(inn,num,words,cb);
           }
      }
 }
 
-function updateTicketWithNum(inn,sernum,words,orgId,cb){
+function updateTicketWithNum(inn,sernum,words,cb){
      if(!helpers.validateSernum(sernum)){
           return cb(new Error('Bad custom serial num: ' + sernum));
      }
 
-     getOrganizerByInn(inn,function(err,orgFound,org){
-          if(err){return cb(err);}
-          if(!orgFound){return cb();}
+     db.TicketModel.findOne({organizer_inn:inn, serial_number:sernum},function(err,ticket){
+          if(err){
+               return cb(err);
+          }
+          if(typeof(ticket)=='undefined' || !ticket){
+               return cb(new Error('Ticket not found' + sernum));
+          }
 
-          db.TicketModel.findOne({organizer:org._id, serial_number:sernum},function(err,ticket){
+          // convert 
+          var convertedData = {};
+          var err = convertWordsToData(words,convertedData);
+          if(err){
+               return cb(err);
+          }
+
+          // update
+          db_helpers.fromDataToTicket(ticket,convertedData,function(err,ticketOut){
                if(err){
                     return cb(err);
                }
-               if(typeof(ticket)=='undefined' || !ticket){
-                    return cb(new Error('Ticket not found' + sernum));
-               }
 
-               // convert 
-               var convertedData = {};
-               var err = convertWordsToData(words,convertedData);
-               if(err){
-                    return cb(err);
-               }
+               ticketOut.state = 1;     // sold
 
-               // update
-               fromDataToTicket(ticket,convertedData,function(err,ticketOut){
+               ticketOut.save(function(err){
                     if(err){
                          return cb(err);
                     }
 
-                    ticketOut.state = 1;     // sold
-
-                    ticketOut.save(function(err){
-                         if(err){
-                              return cb(err);
-                         }
-
-                         //res.json({});
-                         cb(null,false,ticketOut,ticketOut.serial_number);
-                    });
+                    //res.json({});
+                    cb(null,false,ticketOut,ticketOut.serial_number);
                });
           });
      });
 }
 
-function cancelTicket(inn,num,words,orgId,cb){
+function cancelTicket(inn,num,words,cb){
      if(!helpers.validateSernum(num)){
           return cb(new Error('Bad custom serial num: ' + num));
      }
 
-     db.TicketModel.findOne({organizer:orgId, serial_number:num},function(err,ticket){
+     db.TicketModel.findOne({organizer_inn:inn, serial_number:num},function(err,ticket){
           if(err){return cb(err);}
           if(!ticket){return cb(new Error('No ticket found'));}
 
@@ -404,12 +390,12 @@ function convertFromWords(to,from,name,index){
      }
 }
 
-function createNewBlankWithNum(inn,sernum,words,orgId,cb){
+function createNewBlankWithNum(inn,sernum,words,cb){
      if(!helpers.validateSernum(sernum)){
           return cb(new Error('Bad custom serial num: ' + num));
      }
 
-     createNewBlankTicket(inn,orgId,sernum,function(err,ticket,isCollision){
+     createNewBlankTicket(inn,sernum,function(err,ticket,isCollision){
           if(err){
                return cb(err);
           }
