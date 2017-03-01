@@ -1,0 +1,437 @@
+FORMAT: 1A
+HOST: https://ticketchain-backend.herokuapp.com/api/v1
+
+# TicketChain MVP v.1
+
+TicketChain is an application that's making ticket market decentralized.
+
+## Backend server address 
+**https://ticketchain-backend.herokuapp.com/api/v1**
+
+## API currently lacks these features
+1) Authentication
+2) Async methods
+3) Pagination
+
+## Organizers [/organizers]
+
+### Get all Organizers [GET /organizers]
+
+Returns array of all organizers INN's.
+
++ Response 201 (application/json)
+
+    + Body
+
+            [
+                123456789012
+            ]
+
+
+### Get Organizer [GET /organizers/{INN}]
+
+Get an organizer by INN.
+This method is blocking.
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                organizer: "LaLaLand company",
+                organizer_inn: "111111111123",
+                organizer_ogrn: "1111111111123",
+                organizer_ogrnip: "111111111112345",
+                organizer_address: ""
+            }
+
+### Update an Organizer [PUT /organizers/{INN}]
+
+Update an Organizer.
+This method is blocking.
+
++ Request (application/json)
+
+    + Body
+
+            {
+                organizer: "LaLaLand company",
+                
+                // Can not change!
+                //organizer_inn: "111111111123",
+                
+                organizer_ogrn: "1111111111123",
+                organizer_ogrnip: "111111111112345",
+                organizer_address: ""
+            }           
+
++ Response 200
+
+## Batches [/organizers/{INN}/batches]
+
+### Create new Batch [POST /organizers/{INN}/batches]
+
+Create multiple new blank tickets to reserve them. This method is blocking. It can take long time to deploy all tickets to Ethereum network.
+Will create Organizer if it doesn't exist. Returns batch ID.
+
+Postcondition: 
+
+1) Organizer has been created
+2) Blank tickets have been created and deployed (can take some time)
+3) Batch has been created.
+
++ Request (application/json)
+
+        {
+            start_series: "АА",
+            start_number: "123456",
+
+            end_series: "ББ",
+            end_number: "123456"
+        }
+        
++ Response 201 (application/json)
+    
+    + Body
+
+            {
+                batch_id: 12313434,
+                count: 16
+            }
+            
+### Get batch [GET /organizers/{INN}/batches/{BATCH_ID}]
+
+Will return all tickets that have been created in a single batch. 
+
++ Response 201 (application/json)
+
+    + Body
+
+            [
+               12313123112311,
+               12314144576546,
+               89089403889898,
+            ]
+
++ Response 409 (application/json)
+    If ticket with this serial number already exists.
+
+    + Body
+
+            {
+               collision: "АБ123456"
+            }
+            
+### Calculate Ticket count for batch [POST /organizers/{INN}/calculate_ticket_count]
+
+Before you create all tickets in batch -> calculate count.
+
++ Request (application/json)
+
+        {
+            start_series: "АА",
+            start_number: "123456",
+
+            end_series: "ББ",
+            end_number: "123456"
+        }
+        
+        
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                "count": 16
+            }
+
+
+## Tickets [/organizers/{INN}/tickets]
+
+### Get Ticket Count [GET /organizers/{INN}/tickets_count]
+
+Get the count of all tickets for that organizer.
+
++ Parameters
+    + state (number, optional) - State of tickets to search (created, sold, cancelled)
+    
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                count: 134034
+            }
+
+### Get all Ticket issued by Organizer [GET /organizers/{INN}/tickets]
+
+Get all issued by particular company tickets. Returns array of ticket IDs.
+This method supports paging. Please use ?page=1&limit=100 format. Default limit is 50.
+
++ Parameters
+    + page (number, optional) - Current page for paging
+        + Default: 1
+    + limit (number, optional) - Limit for paging
+        + Default: 50
+    + state (number, optional) - State of tickets to search (created, sold, cancelled)
+
++ Response 201 (application/json)
+
+    + Body
+
+            [
+               12313123112311,
+               12314144576546,
+               89089403889898,
+            ]
+            
+### Create a New Ticket [POST /organizers/{INN}/tickets]
+
+Create new blank ticket to reserve it. This method is blocking.
+Will create Organizer if it doesn't exist.
+
+**Postcondition**: 
+1) Blank ticket has been created and deployed to network
+2) Organizer has been created.
+
++ Request (application/json)
+
+        {
+            "serial_number": "АБ123456"
+        }
+        
++ Response 201 (application/json)
+
+    + Body
+
+            {
+               "id": "123123123123123123123123123123",
+               
+               // 2 letters + 6 numbers
+               "serial_number": "АБ123456"
+            }
+            
++ Response 409 (application/json)
+    If ticket with this serial number already exists.
+
+    + Body
+
+            {
+               "collision": "АБ123456"
+            }
+        
+
+### Get a Ticket [GET /organizers/{INN}/tickets/{ID_OR_SERIAL_NUMBER}]
+
+Get a ticket by ID or SERIAL_NUMBER.
+This method is blocking.
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                "serial_number": "AB123456",
+                "id": "4782397489173954872839457",
+                
+                // 0 - created
+                // 1 - sold
+                // 2 - cancelled
+                "state": "sold",
+                
+                "created_date":"12.03.2017 12:16",
+                
+                // optional fields:
+                "price_rub": 120,
+                "is_paper_ticket": false,
+
+                "issuer": "TicketChain",
+                "issuer_inn": "111111111145",
+                "issuer_ogrn": "7811111111123",
+                "issuer_ogrnip": "221111111112345",
+                "issuer_address": "",
+                
+                "event_title": "",
+                "event_place_title": "",
+                "event_date": "15.03.2017 18:00",
+                "event_place_address": "",
+                
+                "row": "17",
+                "seat": "9",
+                "ticket_category": "1",
+                
+                "seller": "TicketLand company",
+                "seller_inn": "1234567812",
+                "seller_ogrn": "1234567812123",
+                "seller_ogrnip": "123456781212345",
+                "seller_address": "",
+                
+                "buyer_name": "Alexey Key",
+                "buying_date":"12.03.2017 12:16",
+                "cancelled_date": ""
+            }
+
+### Edit a Ticket [PUT /organizers/{INN}/tickets/{id}]
+
+Update/edit ticket data.
+
+**Postcondition**:
+1) Ticket data has been updated.
+
+This method is blocking.
+
++ Request (application/json)
+
+        {
+            // all these fields are optional:
+            "price_rub": 120,
+            "is_paper_ticket": false,
+            
+            "issuer": "TicketChain",
+            "issuer_inn": "111111111145",
+            "issuer_ogrn": "7811111111123",
+            "issuer_ogrnip": "221111111112345",
+            "issuer_address": "",
+            
+            "event_title": "",
+            "event_place_title": "",
+            "event_date": "15.03.2017 18:00",
+            "event_place_address": "",
+            
+            "row": "17",
+            "seat": "9",
+            "ticket_category": "1",
+            
+            "seller": "TicketLand company",
+            "seller_inn": "1234567812",
+            "seller_ogrn": "1234567812123",
+            "seller_ogrnip": "123456781212345",
+            "seller_address": "",
+            
+            "buyer_name": "Alexey Key",
+            "buying_date": "12.03.2017 12:16",
+            "cancelled_date": ""
+        }
+
++ Response 201
++ Response 400           
+            
+### Sell a Ticket [POST /organizers/{INN}/tickets/{id}/sell]
+
+Sell ticket.
+
+**Postcondition**:
+1) Ticket has changed state from 'created' to 'sold'.
+
++ Request (application/json)
+
+        {
+            // all these fields are optional:
+            "price_rub": 120,
+            "is_paper_ticket": false,
+            
+            "issuer": "TicketChain",
+            "issuer_inn": "111111111145",
+            "issuer_ogrn": "7811111111123",
+            "issuer_ogrnip": "221111111112345",
+            "issuer_address": "",
+            
+            "event_title": "",
+            "event_place_title": "",
+            "event_date": "15.03.2017 18:00",
+            "event_place_address": "",
+            
+            "row": "17",
+            "seat": "9",
+            "ticket_category": "1",
+            
+            "seller": "TicketLand company",
+            "seller_inn": "1234567812",
+            "seller_ogrn": "1234567812123",
+            "seller_ogrnip": "123456781212345",
+            "seller_address": "",
+            
+            "buyer_name": "Alexey Key",
+            "buying_date":"12.03.2017 12:16",
+            "cancelled_date": ""
+        }
+
++ Response 201
++ Response 400
+
+### Cancel a Ticket [POST /organizers/{INN}/tickets/{id}/cancel]
+
+Cancel ticket.
+
+**Postcondition**:
+1) Ticket has changed state to 'cancelled'.
+
++ Response 201
++ Response 400
+
+           
+## CSV File Processing Jobs [/organizers/{INN}/cvs_jobs]
+
+### Create new CVS File Processing Job [POST /organizers/{INN}/csv_jobs]
+
+Add new CSV file processing job. Will process it asynchronously.
+CSV file format: https://docs.google.com/spreadsheets/d/1g3YEMokRK8HAEyPKNjAZQWnt2xvBH4jMsJhHmBtWTYU/edit?usp=sharing
+
+**Postcondition**:
+1) New job added to queue.
+
++ Request (application/json)
+
+        {
+        }
+        
++ Response 201 (application/json)
+    
+    + Body
+
+            {
+                "job_id": 12313434
+            }
+            
+### Get CSV File Processing Job info [GET /organizers/{INN}/csv_jobs/{JOB_ID}]
+
+Will return status of the job. 
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                // 0 - created
+                // 1 - processing
+                // 2 - ready
+                // 
+                status: "ready",
+                
+                // if status is 'ready' -> get tickets through the /batch API method
+                batch_id: 1234124124,
+                
+                file_name: "one.csv",
+                processed_items: 15000,
+                
+                // each item is serial number
+                collisions: [],
+                
+                // each item a line index (CSV file)
+                errors: []
+            }
+            
+## Ticket Stats [/organizers/{INN}/stats]
+
+### Get all Ticket Stats for Organizer [GET /organizers/{INN}/stats]
+
++ Response 201 (application/json)
+
+    + Body
+
+            {
+                totalTickets: 12,
+                blank: 5,
+                sold: 6,
+                cancelled: 1
+            }
