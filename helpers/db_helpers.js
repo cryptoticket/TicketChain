@@ -163,24 +163,24 @@ function getOrganizerById(id,cb){
 
 function fromDataToTicket(ticket,from,cb){
      if(isExists(from.issuer_inn) && !helpers.validateInn(from.issuer_inn)){
-          return 'Bad issuer_inn: ' + from.issuer_inn;          
+          return cb(new Error('Bad issuer_inn: ' + from.issuer_inn));
      }
      if(isExists(from.seller_inn) && !helpers.validateInn(from.seller_inn)){
-          return 'Bad seller_inn: ' + from.seller_inn;          
+          return cb(new Error('Bad seller_inn: ' + from.seller_inn));
      }
 
      if(isExists(from.issuer_ogrn) && !helpers.validateOgrn(from.issuer_ogrn)){
-          return 'Bad issuer_ogrn: ' + from.issuer_ogrn;          
+          return cb(new Error('Bad issuer_ogrn: ' + from.issuer_ogrn));
      }
      if(isExists(from.seller_ogrn) && !helpers.validateOgrn(from.seller_ogrn)){
-          return 'Bad seller_ogrn: ' + from.seller_ogrn;          
+          return cb(new Error('Bad seller_ogrn: ' + from.seller_ogrn));
      }
 
      if(isExists(from.issuer_ogrnip) && !helpers.validateOgrnip(from.issuer_ogrnip)){
-          return 'Bad issuer_ogrnip: ' + from.issuer_ogrnip;          
+          return cb(new Error('Bad issuer_ogrnip: ' + from.issuer_ogrnip));
      }
      if(isExists(from.seller_ogrnip) && !helpers.validateOgrnip(from.seller_ogrnip)){
-          return 'Bad seller_ogrnip: ' + from.seller_ogrnip;          
+          return cb(new Error('Bad seller_ogrnip: ' + from.seller_ogrnip));
      }
 
      copyField(ticket,from,'price_rub');
@@ -215,23 +215,30 @@ function fromDataToTicket(ticket,from,cb){
      return cb(null,ticket);
 }
 
-function fromDataToOrganizer(orgId,from,cb){
+function fromDataToOrganizer(org,from,cb){
+     copyField(org,from,'organizer');
+     // WARNING: can't be changed
+     //copyField(org,from,'organizer_inn');
+     copyField(org,from,'organizer_ogrn');
+     copyField(org,from,'organizer_ogrnip');
+     copyField(org,from,'organizer_address');
+
+     return cb(null,org);
+}
+
+function updateOrganizer(orgId,from,cb){
      getOrganizerById(orgId,function(err,org){
           if(err){return cb(err);}
           
-          // WARNING: can't be changed
-          //copyField(ticket,from,'organizer_inn');
-          copyField(org,from,'organizer');
-          copyField(org,from,'organizer_ogrn');
-          copyField(org,from,'organizer_ogrnip');
-          copyField(org,from,'organizer_address');
+          fromDataToOrganizer(org,from,function(err,orgOut){
+               if(err){return cb(err);}
 
-          org.save(function(err){
-               return cb(err);
+               orgOut.save(function(err){
+                    return cb(err);
+               });
           });
      });
 }
-
 
 /////////////////////////////////////////////
 exports.findUserByEmail = findUserByEmail;
@@ -242,6 +249,7 @@ exports.createNewUser = createNewUser;
 
 exports.getOrganizerByInn = getOrganizerByInn;
 exports.getOrganizerById = getOrganizerById;
-exports.fromDataToOrganizer = fromDataToOrganizer;
+exports.updateOrganizer = updateOrganizer;
 
 exports.fromDataToTicket = fromDataToTicket;
+exports.fromDataToOrganizer  = fromDataToOrganizer;

@@ -179,18 +179,35 @@ function copySeller(ticket,contract,cb){
      );
 }
 
-function updateContract(ticket,cb){
-     winston.info('--> Updating contract: ' + ticket.contract_address);
-     var contract = web3.eth.contract(g_abi).at(ticket.contract_address);
+function updateContract(contractAddress,body,cb){
+     // TODO: get contract address
 
-     copyOrganizer(ticket,contract,function(err){
-          copySeller(ticket,contract,function(err){
-               copyIssuer(ticket,contract,function(err){
-                    cb(null);
+     winston.info('--> Updating contract: ' + contractAddress);
+     var contract = web3.eth.contract(g_abi).at(contractAddress);
+
+     // 1 - Convert data
+     var placeholder = {};
+     db_helpers.fromDataToTicket(placeholder,body,function(err,out){
+          if(err){
+               return cb(err);
+          }
+
+          // 2 - Convert organizer
+          var placeholder2 = {};
+          db_helpers.fromDataToOrganizer(placeholder2,body,function(err,out2){
+               if(err){
+                    return cb(err);
+               }
+
+               copySeller(out,contract,function(err){
+                    copyOrganizer(out2,contract,function(err){
+                         copyIssuer(out,contract,function(err){
+                              cb(null);
+                         });
+                    });
                });
           });
      });
-
 }
 
 /////////////////

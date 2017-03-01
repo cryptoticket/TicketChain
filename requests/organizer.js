@@ -251,12 +251,12 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
                          return next(err);
                     }
 
-                    db_helpers.fromDataToOrganizer(ticketOut.organizer,request.body,function(err){
+                    db_helpers.updateOrganizer(ticketOut.organizer,request.body,function(err){
                          if(err){
                               return next(err);
                          }
 
-                         contract_helpers.updateContract(request.body,function(err){
+                         contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
                               if(err){
                                    return next(err);
                               }
@@ -366,12 +366,12 @@ function changeStateInternal(request,inn,id,state,cb){
                               return cb(err);
                          }
 
-                         db_helpers.fromDataToOrganizer(ticketOut.organizer,request.body,function(err){
+                         db_helpers.updateOrganizer(ticketOut.organizer,request.body,function(err){
                               if(err){
                                    return next(err);
                               }
 
-                              contract_helpers.updateContract(request.body,function(err){
+                              contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
                                    if(err){
                                         return cb(err);
                                    }
@@ -757,7 +757,7 @@ app.put('/api/v1/organizers/:inn',function(request,res,next){
                return next();
           }
 
-          db_helpers.fromDataToOrganizer(org,request.body,function(err){
+          db_helpers.updateOrganizer(org,request.body,function(err){
                if(err){
                     return next(err);
                }
