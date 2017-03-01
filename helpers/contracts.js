@@ -108,8 +108,6 @@ function deployTicket(ticket,cb){
 }
 
 function copyOrganizer(ticket,contract,cb){
-     cb(null);
-
      db_helpers.getOrganizerById(ticket.organizer,function(err,org){
           if(err){return cb(err);}
 
@@ -198,11 +196,11 @@ function updateContract(contractAddress,body,cb){
                if(err){
                     return cb(err);
                }
-
+     
                copySeller(out,contract,function(err){
                     copyOrganizer(out2,contract,function(err){
                          copyIssuer(out,contract,function(err){
-                              cb(null);
+                              return cb(null);
                          });
                     });
                });

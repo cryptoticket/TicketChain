@@ -271,7 +271,6 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
                                    res.json({});
                               });
                          });
-
                     });
                });
           });
