@@ -145,6 +145,9 @@ describe('Organizer module',function(){
                assert.notEqual(p.id.length,0);
                assert.equal(p.organizer_inn,INN);
 
+               assert.notEqual(typeof(p.contract_address),'undefined');
+               assert.notEqual(p.contract_address,'');
+
                ticketOneSerialNumber = p.serial_number;
                done();
           });

@@ -217,7 +217,9 @@ function fromDataToTicket(ticket,from,cb){
 
 function fromDataToOrganizer(org,from,cb){
      copyField(org,from,'organizer');
-     // WARNING: can't be changed
+
+     // TODO
+     // WARNING: can't be changed?
      //copyField(org,from,'organizer_inn');
      copyField(org,from,'organizer_ogrn');
      copyField(org,from,'organizer_ogrnip');
