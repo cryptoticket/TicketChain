@@ -53,7 +53,7 @@
      },
 
      "ethereum":{
-          "connect":true,
+          "connect":false,
           "test_node":"http://localhost:8989"
      }
 }
