@@ -717,7 +717,6 @@ app.get('/api/v1/organizers',function(request,res,next){
      });
 });
 
-/*
 // Get organizer by INN
 //
 // http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-organizer
@@ -728,6 +727,10 @@ app.get('/api/v1/organizers/:inn',function(request,res,next){
      }
      var inn = request.params.inn;
 
+     var out = {};
+     res.json(out);
+
+     /*
      db_helpers.getOrganizerByInn(inn,function(err,isFound,org){
           if(err){
                return next(err);
@@ -739,8 +742,8 @@ app.get('/api/v1/organizers/:inn',function(request,res,next){
           var out = {};
           res.json(out);
      });
+     */
 });
-*/
 
 // Update organizer by INN 
 //
