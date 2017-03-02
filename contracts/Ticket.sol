@@ -43,12 +43,17 @@ contract Ticket
      State public currentState = State.Created;
      string public serial_number = "";
 
-     function Ticket(uint date_created_, uint price_kop_, bool is_paper_ticket_, 
+     function Ticket(string organizer_inn_)
+     {
+          creator = msg.sender;
+          organizer_inn = organizer_inn_;
+     }
+     
+     function setData(uint date_created_, uint price_kop_, bool is_paper_ticket_, 
                      string event_title_, string event_place_, uint event_date_, string event_address_,
                      string row_, string seat_, uint category_,
                      string buyer_name_, uint buying_date_)
      {
-          creator = msg.sender;
 
           date_created = date_created_;
           price_kop = price_kop_;
@@ -94,6 +99,16 @@ contract Ticket
           seller_address = seller_a_;
      }
 
+     function getOrganizerInn()constant returns(string out){
+          out = organizer_inn;
+          return;
+     }
+
+     function getState()constant returns(State out){
+          out = currentState;
+          return;
+     }
+
      // Passed in constructor:
      uint public date_created = 0;
      uint public price_kop = 0;
@@ -136,3 +151,27 @@ contract Ticket
      }
 }
 
+contract TicketLedger {
+     address[] public tickets;
+
+     address ticket = 0;
+
+     function issueNewTicket(string organizer_inn_)returns(address out){
+          out = new Ticket(organizer_inn_);
+          tickets.push(out);
+
+          ticket = out;
+          return;
+     }
+
+     function getTicket() constant returns (address out){
+          out = ticket;  
+          return;
+     }
+
+     /// This function is called when someone sends money to this contract directly.
+     function() 
+     {
+          throw;
+     }
+}

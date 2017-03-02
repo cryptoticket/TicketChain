@@ -2,6 +2,7 @@ var solc = require('solc');
 var Web3 = require('web3');
 var fs = require('fs');
 var winston = require('winston');
+var helpers = require('../helpers/helpers.js');
 var db_helpers = require('../helpers/db_helpers.js');
 
 var config = require('../config');
@@ -61,37 +62,15 @@ function deployTicket(ticket,cb){
      if(!enabled){
           return cb(null,0);
      }
+     if(!ticket.organizer_inn || !helpers.validateInn(ticket.organizer_inn)){
+          return cb(new Error('Bad organizer_inn during deploy'));
+     }
 
      var tempContract = web3.eth.contract(g_abi);
      var alreadyCalled = false;
 
-     // Params:
-     var date_created = 0;
-     var price_kop = 100;
-     var is_paper_ticket = false;
-     var event_title = "";
-     var event_place_title = "";
-     var event_date = "";
-     var event_place_address = "";
-     var row = "";
-     var seat = "";
-     var ticket_category = "";
-     var buyer_name = "";
-     var buying_date = 0;
-
      tempContract.new(
-          date_created,
-          price_kop,
-          is_paper_ticket,
-          event_title,
-          event_place_title,
-          event_date,
-          event_place_address,
-          row,
-          seat,
-          ticket_category,
-          buyer_name,
-          buying_date,
+          ticket.organizer_inn,
 
           {
                from: g_creator, 

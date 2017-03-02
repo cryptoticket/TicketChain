@@ -7,10 +7,13 @@
 #    "test_node":"http://138.201.89.68:8545"
 #    "test_node":"http://localhost:8989"
 
-mocha --reporter spec -t 90000 -g "Organizer"
+mocha --reporter spec -t 90000 -g "Contract"
+
+#-g "Organizer"
+
+
 
 #-g "Batch"
-
 
 #-g "Files module 2"
 
@@ -18,7 +21,6 @@ mocha --reporter spec -t 90000 -g "Organizer"
 
 #-g "Serial"
 
-#-g "Contract"
 
 
 #-g "TicketCount"
