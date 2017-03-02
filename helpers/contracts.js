@@ -6,14 +6,20 @@ var db_helpers = require('../helpers/db_helpers.js');
 
 var config = require('../config');
 
+var enabled = (process.env.ETH_CONNECT || config.get('ethereum:connect'));
+
 var web3 = new Web3(new Web3.providers.HttpProvider(
-     process.env.MONGODB_USER || config.get('ethereum:test_node')));
+     process.env.ETH_NODE || config.get('ethereum:test_node')));
 
 var g_creator = 0;
 var g_abi;
 var g_bytecode;
 
 function getAccounts(cb){
+     if(!enabled){
+          return cb(null);
+     }
+
      web3.eth.getAccounts(function(err, accounts) {
           if(err) {
                cb(err);
@@ -28,6 +34,10 @@ function getAccounts(cb){
 }
 
 function compileTicket(cb){
+     if(!enabled){
+          return cb(null);
+     }
+
      var file = './contracts/Ticket.sol';
      // TODO: fix it!
      var contractName = ':Ticket';
@@ -48,6 +58,10 @@ function compileTicket(cb){
 }
 
 function deployTicket(ticket,cb){
+     if(!enabled){
+          return cb(null,0);
+     }
+
      var tempContract = web3.eth.contract(g_abi);
      var alreadyCalled = false;
 
@@ -174,6 +188,10 @@ function copySeller(ticket,contract,cb){
 }
 
 function updateContract(contractAddress,body,cb){
+     if(!enabled){
+          return cb(null);
+     }
+
      // TODO: get contract address
 
      winston.info('--> Updating contract: ' + contractAddress);
