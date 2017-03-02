@@ -41,7 +41,6 @@ contract Ticket
           Cancelled
      }
      State public currentState = State.Created;
-     string public serial_number = "";
 
      function Ticket(string organizer_inn_)
      {
@@ -109,7 +108,8 @@ contract Ticket
           return;
      }
 
-     // Passed in constructor:
+// DATA:
+     string public serial_number = "";
      uint public date_created = 0;
      uint public price_kop = 0;
      bool public is_paper_ticket = false;
@@ -152,20 +152,25 @@ contract Ticket
 }
 
 contract TicketLedger {
-     address[] public tickets;
+     //address[] public tickets;
+     mapping (uint => address) tickets;
+     uint public currentTicketCount = 0;
 
+     // TODO: remove
      address ticket = 0;
 
      function issueNewTicket(string organizer_inn_)returns(address out){
           out = new Ticket(organizer_inn_);
-          tickets.push(out);
+          tickets[currentTicketCount] = out;
+          currentTicketCount++;
 
+          // TODO: remove
           ticket = out;
           return;
      }
 
-     function getTicket() constant returns (address out){
-          out = ticket;  
+     function getTicket(uint index) constant returns (address out){
+          out = tickets[index];  
           return;
      }
 

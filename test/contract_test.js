@@ -110,57 +110,42 @@ describe('Contract', function() {
      });
 
      it('should create new Ticket contract',function(done){
-          var t = contractLedger.getTicket();
-          console.log('CL: ');
-          console.log(t);
-          return done();
+          var organizer_inn = "1234567890";
+          contractLedger.issueNewTicket(
+               organizer_inn,
+               {
+                    from: creator,               
+                    gasPrice: 2000000,
+                    gas: 3000000
+               },function(err,result){
+                    assert.equal(err,null);
 
-          /*
+                    console.log('Result: ');
+                    console.log(result);
+
+                    web3.eth.getTransactionReceipt(result, function(err, r2){
+                         assert.equal(err, null);
+
+                         done();
+                    });
+               }
+          );
+     })
+
+     it('should get Ticket contract address',function(done){
           var contractName = ':Ticket';
-
           getContractAbi(contractName,function(err,abi){
                assert.equal(err,null);
 
-               var organizer_inn = "1234567890";
-               contractLedger.issueNewTicket(
-                    organizer_inn,
-                    {
-                         from: creator,               
-                         gasPrice: 2000000,
-                         gas: 3000000
-                    },function(err,result){
-                         assert.equal(err,null);
+               contractAddress = contractLedger.getTicket(0);
+               console.log('CL: ');
+               console.log(contractAddress);
 
-                         //console.log('Result: ');
-                         //console.log(result);
-
-                         var t = contractLedger.getTicket();
-                         return done();
-
-                         /*
-                         web3.eth.getTransactionReceipt(result, function(err, r2){
-                              assert.equal(err, null);
-
-                              var t = contractLedger.getTicket();
-
-                              console.log('Result: ');
-                              console.log(t);
-
-                              contractAddress = t; //r2.contractAddress;
-                              contract = web3.eth.contract(abi).at(contractAddress);
-
-                              console.log('Ticket contract address: ');
-                              console.log(contractAddress);
-
-                              done();
-                         });
-                    }
-               );
+               contract = web3.eth.contract(abi).at(contractAddress);
+               done();
           });
-          */
-     });
+     })
 
-     /*
      it('should set basic data',function(done){
           // Params:
           var date_created = 0;
@@ -204,7 +189,6 @@ describe('Contract', function() {
           );
      });
 
-     /*
      it('should set issuer',function(done){
           var issuer = "TicketsCloud";
           var issuer_inn = "1234567890";
@@ -306,5 +290,4 @@ describe('Contract', function() {
           assert.equal(s,0); 
           done();
      });
-     */
 });
