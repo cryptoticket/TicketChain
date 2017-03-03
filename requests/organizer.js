@@ -260,7 +260,7 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
           winston.error('Bad id_or_number provided');
           return next();
      }
-     winston.info('Edit tickets ' + id + ' for INN: ' + inn);
+     winston.info('Edit ticket ' + id + ' for INN: ' + inn);
 
      db.TicketModel.findOne({organizer_inn:inn, _id:id},function(err,ticket){
           if(err){
@@ -275,6 +275,9 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
                if(err){
                     return next(err);
                }
+
+               console.log('CA: ');
+               console.log(ticket);
 
                contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
                     if(err){
@@ -625,6 +628,7 @@ function createNewBlankTicket(inn,/*organizerId,*/optionalSerNum,cb){
                }
 
                winston.info('Contract address: ' + contractTicketAddress);
+
                ticket.contract_address = '' + contractTicketAddress;
 
                winston.info('Saving new Ticket: ' + ticket.serial_number);

@@ -152,20 +152,13 @@ contract Ticket
 }
 
 contract TicketLedger {
-     //address[] public tickets;
      mapping (uint => address) tickets;
      uint public currentTicketCount = 0;
-
-     // TODO: remove
-     address ticket = 0;
 
      function issueNewTicket(string organizer_inn_)returns(address out){
           out = new Ticket(organizer_inn_);
           tickets[currentTicketCount] = out;
           currentTicketCount++;
-
-          // TODO: remove
-          ticket = out;
           return;
      }
 

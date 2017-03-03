@@ -169,7 +169,7 @@ function startHttp(port,cb){
                return cb(err);
           }
 
-          contract_helpers.compileTicket(function(err){
+          contract_helpers.compileContracts(function(err){
                if(err){
                     console.log('Can not compile contract...' + err);
                     winston.error('Can not compile contract... ' + err);
