@@ -89,6 +89,10 @@ describe('Organizer module',function(){
                assert.equal(statusCode,200);
 
                var p = JSON.parse(dataOut);
+               
+               console.log('ORGGG: ');
+               console.log(p);
+
                assert.equal(p.length,1);
 
                orgOneInn = p[0];
@@ -112,6 +116,7 @@ describe('Organizer module',function(){
      })
      */
 
+     /*
      it('should get tickets', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets';
 
@@ -413,6 +418,7 @@ describe('Organizer module',function(){
                done();
           });
      })
+     */
 });
 
 describe('Pagination module',function(){

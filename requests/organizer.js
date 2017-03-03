@@ -713,11 +713,7 @@ app.get('/api/v1/organizers',function(request,res,next){
                return next();
           }
 
-          var out = [];
-          for(var i=0; i<orgs.length; ++i){
-               out.push(orgs[i].organizer_inn); 
-          }
-          res.json(out);
+          res.json(orgs);
      });
 });
 

@@ -9,12 +9,11 @@
 
 mocha --reporter spec -t 90000 -g "Organizer"
 
+#-g "Batch"
+
 #-g "Contract"
 
 
-
-
-#-g "Batch"
 
 #-g "Files module 2"
 
