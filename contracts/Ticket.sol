@@ -42,10 +42,13 @@ contract Ticket
      }
      State public currentState = State.Created;
 
-     function Ticket(string organizer_inn_)
+     function Ticket(string organizer_inn_, string serial_number_)
      {
           creator = msg.sender;
+
+          // TODO: please check params here
           organizer_inn = organizer_inn_;
+          serial_number = serial_number_;
      }
      
      function setData(uint date_created_, uint price_kop_, bool is_paper_ticket_, 
@@ -155,8 +158,8 @@ contract TicketLedger {
      mapping (uint => address) tickets;
      uint public currentTicketCount = 0;
 
-     function issueNewTicket(string organizer_inn_)returns(address out){
-          out = new Ticket(organizer_inn_);
+     function issueNewTicket(string organizer_inn_,string serial_number_)returns(address out){
+          out = new Ticket(organizer_inn_,serial_number_);
           tickets[currentTicketCount] = out;
           currentTicketCount++;
           return;

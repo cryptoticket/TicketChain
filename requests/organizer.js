@@ -4,6 +4,18 @@ var db_helpers = require('./helpers/db_helpers.js');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+function stateToQuery(s){
+     if(s==0){return 0;}
+     if(s==1){return 1;}
+     if(s==2){return 2;}
+
+     if(s=='created'){return 0;}
+     if(s=='sold'){return 1;}
+     if(s=='cancelled'){return 2;}
+
+     return -1;
+}
+
 //var BigNumber = require('bignumber.js');
 //var unit = new BigNumber(Math.pow(10,18));
 
@@ -22,7 +34,12 @@ app.get('/api/v1/organizers/:inn/ticket_count',function(request,res,next){
      }
      winston.info('Asking tickets for INN: ' + inn + ' page=' + request.query.page + ' limit= ' + request.query.limit);
 
-     db.TicketModel.find({organizer_inn:inn}).count(function(err,count){
+     var query = {organizer_inn:inn};
+     if(typeof(request.query.state)!=='undefined'){
+          query.state = stateToQuery(request.query.state);
+     }
+     
+     db.TicketModel.find(query).count(function(err,count){
           if(err){return next(err);}
 
           var out = {
@@ -47,7 +64,7 @@ app.get('/api/v1/organizers/:inn/stats',function(request,res,next){
           cancelled: 0
      };
      
-     db.TicketModel.find({organizer_inn:inn,state: 0},function(err,tickets){
+     db.TicketModel.find({organizer_inn:inn, state:0},function(err,tickets){
           if(err){
                return next(err);
           }
@@ -93,8 +110,13 @@ app.get('/api/v1/organizers/:inn/tickets',function(request,res,next){
           return next();
      }
      winston.info('Asking tickets for INN: ' + inn + ' page=' + request.query.page + ' limit= ' + request.query.limit);
+
+     var query = {organizer_inn:inn};
+     if(typeof(request.query.state)!=='undefined'){
+          query.state = stateToQuery(request.query.state);
+     }
      
-     db.TicketModel.paginate({organizer_inn:inn},{
+     db.TicketModel.paginate(query,{
           sort:{serial_number:1},
           page:request.query.page,
           limit:request.query.limit},
@@ -164,7 +186,7 @@ app.post('/api/v1/organizers/:inn/tickets',function(request, res, next){
 });
 
 function newBlankTicket(inn,sernum,cb){
-     createNewBlankTicket(inn,/*orgId,*/sernum,function(err,ticket,isCollision){
+     createNewBlankTicket(inn,sernum,function(err,ticket,isCollision){
           if(err){
                return cb(err);
           }
@@ -498,7 +520,7 @@ function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
      }
 
      // update
-     createNewBlankTicket(inn,/*orgId,*/strs,function(err,ticket,isCollision){
+     createNewBlankTicket(inn,strs,function(err,ticket,isCollision){
           if(err){
                winston.info('Can not create new ticket');
                return next(err);
@@ -590,7 +612,7 @@ app.get('/api/v1/organizers/:inn/batches/:id',function(request, res, next){
      });
 });
 
-function createNewBlankTicket(inn,/*organizerId,*/optionalSerNum,cb){
+function createNewBlankTicket(inn,optionalSerNum,cb){
      var ticket = new db.TicketModel();
 
      ticket.state = 0;

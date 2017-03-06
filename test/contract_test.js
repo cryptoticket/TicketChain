@@ -111,8 +111,11 @@ describe('Contract', function() {
 
      it('should create new Ticket contract',function(done){
           var organizer_inn = "1234567890";
+          var serial_number = "АБ123456";
+
           contractLedger.issueNewTicket(
                organizer_inn,
+               serial_number,
                {
                     from: creator,               
                     gasPrice: 2000000,

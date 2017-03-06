@@ -131,7 +131,7 @@ function deployTicket(ticket,cb){
      var alreadyCalled = false;
      g_ledger.issueNewTicket(
           ticket.organizer_inn,
-
+          ticket.serial_number,
           {
                from: g_creator,               
                gasPrice: 2000000,
