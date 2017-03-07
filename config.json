@@ -53,8 +53,8 @@
      },
 
      "ethereum":{
-          "connect":false,
-          "test_node":"http://localhost:8989",
+          "connect":true,
+          "test_node":"http://138.201.89.68:8545",
           "main_contract_address": ""
      }
 }

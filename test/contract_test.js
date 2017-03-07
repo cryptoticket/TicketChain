@@ -1,6 +1,8 @@
 var solc = require('solc');
 var Web3 = require('web3');
-var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8989"));
+
+//var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8989"));
+var web3 = new Web3(new Web3.providers.HttpProvider("http://138.201.89.68:8545"));
 
 var fs = require('fs');
 var assert = require('assert');
@@ -43,42 +45,52 @@ function deployContract1(cb){
           var source = result.toString();
           assert.notEqual(source.length,0);
 
-          var output = solc.compile(source, 1); // 1 activates the optimiser
+          //console.log('1');
+          //var solcV = solc.useVersion('0.4.9+commit.364da425.Emscripten.clang');
+          //console.log('2');
 
-          //console.log('OUTPUT: ');
-          //console.log(output.contracts);
+          //solc.loadRemoteVersion('latest', function(err, solcSnapshot) {
+               assert.equal(err,null);
 
-          var abi = JSON.parse(output.contracts[contractName].interface);
-          var bytecode = output.contracts[contractName].bytecode;
-          var tempContract = web3.eth.contract(abi);
+               var output = solc.compile(source, 0); // 1 activates the optimiser
 
-          var alreadyCalled = false;
+               console.log('OUTPUT: ');
+               console.log(output.contracts);
 
-          tempContract.new(
-               {
-                    from: creator, 
-                    gas: 6000000, 
-                    data: bytecode
-               }, 
-               function(err, c){
-                    assert.equal(err, null);
+               var abi = JSON.parse(output.contracts[contractName].interface);
+               var bytecode = output.contracts[contractName].bytecode;
+               var tempContract = web3.eth.contract(abi);
 
-                    web3.eth.getTransactionReceipt(c.transactionHash, function(err, result){
+               var alreadyCalled = false;
+
+               console.log('C: ' + creator);
+
+               tempContract.new(
+                    {
+                         from: creator, 
+                         gas: 6000000,
+                         data: bytecode
+                    }, 
+                    function(err, c){
                          assert.equal(err, null);
 
-                         contractLedgerAddress = result.contractAddress;
-                         contractLedger = web3.eth.contract(abi).at(contractLedgerAddress);
+                         web3.eth.getTransactionReceipt(c.transactionHash, function(err, result){
+                              assert.equal(err, null);
 
-                         console.log('Ledger contract address: ');
-                         console.log(contractLedgerAddress);
+                              contractLedgerAddress = result.contractAddress;
+                              contractLedger = web3.eth.contract(abi).at(contractLedgerAddress);
 
-                         if(!alreadyCalled){
-                              alreadyCalled = true;
+                              console.log('Ledger contract address: ');
+                              console.log(contractLedgerAddress);
 
-                              return cb(null);
-                         }
+                              if(!alreadyCalled){
+                                   alreadyCalled = true;
+
+                                   return cb(null);
+                              }
+                         });
                     });
-               });
+          //});
      });
 }
 
