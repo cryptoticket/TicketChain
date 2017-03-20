@@ -8,10 +8,13 @@ var helpers = require('../helpers/helpers.js');
 var db_helpers = require('../helpers/db_helpers.js');
 
 var config = require('../config');
-var enabled = (process.env.ETH_CONNECT || config.get('ethereum:connect'));
 
-var web3 = new Web3(new Web3.providers.HttpProvider(
-     process.env.ETH_NODE || config.get('ethereum:test_node')));
+// You must set this ENV VAR before
+var enabled = (typeof(process.env.ETH_NODE)!=='undefined');
+var web3 = null;
+if(enabled){
+     web3 = new Web3(new Web3.providers.HttpProvider(process.env.ETH_NODE));
+}
 
 var g_creator = 0;
 var g_abi;

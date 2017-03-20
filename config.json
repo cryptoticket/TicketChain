@@ -53,8 +53,5 @@
      },
 
      "ethereum":{
-          "connect":true,
-          "test_node":"http://localhost:8989",
-          "main_contract_address": ""
      }
 }

@@ -7,22 +7,19 @@
 #    "test_node":"http://138.201.89.68:8545"
 #    "test_node":"http://localhost:8989"
 
-mocha --reporter spec -t 90000 -g "Contract"
+#env ETH_NODE=http://138.201.89.68:8545 mocha --reporter spec -t 90000 -g "Organizer"
 
-#-g "Organizer"
+env ETH_NODE=http://localhost:8989 mocha --reporter spec -t 90000 -g "Organizer"
+
+#-g "Contract"
 
 #-g "Batch"
-
-
-
 
 #-g "Files module 2"
 
 #-g "Pagination"
 
 #-g "Serial"
-
-
 
 #-g "TicketCount"
 

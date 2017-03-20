@@ -4,15 +4,16 @@ var Web3 = require('web3');
 var config = require('../config');
 var contract_helpers = require('../helpers/contracts.js');
 
-var web3 = new Web3(new Web3.providers.HttpProvider(
-     process.env.ETH_NODE || config.get('ethereum:test_node')));
-
-//var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8989"));
-//var web3 = new Web3(new Web3.providers.HttpProvider("http://138.201.89.68:8545"));
-
 var fs = require('fs');
 var assert = require('assert');
 var BigNumber = require('bignumber.js');
+
+// You must set this ENV VAR before testing
+assert.notEqual(typeof(process.env.ETH_NODE),'undefined');
+var web3 = new Web3(new Web3.providers.HttpProvider(process.env.ETH_NODE));
+
+//var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8989"));
+//var web3 = new Web3(new Web3.providers.HttpProvider("http://138.201.89.68:8545"));
 
 var accounts;
 var creator;
