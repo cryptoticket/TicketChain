@@ -1,8 +1,14 @@
 var solc = require('solc');
 var Web3 = require('web3');
 
+var config = require('../config');
+var contract_helpers = require('../helpers/contracts.js');
+
+var web3 = new Web3(new Web3.providers.HttpProvider(
+     process.env.ETH_NODE || config.get('ethereum:test_node')));
+
 //var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8989"));
-var web3 = new Web3(new Web3.providers.HttpProvider("http://138.201.89.68:8545"));
+//var web3 = new Web3(new Web3.providers.HttpProvider("http://138.201.89.68:8545"));
 
 var fs = require('fs');
 var assert = require('assert');
@@ -54,8 +60,8 @@ function deployContract1(cb){
 
                var output = solc.compile(source, 0); // 1 activates the optimiser
 
-               console.log('OUTPUT: ');
-               console.log(output.contracts);
+               //console.log('OUTPUT: ');
+               //console.log(output.contracts);
 
                var abi = JSON.parse(output.contracts[contractName].interface);
                var bytecode = output.contracts[contractName].bytecode;
@@ -63,19 +69,20 @@ function deployContract1(cb){
 
                var alreadyCalled = false;
 
-               console.log('C: ' + creator);
+               //console.log('C: ' + creator);
 
                tempContract.new(
                     {
                          from: creator, 
-                         gas: 6000000,
-                         data: bytecode
+                         gas: 4000000,
+                         data: '0x' + bytecode
                     }, 
                     function(err, c){
                          assert.equal(err, null);
 
-                         web3.eth.getTransactionReceipt(c.transactionHash, function(err, result){
+                         contract_helpers.waitForTransaction(c.transactionHash,function(err,result){
                               assert.equal(err, null);
+                              assert.notEqual(result, null);
 
                               contractLedgerAddress = result.contractAddress;
                               contractLedger = web3.eth.contract(abi).at(contractLedgerAddress);
@@ -289,8 +296,8 @@ describe('Contract', function() {
      it('should get organizers INN back',function(done){
           var inn = contract.getOrganizerInn();
 
-          //console.log('Result: ');
-          //console.log(inn);
+          console.log('Result: ');
+          console.log(inn);
 
           assert.equal(inn,'1234567890'); 
           done();

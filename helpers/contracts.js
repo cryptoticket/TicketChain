@@ -2,6 +2,8 @@ var solc = require('solc');
 var Web3 = require('web3');
 var fs = require('fs');
 var winston = require('winston');
+var sleep = require('sleep');
+
 var helpers = require('../helpers/helpers.js');
 var db_helpers = require('../helpers/db_helpers.js');
 
@@ -255,9 +257,40 @@ function updateContract(contractAddress,body,cb){
      });
 }
 
+function waitForTransaction(txHash,cb){
+     return waitForTransactionInt(0,txHash,cb); 
+}
+
+function waitForTransactionInt(indexTry,txHash,cb){
+     if(indexTry>20){
+          return cb(new Error('Can not get tx receipt: ' + txHash));
+     }
+
+     // poll
+     web3.eth.getTransactionReceipt(txHash, function(err, result){
+          if(err){
+               return cb(err);
+          }
+
+          if(result){
+               // stop recursion
+               return cb(null,result);
+          }
+
+          sleep.sleep(3);
+
+          // recurse
+          console.log('Try again for tx: ' + txHash);
+
+          waitForTransactionInt(indexTry + 1,txHash,cb);
+     });
+}
+
 /////////////////
 exports.getAccount = getAccounts;
 exports.compileContracts = compileContracts;
 
 exports.deployTicket = deployTicket;
 exports.updateContract = updateContract;
+
+exports.waitForTransaction = waitForTransaction;

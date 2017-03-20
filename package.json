@@ -39,6 +39,7 @@
     "password-generator": "^2.0.2",
     "querystring": "^0.2.0",
     "restler": "^3.4.0",
+    "sleep": "^5.1.0",
     "solc": "^0.4.8",
     "web3": "^0.18.2",
     "winston": "^2.2.0"
