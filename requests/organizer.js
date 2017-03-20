@@ -488,29 +488,20 @@ app.post('/api/v1/organizers/:inn/batches',function(request, res, next){
      var stre = '' + es + en;
      var n = calculateCount(strs,stre);
      
-     /*
-     createOrganizer(inn,function(err,orgId){
+     // create batch:
+     var batch = new db.BatchModel();
+     //batch.organizer = orgId;
+     batch.organizer_inn = inn;
+     batch.tickets = [];
+
+     batch.save(function(err){
           if(err){
-               return cb(err);
+               return next(err);
           }
-     */
 
-          // create batch:
-          var batch = new db.BatchModel();
-          //batch.organizer = orgId;
-          batch.organizer_inn = inn;
-          batch.tickets = [];
-
-          batch.save(function(err){
-               if(err){
-                    return next(err);
-               }
-
-               var strs = '' + ss + sn;
-               addNewTicketToBatch(batch/*,orgId*/,inn,n,strs,request,res,next);
-          });
-
-     //});
+          var strs = '' + ss + sn;
+          addNewTicketToBatch(batch/*,orgId*/,inn,n,strs,request,res,next);
+     });
 });
 
 function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
@@ -738,86 +729,6 @@ app.get('/api/v1/organizers',function(request,res,next){
           res.json(orgs);
      });
 });
-
-// Get organizer by INN
-//
-// http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-organizer
-app.get('/api/v1/organizers/:inn',function(request,res,next){
-     if(typeof(request.params.inn)==='undefined'){
-          winston.error('No INN');
-          return next();
-     }
-     var inn = request.params.inn;
-
-     var out = {};
-     res.json(out);
-
-     /*
-     db_helpers.getOrganizerByInn(inn,function(err,isFound,org){
-          if(err){
-               return next(err);
-          }
-          if(!isFound){
-               return next();
-          }
-
-          var out = {};
-          res.json(out);
-     });
-     */
-});
-
-// Update organizer by INN 
-//
-// http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/update-an-organizer
-/*
-app.put('/api/v1/organizers/:inn',function(request,res,next){
-     if(typeof(request.params.inn)==='undefined'){
-          winston.error('No INN');
-          return next();
-     }
-     var inn = request.params.inn;
-
-     db_helpers.getOrganizerByInn(inn,function(err,isFound,org){
-          if(err){
-               return next(err);
-          }
-          if(!isFound){
-               return next();
-          }
-
-          db_helpers.updateOrganizer(org,request.body,function(err){
-               if(err){
-                    return next(err);
-               }
-               res.json({});
-          });
-     });
-});
-*/
-
-/*
-function createOrganizer(inn,cb){
-     // 1 - find org
-     db.OrganizerModel.findOne({organizer_inn:inn},function(err,org){
-          if(err){
-               return cb(err);
-          }
-
-          if(typeof(org)!=='undefined' && org){
-               return cb(null,org._id);
-          }
-
-          // 2 - if not found - create
-          var org = new db.OrganizerModel();
-          org.organizer_inn = inn;
-
-          org.save(function(err){
-               cb(err,org._id);
-          });
-     });
-}
-*/
 
 function convertOrgToOut(to,from){
      copyField(to,from,'organizer');

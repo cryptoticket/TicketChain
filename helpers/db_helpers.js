@@ -132,37 +132,6 @@ function createNewUser(name,lastName,email,pass,facebookID,needValidation,cb){
      });
 }
 
-/*
-function getOrganizerByInn(inn,cb){
-     db.OrganizerModel.findOne({organizer_inn:inn},function(err,org){
-          if(err){
-               return cb(err,false);
-          }
-
-          if(typeof(org)=='undefined' || !org){
-               return cb(null,false,{});
-          }
-          
-          return cb(null,true,org);
-     });
-}
-
-
-function getOrganizerById(id,cb){
-     db.OrganizerModel.findOne({_id:id},function(err,org){
-          if(err){
-               return cb(err);
-          }
-
-          if(typeof(org)=='undefined' || !org){
-               return cb(new Error('Can not find organizer'));
-          }
-          
-          return cb(null,org);
-     });
-}
-*/
-
 function fromDataToTicket(ticket,from,cb){
      if(isExists(from.issuer_inn) && !helpers.validateInn(from.issuer_inn)){
           return cb(new Error('Bad issuer_inn: ' + from.issuer_inn));
@@ -230,20 +199,6 @@ function fromDataToOrganizer(org,from,cb){
      return cb(null,org);
 }
 
-function updateOrganizer(orgId,from,cb){
-     getOrganizerById(orgId,function(err,org){
-          if(err){return cb(err);}
-          
-          fromDataToOrganizer(org,from,function(err,orgOut){
-               if(err){return cb(err);}
-
-               orgOut.save(function(err){
-                    return cb(err);
-               });
-          });
-     });
-}
-
 /////////////////////////////////////////////
 exports.findUserByEmail = findUserByEmail;
 exports.generateNewUserId = generateNewUserId;
@@ -254,7 +209,6 @@ exports.createNewUser = createNewUser;
 /*
 exports.getOrganizerByInn = getOrganizerByInn;
 exports.getOrganizerById = getOrganizerById;
-exports.updateOrganizer = updateOrganizer;
 */
 
 exports.fromDataToTicket = fromDataToTicket;
