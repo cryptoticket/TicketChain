@@ -135,6 +135,11 @@ contract TicketLedger {
           return;
      }
 
+     function getTicketCount()constant returns(uint out){
+          out = currentTicketCount;
+          return;
+     }
+
      function getTicket(uint index) constant returns (address out){
           out = tickets[index];  
           return;

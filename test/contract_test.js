@@ -24,8 +24,14 @@ var contractLedger;
 var contractAddress;
 var contract;
 
+var ledgerAbi;
+var ticketAbi;
+
 // init BigNumber
 var unit = new BigNumber(Math.pow(10,18));
+
+function getTicket(index){
+}
 
 function getContractAbi(contractName,cb){
      var file = './contracts/Ticket.sol';
@@ -113,7 +119,18 @@ describe('Contract', function() {
                accounts = as;
                creator = accounts[0];
 
-               done();
+               // 1 - abi 1
+               var contractName = ':TicketLedger';
+               getContractAbi(contractName,function(err,abi){
+                    ledgerAbi = abi;
+
+                    var contractName2 = ':Ticket';
+                    getContractAbi(contractName2,function(err,abi){
+                         ticketAbi = abi;
+
+                         done();
+                    });
+               });
           });
      });
 
@@ -156,17 +173,12 @@ describe('Contract', function() {
      })
 
      it('should get Ticket contract address',function(done){
-          var contractName = ':Ticket';
-          getContractAbi(contractName,function(err,abi){
-               assert.equal(err,null);
+          contractAddress = contractLedger.getTicket(0);
+          console.log('CL: ');
+          console.log(contractAddress);
 
-               contractAddress = contractLedger.getTicket(0);
-               console.log('CL: ');
-               console.log(contractAddress);
-
-               contract = web3.eth.contract(abi).at(contractAddress);
-               done();
-          });
+          contract = web3.eth.contract(ticketAbi).at(contractAddress);
+          done();
      })
 
      it('should set basic data',function(done){
@@ -313,4 +325,50 @@ describe('Contract', function() {
           assert.equal(s,0); 
           done();
      });
+
+     it('should create another Ticket contract',function(done){
+          var organizer_inn = "1234567890";
+          var serial_number = "АБ123457";    // +1 to initial ticket
+
+          // will not check for serial_number collisions...
+          contractLedger.issueNewTicket(
+               organizer_inn,
+               serial_number,
+               {
+                    from: creator,               
+                    gasPrice: 2000000,
+                    gas: 3000000
+               },function(err,result){
+                    assert.equal(err,null);
+
+                    web3.eth.getTransactionReceipt(result, function(err, r2){
+                         assert.equal(err, null);
+
+                         done();
+                    });
+               }
+          );
+     })
+
+
+     it('should get Ticket count',function(done){
+          var count = contractLedger.getTicketCount();
+          assert.equal(count,2);
+
+          done();
+     })
+
+     it('should get organizer',function(done){
+          var count = contractLedger.getTicketCount();
+          
+          for(var i=0; i<count; ++i){
+               var addr = contractLedger.getTicket(i);
+               var t = web3.eth.contract(ticketAbi).at(addr);
+
+               var inn = t.getOrganizerInn();
+               console.log('INN: ', inn);
+          }
+
+          done();
+     })
 });
