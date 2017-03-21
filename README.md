@@ -1,5 +1,9 @@
 # TicketChain project
 
+Heroku **master** branch Build - [![Heroku Master branch Build](https://heroku-badge.herokuapp.com/?app=ticketchain-backend)](https://ticketchain-backend.herokuapp.com)
+
+[API description is here](http://docs.ticketchain.apiary.io)
+
 ## Before you go
 ### For Ubuntu only:
 * **sudo apt-get install build-essential make**
