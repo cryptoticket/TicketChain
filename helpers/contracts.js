@@ -283,10 +283,63 @@ function waitForTransactionInt(indexTry,txHash,cb){
           sleep.sleep(3);
 
           // recurse
-          console.log('Try again for tx: ' + txHash);
-
+          winston.info('Trying again for tx: ' + txHash);
           waitForTransactionInt(indexTry + 1,txHash,cb);
      });
+}
+
+// This may take a lot of time, but costs no gas...
+function getAllOrganizerInns(){
+     if(!enabled){
+          winston.info('ETH connect is disabled. Please set ETH_NODE var');
+          return [];
+     }
+
+     var count = g_ledger.getTicketCount();
+     
+     var allInns = {};
+     for(var i=0; i<count; ++i){
+          var addr = g_ledger.getTicket(i);
+          var t = web3.eth.contract(g_abiTicket).at(addr);
+
+          var inn = t.getOrganizerInn();
+          allInns[inn] = 1;
+     }
+
+     var out = [];
+     for(k in allInns){
+          out.push(k);
+     }
+
+     return out;
+}
+
+function getTicketCountForOrganizer(inn){
+     if(!enabled){
+          winston.info('ETH connect is disabled. Please set ETH_NODE var');
+          return [];
+     }
+
+     var count = g_ledger.getTicketCountForInn(inn);
+     return count;
+     
+     /*
+     var count = g_ledger.getTicketCount();
+     var allInns = {};
+     for(var i=0; i<count; ++i){
+          var addr = g_ledger.getTicket(i);
+          var t = web3.eth.contract(g_abiTicket).at(addr);
+
+          var currentInn = t.getOrganizerInn();
+          if(currentInn in allInns){
+               allInns[currentInn] = allInns[currentInn] + 1;
+          }else{
+               allInns[currentInn] = 1;
+          }
+     }
+     var out = allInns[inn];
+     return out;
+     */
 }
 
 /////////////////
@@ -295,5 +348,8 @@ exports.compileContracts = compileContracts;
 
 exports.deployTicket = deployTicket;
 exports.updateContract = updateContract;
+
+exports.getAllOrganizerInns = getAllOrganizerInns;
+exports.getTicketCountForOrganizer = getTicketCountForOrganizer;
 
 exports.waitForTransaction = waitForTransaction;

@@ -18,8 +18,8 @@ var web3 = new Web3(new Web3.providers.HttpProvider(process.env.ETH_NODE));
 var accounts;
 var creator;
 
-var contractLedgerAddress;
-var contractLedger;
+var ledgerContractAddress;
+var ledgerContract;
 
 var contractAddress;
 var contract;
@@ -91,11 +91,11 @@ function deployContract1(cb){
                               assert.equal(err, null);
                               assert.notEqual(result, null);
 
-                              contractLedgerAddress = result.contractAddress;
-                              contractLedger = web3.eth.contract(abi).at(contractLedgerAddress);
+                              ledgerContractAddress = result.contractAddress;
+                              ledgerContract = web3.eth.contract(abi).at(ledgerContractAddress);
 
                               console.log('Ledger contract address: ');
-                              console.log(contractLedgerAddress);
+                              console.log(ledgerContractAddress);
 
                               if(!alreadyCalled){
                                    alreadyCalled = true;
@@ -150,7 +150,7 @@ describe('Contract', function() {
           var organizer_inn = "1234567890";
           var serial_number = "АБ123456";
 
-          contractLedger.issueNewTicket(
+          ledgerContract.issueNewTicket(
                organizer_inn,
                serial_number,
                {
@@ -173,7 +173,7 @@ describe('Contract', function() {
      })
 
      it('should get Ticket contract address',function(done){
-          contractAddress = contractLedger.getTicket(0);
+          contractAddress = ledgerContract.getTicket(0);
           console.log('CL: ');
           console.log(contractAddress);
 
@@ -331,7 +331,7 @@ describe('Contract', function() {
           var serial_number = "АБ123457";    // +1 to initial ticket
 
           // will not check for serial_number collisions...
-          contractLedger.issueNewTicket(
+          ledgerContract.issueNewTicket(
                organizer_inn,
                serial_number,
                {
@@ -352,21 +352,27 @@ describe('Contract', function() {
 
 
      it('should get Ticket count',function(done){
-          var count = contractLedger.getTicketCount();
+          var count = ledgerContract.getTicketCount();
           assert.equal(count,2);
 
           done();
      })
 
      it('should get organizer',function(done){
-          var count = contractLedger.getTicketCount();
+          var count = ledgerContract.getTicketCount();
           
+          var allInns = {};
           for(var i=0; i<count; ++i){
-               var addr = contractLedger.getTicket(i);
+               var addr = ledgerContract.getTicket(i);
                var t = web3.eth.contract(ticketAbi).at(addr);
 
                var inn = t.getOrganizerInn();
-               console.log('INN: ', inn);
+               allInns[inn] = 1;
+          }
+
+          for(k in allInns){
+               console.log('Inn: ');
+               console.log(k);
           }
 
           done();

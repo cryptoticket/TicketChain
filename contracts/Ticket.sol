@@ -140,6 +140,22 @@ contract TicketLedger {
           return;
      }
 
+     function getTicketCountForInn(string inn)constant returns(uint out){
+          for(uint i=0; i<currentTicketCount; ++i){
+               Ticket t = Ticket(tickets[i]);
+               string currentInn = t.getOrganizerInn();
+
+               /*
+               if(currentInn==inn){
+                    
+               }
+               */
+          }
+
+          out = 5;
+          return;
+     }
+
      function getTicket(uint index) constant returns (address out){
           out = tickets[index];  
           return;

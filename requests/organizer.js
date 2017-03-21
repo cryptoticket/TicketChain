@@ -32,13 +32,14 @@ app.get('/api/v1/organizers/:inn/ticket_count',function(request,res,next){
           winston.error('Bad inn');
           return next();
      }
-     winston.info('Asking tickets for INN: ' + inn + ' page=' + request.query.page + ' limit= ' + request.query.limit);
+     winston.info('Asking ticket_count for INN: ' + inn);
 
      var query = {organizer_inn:inn};
      if(typeof(request.query.state)!=='undefined'){
           query.state = stateToQuery(request.query.state);
      }
      
+     /*
      db.TicketModel.find(query).count(function(err,count){
           if(err){return next(err);}
 
@@ -48,6 +49,14 @@ app.get('/api/v1/organizers/:inn/ticket_count',function(request,res,next){
 
           return res.json(out);
      });
+     */
+
+     var out = {
+          count: 0 
+     };
+
+     out.count = contract_helpers.getTicketCountForOrganizer(inn);
+     return res.json(out);
 });
 
 app.get('/api/v1/organizers/:inn/stats',function(request,res,next){
@@ -716,6 +725,10 @@ function copyField(to,from,field){
 //
 // http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-all-organizers
 app.get('/api/v1/organizers',function(request,res,next){
+     var out = contract_helpers.getAllOrganizerInns();
+     res.json(out);
+     
+     /*
      db.TicketModel.distinct('organizer_inn',function(err,orgs){
           if(err){
                return next(err);
@@ -728,6 +741,7 @@ app.get('/api/v1/organizers',function(request,res,next){
 
           res.json(orgs);
      });
+     */
 });
 
 function convertOrgToOut(to,from){

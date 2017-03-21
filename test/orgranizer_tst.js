@@ -116,7 +116,6 @@ describe('Organizer module',function(){
      })
      */
 
-     /*
      it('should get tickets', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets';
 
@@ -418,7 +417,24 @@ describe('Organizer module',function(){
                done();
           });
      })
-     */
+
+     it('should get ticket count', function(done){
+          var url = '/api/v1/organizers/' + INN + '/ticket_count';
+
+          var authToken = '';
+          getData(9091,url,authToken,function(err,statusCode,dataOut){
+               assert.equal(err,null);
+               assert.equal(statusCode,200);
+               
+               //console.log('OUT: ');
+               //console.log(dataOut);
+
+               var p = JSON.parse(dataOut);
+               assert.equal(p.count,1);
+
+               done();
+          });
+     });
 });
 
 describe('Pagination module',function(){
