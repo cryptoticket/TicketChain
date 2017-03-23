@@ -162,12 +162,16 @@ function deployTicket(ticket,cb){
 }
 
 function copyOrganizer(ticket,contract,cb){
+     console.log('Current org INN: ');
+     console.log(contract.getOrganizerInn());
+
      contract.setOrganizer(
-               (ticket.organizer || contract.issuer), 
-               (ticket.organizer_inn || contract.issuer_inn),
-               (ticket.organizer_orgn || contract.issuer_orgn),
-               (ticket.organizer_ogrnip || contract.issuer_ogrnip),
-               (ticket.organizer_address || contract.issuer_address),
+               (ticket.organizer || contract.organizer), 
+               contract.getOrganizerInn(),
+               //(ticket.organizer_inn || contract.organizer_inn),
+               (ticket.organizer_orgn || contract.organizer_orgn),
+               (ticket.organizer_ogrnip || contract.organizer_ogrnip),
+               (ticket.organizer_address || contract.organizer_address),
           {
                from: g_creator,               
                gasPrice: 2000000,
@@ -243,15 +247,14 @@ function updateContract(contractAddress,body,cb){
           }
 
           // 2 - Convert organizer
-          var placeholder2 = {};
-          db_helpers.fromDataToOrganizer(placeholder2,body,function(err,out2){
+          db_helpers.fromDataToOrganizer(out,body,function(err,out2){
                if(err){
                     return cb(err);
                }
-     
-               copySeller(out,contract,function(err){
+
+               copySeller(out2,contract,function(err){
                     copyOrganizer(out2,contract,function(err){
-                         copyIssuer(out,contract,function(err){
+                         copyIssuer(out2,contract,function(err){
                               return cb(null);
                          });
                     });
@@ -320,10 +323,9 @@ function getTicketCountForOrganizer(inn){
           return [];
      }
 
-     var count = g_ledger.getTicketCountForInn(inn);
-     return count;
+     //var count = g_ledger.getTicketCountForInn(inn);
+     //return count;
      
-     /*
      var count = g_ledger.getTicketCount();
      var allInns = {};
      for(var i=0; i<count; ++i){
@@ -331,15 +333,21 @@ function getTicketCountForOrganizer(inn){
           var t = web3.eth.contract(g_abiTicket).at(addr);
 
           var currentInn = t.getOrganizerInn();
-          if(currentInn in allInns){
-               allInns[currentInn] = allInns[currentInn] + 1;
-          }else{
-               allInns[currentInn] = 1;
+          console.log('INN: ' + currentInn);
+
+          var currentState = t.getState();
+          console.log('STATE: ' + currentState);
+
+          if(typeof(currentInn)!=='undefined' && currentInn){
+               if(currentInn in allInns){
+                    allInns[currentInn] = allInns[currentInn] + 1;
+               }else{
+                    allInns[currentInn] = 1;
+               }
           }
      }
      var out = allInns[inn];
      return out;
-     */
 }
 
 /////////////////

@@ -34,12 +34,13 @@ app.get('/api/v1/organizers/:inn/ticket_count',function(request,res,next){
      }
      winston.info('Asking ticket_count for INN: ' + inn);
 
+     /*
      var query = {organizer_inn:inn};
      if(typeof(request.query.state)!=='undefined'){
           query.state = stateToQuery(request.query.state);
      }
      
-     /*
+     // This method uses DB
      db.TicketModel.find(query).count(function(err,count){
           if(err){return next(err);}
 
@@ -73,6 +74,7 @@ app.get('/api/v1/organizers/:inn/stats',function(request,res,next){
           cancelled: 0
      };
      
+     // This method uses DB
      db.TicketModel.find({organizer_inn:inn, state:0},function(err,tickets){
           if(err){
                return next(err);
@@ -306,9 +308,6 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
                if(err){
                     return next(err);
                }
-
-               console.log('CA: ');
-               console.log(ticket);
 
                contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
                     if(err){
@@ -725,10 +724,8 @@ function copyField(to,from,field){
 //
 // http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-all-organizers
 app.get('/api/v1/organizers',function(request,res,next){
-     var out = contract_helpers.getAllOrganizerInns();
-     res.json(out);
-     
      /*
+     // This method uses DB
      db.TicketModel.distinct('organizer_inn',function(err,orgs){
           if(err){
                return next(err);
@@ -742,6 +739,9 @@ app.get('/api/v1/organizers',function(request,res,next){
           res.json(orgs);
      });
      */
+
+     var out = contract_helpers.getAllOrganizerInns();
+     res.json(out);
 });
 
 function convertOrgToOut(to,from){

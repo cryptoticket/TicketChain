@@ -9,9 +9,10 @@
 
 #env ETH_NODE=http://138.201.89.68:8545 mocha --reporter spec -t 90000 -g "Organizer"
 
-env ETH_NODE=http://localhost:8989 mocha --reporter spec -t 90000 -g "Pagination"
+env ETH_NODE=http://localhost:8989 mocha --reporter spec -t 90000 -g "Organizer"
 
-#-g "Organizer"
+#-g "Pagination"
+
 
 #-g "Contract"
 
