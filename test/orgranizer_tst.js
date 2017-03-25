@@ -158,6 +158,8 @@ describe('Organizer module',function(){
                assert.notEqual(typeof(p.contract_address),'undefined');
                assert.notEqual(p.contract_address,'');
 
+               console.log('A: ' + p.contract_address);
+
                ticketOneSerialNumber = p.serial_number;
                done();
           });
@@ -186,6 +188,7 @@ describe('Organizer module',function(){
           });
      })
 
+     /*
      it('should not get tickets if INN is bad', function(done){
           var INN = '123456789';
           var url = '/api/v1/organizers/' + INN + '/tickets';
@@ -435,6 +438,7 @@ describe('Organizer module',function(){
                done();
           });
      });
+     */
 });
 
 describe('Pagination module',function(){

@@ -137,6 +137,7 @@ function deployTicket(ticket,cb){
      g_ledger.issueNewTicket(
           ticket.organizer_inn,
           ticket.serial_number,
+          '' + ticket._id,
           {
                from: g_creator,               
                gasPrice: 2000000,
@@ -333,10 +334,6 @@ function getTicketCountForOrganizer(inn){
           var t = web3.eth.contract(g_abiTicket).at(addr);
 
           var currentInn = t.getOrganizerInn();
-          console.log('INN: ' + currentInn);
-
-          var currentState = t.getState();
-          console.log('STATE: ' + currentState);
 
           if(typeof(currentInn)!=='undefined' && currentInn){
                if(currentInn in allInns){
@@ -350,6 +347,50 @@ function getTicketCountForOrganizer(inn){
      return out;
 }
 
+function getTicketByNumber(num,cb){
+     if(!enabled){
+          winston.info('ETH connect is disabled. Please set ETH_NODE var');
+          return [];
+     }
+
+     var count = g_ledger.getTicketCount();
+     for(var i=0; i<count; ++i){
+          var addr = g_ledger.getTicket(i);
+          var t = web3.eth.contract(g_abiTicket).at(addr);
+
+          var currentNum = t.getSerialNum();
+          if(currentNum==num){
+               return cb(null,t);
+          }
+     }
+
+     // not found
+     return cb(null,null);
+}
+
+function getTicketById(id,cb){
+     if(!enabled){
+          winston.info('ETH connect is disabled. Please set ETH_NODE var');
+          return [];
+     }
+
+     var count = g_ledger.getTicketCount();
+     for(var i=0; i<count; ++i){
+          var addr = g_ledger.getTicket(i);
+          var t = web3.eth.contract(g_abiTicket).at(addr);
+
+          var currentNum = t.getSerialNum();
+          var currentId = t.getId();
+
+          if(currentId==id){
+               return cb(null,t);
+          }
+     }
+
+     // not found
+     return cb(null,null);
+}
+
 /////////////////
 exports.getAccount = getAccounts;
 exports.compileContracts = compileContracts;
@@ -359,5 +400,7 @@ exports.updateContract = updateContract;
 
 exports.getAllOrganizerInns = getAllOrganizerInns;
 exports.getTicketCountForOrganizer = getTicketCountForOrganizer;
+exports.getTicketByNumber = getTicketByNumber;
+exports.getTicketById = getTicketById;
 
 exports.waitForTransaction = waitForTransaction;

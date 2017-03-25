@@ -12,19 +12,20 @@ contract Ticket
      }
      State public currentState = State.Created;
 
-     function Ticket(string organizer_inn_, string serial_number_)
+     function Ticket(string organizer_inn_, string serial_number_, string id_)
      {
           creator = msg.sender;
 
           // TODO: please check params here
           organizer_inn = organizer_inn_;
           serial_number = serial_number_;
+          id = id_;
      }
      
      function setData(uint date_created_, uint price_kop_, bool is_paper_ticket_, 
                      string event_title_, string event_place_, uint event_date_, string event_address_,
                      string row_, string seat_, uint category_,
-                     string buyer_name_, uint buying_date_)
+                     string buyer_name_, uint buying_date_, uint cancelled_date_)
      {
 
           date_created = date_created_;
@@ -42,13 +43,14 @@ contract Ticket
 
           buyer_name = buyer_name_;
           buying_date = buying_date_;
+          cancelled_date = cancelled_date_;
      }
 
      function setIssuer(string issuer_, string issuer_i_, string issuer_o_, string issuer_ogrnip_, string issuer_a_)
      {
           issuer = issuer_;
           issuer_inn = issuer_i_;
-          issuer_orgn = issuer_o_;
+          issuer_ogrn = issuer_o_;
           issuer_ogrnip = issuer_ogrnip_;
           issuer_address = issuer_a_;
      }
@@ -57,7 +59,7 @@ contract Ticket
      {
           organizer = organizer_;
           organizer_inn = organizer_i_;
-          organizer_orgn = organizer_o_;
+          organizer_ogrn = organizer_o_;
           organizer_ogrnip = organizer_ogrnip_;
           organizer_address = organizer_a_;
      }
@@ -66,13 +68,23 @@ contract Ticket
      {
           seller = seller_;
           seller_inn = seller_i_;
-          seller_orgn = seller_o_;
+          seller_ogrn = seller_o_;
           seller_ogrnip = seller_ogrnip_;
           seller_address = seller_a_;
      }
 
      function getOrganizerInn()constant returns(string out){
           out = organizer_inn;
+          return;
+     }
+
+     function getId()constant returns(string out){
+          out = id;
+          return;
+     }
+
+     function getSerialNum()constant returns(string out){
+          out = serial_number;
           return;
      }
 
@@ -83,13 +95,14 @@ contract Ticket
 
 // DATA:
      string public serial_number = "";
+     string public id = "";
      uint public date_created = 0;
      uint public price_kop = 0;
      bool public is_paper_ticket = false;
 
      string public issuer = "";
      string public issuer_inn = "";
-     string public issuer_orgn = "";
+     string public issuer_ogrn = "";
      string public issuer_ogrnip = "";
      string public issuer_address = "";
 
@@ -104,18 +117,19 @@ contract Ticket
 
      string public organizer = "";
      string public organizer_inn = "";
-     string public organizer_orgn = "";
+     string public organizer_ogrn = "";
      string public organizer_ogrnip = "";
      string public organizer_address = "";
 
      string public seller = "";
      string public seller_inn = "";
-     string public seller_orgn = "";
+     string public seller_ogrn = "";
      string public seller_ogrnip = "";
      string public seller_address = "";
 
      string public buyer_name = "";
      uint public buying_date = 0;
+     uint public cancelled_date = 0;
 
      /// This function is called when someone sends money to this contract directly.
      function() 
@@ -128,8 +142,8 @@ contract TicketLedger {
      mapping (uint => address) tickets;
      uint public currentTicketCount = 0;
 
-     function issueNewTicket(string organizer_inn_,string serial_number_)returns(address out){
-          out = new Ticket(organizer_inn_,serial_number_);
+     function issueNewTicket(string organizer_inn_,string serial_number_,string id_)returns(address out){
+          out = new Ticket(organizer_inn_,serial_number_,id_);
           tickets[currentTicketCount] = out;
           currentTicketCount++;
           return;

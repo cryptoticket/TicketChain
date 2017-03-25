@@ -149,10 +149,12 @@ describe('Contract', function() {
      it('should create new Ticket contract',function(done){
           var organizer_inn = "1234567890";
           var serial_number = "АБ123456";
+          var id = "1231312313";
 
           ledgerContract.issueNewTicket(
                organizer_inn,
                serial_number,
+               id,
                {
                     from: creator,               
                     gasPrice: 2000000,
@@ -181,6 +183,15 @@ describe('Contract', function() {
           done();
      })
 
+     it('should get good id',function(done){
+          var shouldBe = "1231312313";
+
+          var id = contract.getId();
+
+          assert.equal(id,shouldBe);
+          done();
+     });
+
      it('should set basic data',function(done){
           // Params:
           var date_created = 0;
@@ -198,6 +209,7 @@ describe('Contract', function() {
 
           var buyer_name = "Anton Akentiev";
           var buying_date = 100;
+          var cancelled_date = 120;
 
           contract.setData(
                date_created,
@@ -212,6 +224,7 @@ describe('Contract', function() {
                ticket_category,
                buyer_name,
                buying_date,
+               cancelled_date,
                {
                     from: creator,               
                     gasPrice: 2000000,
@@ -329,11 +342,13 @@ describe('Contract', function() {
      it('should create another Ticket contract',function(done){
           var organizer_inn = "1234567890";
           var serial_number = "АБ123457";    // +1 to initial ticket
+          var id = "1231312314";
 
           // will not check for serial_number collisions...
           ledgerContract.issueNewTicket(
                organizer_inn,
                serial_number,
+               id,
                {
                     from: creator,               
                     gasPrice: 2000000,
