@@ -80,7 +80,6 @@ describe('Organizer module',function(){
           });
      })
 
-     /*
      it('should get organizers', function(done){
           var url = '/api/v1/organizers';
 
@@ -230,9 +229,7 @@ describe('Organizer module',function(){
                done();
           });
      })
-     */
 
-     /*
      it('should get updated ticket', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets/' + encodeURIComponent(ticketOneSerialNumber);
 
@@ -244,9 +241,9 @@ describe('Organizer module',function(){
                var p = JSON.parse(dataOut);
                assert.equal(p.issuer_ogrn,'1234567890123');
 
-               assert.equal(typeof(p.event_date),'undefined');
-               assert.equal(typeof(p.buying_date),'undefined');
-               assert.equal(typeof(p.cancelled_date),'undefined');
+               assert.equal(typeof(p.event_date),'string');
+               assert.equal(typeof(p.buying_date),'string');
+               assert.equal(typeof(p.cancelled_date),'string');
 
                done();
           });
@@ -322,6 +319,7 @@ describe('Organizer module',function(){
           });
      })
 
+     /*
      it('should cancell ticket', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId + '/cancel';
 

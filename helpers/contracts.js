@@ -134,6 +134,7 @@ function deployTicket(ticket,cb){
      }
 
      var alreadyCalled = false;
+
      g_ledger.issueNewTicket(
           ticket.organizer_inn,
           ticket.serial_number,
@@ -147,18 +148,14 @@ function deployTicket(ticket,cb){
                     return cb(err);
                }
 
-               console.log('Result: ');
-               console.log(result);
-
                web3.eth.getTransactionReceipt(result, function(err, r2){
                     if(err){
                          return cb(err);
                     }
 
-                    console.log('R2: ');
-                    console.log(result);
-
                     var address = g_ledger.getTicket(g_ledger.currentTicketCount - 1);
+                    //console.log('DEPLOYED: ', address); 
+
                     cb(null,address);
                });
           }
@@ -166,16 +163,13 @@ function deployTicket(ticket,cb){
 }
 
 function copyOrganizer(ticket,contract,cb){
-     console.log('Current org INN: ');
-     console.log(contract.getOrganizerInn());
-
      contract.setOrganizer(
-               (ticket.organizer || contract.organizer), 
+               (ticket.organizer || contract.organizer()), 
                contract.getOrganizerInn(),
                //(ticket.organizer_inn || contract.organizer_inn),
-               (ticket.organizer_orgn || contract.organizer_orgn),
-               (ticket.organizer_ogrnip || contract.organizer_ogrnip),
-               (ticket.organizer_address || contract.organizer_address),
+               (ticket.organizer_ogrn || contract.organizer_ogrn()),
+               (ticket.organizer_ogrnip || contract.organizer_ogrnip()),
+               (ticket.organizer_address || contract.organizer_address()),
           {
                from: g_creator,               
                gasPrice: 2000000,
@@ -192,12 +186,12 @@ function copyOrganizer(ticket,contract,cb){
 }
 
 function copyIssuer(ticket,contract,cb){
-     contract.setSeller(
-               (ticket.issuer || contract.issuer), 
-               (ticket.issuer_inn || contract.issuer_inn),
-               (ticket.issuer_orgn || contract.issuer_orgn),
-               (ticket.issuer_ogrnip || contract.issuer_ogrnip),
-               (ticket.issuer_address || contract.issuer_address),
+     contract.setIssuer(
+               (ticket.issuer || contract.issuer()), 
+               (ticket.issuer_inn || contract.issuer_inn()),
+               (ticket.issuer_ogrn || contract.issuer_ogrn()),
+               (ticket.issuer_ogrnip || contract.issuer_ogrnip()),
+               (ticket.issuer_address || contract.issuer_address()),
           {
                from: g_creator,               
                gasPrice: 2000000,
@@ -214,15 +208,12 @@ function copyIssuer(ticket,contract,cb){
 }
 
 function copySeller(ticket,contract,cb){
-     //console.log('CONTRACT: ');
-     //console.log(contract);
-
      contract.setSeller(
-               (ticket.seller || contract.seller), 
-               (ticket.seller_inn || contract.seller_inn),
-               (ticket.seller_orgn || contract.seller_orgn),
-               (ticket.seller_ogrnip || contract.seller_ogrnip),
-               (ticket.seller_address || contract.seller_address),
+               (ticket.seller || contract.seller()), 
+               (ticket.seller_inn || contract.seller_inn()),
+               (ticket.seller_orgn || contract.seller_ogrn()),
+               (ticket.seller_ogrnip || contract.seller_ogrnip()),
+               (ticket.seller_address || contract.seller_address()),
           {
                from: g_creator,               
                gasPrice: 2000000,
