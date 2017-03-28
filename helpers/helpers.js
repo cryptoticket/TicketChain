@@ -131,6 +131,11 @@ function generateFileName(){
      return o;
 }
 
+function dateToUnix(d){
+     var tmp = new Date(Date.parse(d));
+     return (tmp.getTime() / 1000);
+}
+
 exports.getRandom = getRandom;
 
 exports.validateInn = validateInn;
@@ -153,3 +158,4 @@ exports.encodeUrlDec = encodeUrlDec;
 exports.decodeUrlEnc = decodeUrlEnc;
 
 exports.capitalizeFirst = capitalizeFirst;
+exports.dateToUnix = dateToUnix;

@@ -241,9 +241,9 @@ describe('Organizer module',function(){
                var p = JSON.parse(dataOut);
                assert.equal(p.issuer_ogrn,'1234567890123');
 
-               assert.equal(typeof(p.event_date),'string');
-               assert.equal(typeof(p.buying_date),'string');
-               assert.equal(typeof(p.cancelled_date),'string');
+               assert.equal(p.event_date,0);
+               assert.equal(p.buying_date,0);
+               assert.equal(p.cancelled_date,0);
 
                done();
           });
@@ -310,15 +310,14 @@ describe('Organizer module',function(){
                assert.equal(p.state,"sold");
                assert.equal(p.price_kop, 110);
 
-               assert.equal(typeof(p.event_date),'string');
-               assert.equal(typeof(p.buying_date),'string');
-               assert.equal(typeof(p.cancelled_date),'string');
+               assert.equal(p.event_date,0);
+               assert.notEqual(p.buying_date,0);
+               assert.equal(p.cancelled_date,0);
 
                done();
           });
      })
 
-     /*
      it('should cancell ticket', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets/' + ticketOneId + '/cancel';
 
@@ -345,9 +344,9 @@ describe('Organizer module',function(){
                var p = JSON.parse(dataOut);
                assert.equal(p.state,"cancelled");
 
-               assert.equal(typeof(p.event_date),'undefined');
-               assert.notEqual(typeof(p.buying_date),'undefined');
-               assert.notEqual(typeof(p.cancelled_date),'undefined');
+               assert.equal(p.event_date,0);
+               assert.notEqual(p.buying_date,0);
+               assert.notEqual(p.cancelled_date,0);
 
                done();
           });
@@ -398,7 +397,8 @@ describe('Organizer module',function(){
                //console.log('P: ');
                //console.log(p);
 
-               assert.equal(p.event_date,'2017-02-10T15:25:28.508Z');
+               //assert.equal(p.event_date,'2017-02-10T15:25:28.508Z');
+               assert.equal(p.event_date,'1486740328');
 
                done();
           });
@@ -421,7 +421,6 @@ describe('Organizer module',function(){
                done();
           });
      });
-     */
 });
 
 describe('Pagination module',function(){

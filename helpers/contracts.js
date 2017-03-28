@@ -208,14 +208,34 @@ function copyIssuer(ticket,contract,cb){
 }
 
 function copyData(ticket,contract,cb){
+     var dateCreated = contract.date_created();
+     var dateEvent = contract.event_date();
+     var dateBuying = contract.buying_date();
+     var dateCancelled = contract.cancelled_date();
+
+     if(ticket.created){
+          dateCreated = helpers.dateToUnix(ticket.created);
+     }
+     if(ticket.event_date){
+          dateEvent = helpers.dateToUnix(ticket.event_date);
+     }
+     if(ticket.buying_date){
+          dateBuying = helpers.dateToUnix(ticket.buying_date);
+     }
+     if(ticket.cancelled_date){
+          dateCancelled = helpers.dateToUnix(ticket.cancelled_date);
+     }
+
      contract.setData(
-               (ticket.date_created || contract.date_created()), 
+               dateCreated,
+
                (ticket.price_kop || contract.price_kop()),
                (ticket.is_paper_ticket || contract.is_paper_ticket()),
                (ticket.event_title || contract.event_title()),
                (ticket.event_place_title || contract.event_place_title()),
 
-               (ticket.event_date || contract.event_date()),
+               dateEvent,
+
                (ticket.event_place_address || contract.event_place_address()),
 
                (ticket.row || contract.row()),
@@ -223,8 +243,9 @@ function copyData(ticket,contract,cb){
                (ticket.ticket_category || contract.ticket_category()),
 
                (ticket.buyer_name || contract.buyer_name()),
-               (ticket.buying_date || contract.buying_date()),
-               (ticket.cancelled_date || contract.cancelled_date()),
+
+               dateBuying,
+               dateCancelled,
           {
                from: g_creator,               
                gasPrice: 2000000,
@@ -300,13 +321,15 @@ function updateContractWithState(contractAddress,body,state,cb){
      if(!enabled){
           return cb(null);
      }
-
+     
      winston.info('Updating contract with state: ' + contractAddress);
 
+     var currentDate = Date.now();
      var contract = web3.eth.contract(g_abiTicket).at(contractAddress);
 
      contract.setState(
           state,
+          currentDate,
           {
                from: g_creator,               
                gasPrice: 2000000,

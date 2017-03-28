@@ -92,15 +92,15 @@ contract Ticket
           return;
      }
 
-     function setState(uint state){
+     function setState(uint state, uint date){
           if(state==0){
                currentState = State.Created;
           }else if(state==1){
                currentState = State.Sold;
-               //buying_date = Date.now();
+               buying_date = date;
           }else if(state==2){
                currentState = State.Cancelled;
-               //cancelled_date = Date.now();
+               cancelled_date = date;
           }
      }
 

@@ -695,61 +695,6 @@ function createNewBlankTicket(inn,optionalSerNum,cb){
      });
 }
 
-/*
-function convertTicketToOut(t,request,res,next){
-     var out = {
-          id: t._id,
-          serial_number: t.serial_number,
-          state: 'created',
-
-          price_kop: t.price_kop,
-          is_paper_ticket: t.is_paper_ticket,
-
-          issuer: t.issuer,
-          issuer_inn: t.issuer_inn,
-          issuer_ogrn: t.issuer_ogrn,
-          issuer_ogrnip: t.issuer_ogrnip,
-          issuer_address: t.issuer_address,
-
-          event_title: t.event_title,
-          event_place_title: t.event_place_title,
-          event_date: t.event_date,
-          event_place_address: t.event_place_address,
-
-          row: t.row,
-          seat: t.seat,
-          
-          ticket_category: t.ticket_category,
-
-          organizer: t.organizer,
-          organizer_inn: t.organizer_inn,
-          organizer_ogrn: t.organizer_ogrn,
-          organizer_ogrnip: t.organizer_ogrnip,
-          organizer_address: t.organizer_address,
-
-          seller: t.seller,
-          seller_inn: t.seller_inn,
-          seller_ogrn: t.seller_ogrn,
-          seller_ogrnip: t.seller_ogrnip,
-          seller_address: t.seller_address,
-
-          buyer_name: t.buyer_name,
-          buying_date: t.buying_date,
-          cancelled_date: t.cancelled_date,
-
-          contract_address: t.contract_address
-     };
-
-     if(t.state==1){
-          out.state = 'sold';
-     }else if(t.state==2){
-          out.state = 'cancelled';
-     }
-
-     res.json(out);
-}
-*/
-
 function convertTicketToOut(t,request,res,next){
      var out = {
           id: t.id(),
