@@ -404,6 +404,7 @@ function changeStateTo(state,request,res,next){
 }
 
 function changeStateInternal(request,inn,id,state,cb){
+     // 1 - update ticket in DB
      db.TicketModel.findOne({organizer_inn:inn, _id:id},function(err,ticket){
           if(err){
                return cb(err);
@@ -442,7 +443,11 @@ function changeStateInternal(request,inn,id,state,cb){
                          return cb(err);
                     }
 
-                    contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
+                    // 2 - update contract 
+                    console.log('BODY: ');
+                    console.log(request.body);
+
+                    contract_helpers.updateContractWithState(ticket.contract_address,request.body,state,function(err){
                          if(err){
                               return cb(err);
                          }

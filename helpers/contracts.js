@@ -261,6 +261,37 @@ function updateContract(contractAddress,body,cb){
      });
 }
 
+function updateContractWithState(contractAddress,body,state,cb){
+     if(!enabled){
+          return cb(null);
+     }
+
+     winston.info('Updating contract with state: ' + contractAddress);
+
+     var contract = web3.eth.contract(g_abiTicket).at(contractAddress);
+
+     contract.setState(
+          state,
+          {
+               from: g_creator,               
+               gasPrice: 2000000,
+               gas: 3000000
+          },function(err,result){
+               if(err){return cb(err);}
+
+               web3.eth.getTransactionReceipt(result, function(err, r){
+                    winston.info('Seller transaction info: ' + r.transactionHash);
+
+                    if(err){
+                         return cb(err);
+                    }
+                    updateContract(contractAddress,body,cb);
+               });
+          }
+     );
+
+}
+
 function waitForTransaction(txHash,cb){
      return waitForTransactionInt(0,txHash,cb); 
 }
@@ -378,6 +409,7 @@ exports.compileContracts = compileContracts;
 
 exports.deployTicket = deployTicket;
 exports.updateContract = updateContract;
+exports.updateContractWithState = updateContractWithState;
 
 exports.getAllOrganizerInns = getAllOrganizerInns;
 exports.getTicketCountForOrganizer = getTicketCountForOrganizer;
