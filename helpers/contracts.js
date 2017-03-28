@@ -207,6 +207,39 @@ function copyIssuer(ticket,contract,cb){
      );
 }
 
+function copyData(ticket,contract,cb){
+     contract.setData(
+               (ticket.date_created || contract.date_created()), 
+               (ticket.price_kop || contract.price_kop()),
+               (ticket.is_paper_ticket || contract.is_paper_ticket()),
+               (ticket.event_title || contract.event_title()),
+               (ticket.event_place_title || contract.event_place_title()),
+
+               (ticket.event_date || contract.event_date()),
+               (ticket.event_place_address || contract.event_place_address()),
+
+               (ticket.row || contract.row()),
+               (ticket.seat|| contract.seat()),
+               (ticket.ticket_category || contract.ticket_category()),
+
+               (ticket.buyer_name || contract.buyer_name()),
+               (ticket.buying_date || contract.buying_date()),
+               (ticket.cancelled_date || contract.cancelled_date()),
+          {
+               from: g_creator,               
+               gasPrice: 2000000,
+               gas: 3000000
+          },function(err,result){
+               if(err){return cb(err);}
+
+               web3.eth.getTransactionReceipt(result, function(err, r){
+                    winston.info('Seller transaction info: ' + r.transactionHash);
+                    cb(err);
+               });
+          }
+     );
+}
+
 function copySeller(ticket,contract,cb){
      contract.setSeller(
                (ticket.seller || contract.seller()), 
@@ -250,10 +283,12 @@ function updateContract(contractAddress,body,cb){
                     return cb(err);
                }
 
-               copySeller(out2,contract,function(err){
-                    copyOrganizer(out2,contract,function(err){
-                         copyIssuer(out2,contract,function(err){
-                              return cb(null);
+               copyData(out2,contract,function(err){
+                    copySeller(out2,contract,function(err){
+                         copyOrganizer(out2,contract,function(err){
+                              copyIssuer(out2,contract,function(err){
+                                   return cb(null);
+                              });
                          });
                     });
                });

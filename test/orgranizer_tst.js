@@ -271,7 +271,6 @@ describe('Organizer module',function(){
                seller_ogrnip:"123123123812389",
                serial_number:"АА000001",
                state:"created",
-               //ticket_category:"Первая"
                ticket_category:1
           };
           var postData = JSON.stringify(data);
@@ -311,9 +310,9 @@ describe('Organizer module',function(){
                assert.equal(p.state,"sold");
                assert.equal(p.price_kop, 110);
 
-               assert.equal(typeof(p.event_date),'undefined');
-               assert.notEqual(typeof(p.buying_date),'undefined');
-               assert.equal(typeof(p.cancelled_date),'undefined');
+               assert.equal(typeof(p.event_date),'string');
+               assert.equal(typeof(p.buying_date),'string');
+               assert.equal(typeof(p.cancelled_date),'string');
 
                done();
           });
