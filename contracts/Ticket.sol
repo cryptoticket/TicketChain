@@ -27,7 +27,6 @@ contract Ticket
                      string row_, string seat_, uint category_,
                      string buyer_name_, uint buying_date_, uint cancelled_date_)
      {
-
           date_created = date_created_;
           price_kop = price_kop_;
           is_paper_ticket = is_paper_ticket_;

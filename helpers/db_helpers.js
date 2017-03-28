@@ -154,7 +154,7 @@ function fromDataToTicket(ticket,from,cb){
           return cb(new Error('Bad seller_ogrnip: ' + from.seller_ogrnip));
      }
 
-     copyField(ticket,from,'price_rub');
+     copyField(ticket,from,'price_kop');
      copyField(ticket,from,'is_paper_ticket');
      copyField(ticket,from,'issuer');
      copyField(ticket,from,'issuer_inn');

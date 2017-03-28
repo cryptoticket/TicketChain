@@ -702,7 +702,7 @@ function convertTicketToOut(t,request,res,next){
           serial_number: t.serial_number,
           state: 'created',
 
-          price_rub: t.price_rub,
+          price_kop: t.price_kop,
           is_paper_ticket: t.is_paper_ticket,
 
           issuer: t.issuer,
@@ -756,8 +756,7 @@ function convertTicketToOut(t,request,res,next){
           serial_number: t.serial_number(),
           state: 'created',
 
-          // TODO:     
-          //price_rub: t.price_kop(),
+          price_kop: t.price_kop(),
 
           is_paper_ticket: t.is_paper_ticket(),
 

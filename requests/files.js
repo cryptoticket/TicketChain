@@ -349,7 +349,7 @@ function cancelTicket(inn,num,words,cb){
 }
 
 function convertWordsToData(from,data){
-     convertFromWords(data,from,'price_rub',3);
+     convertFromWords(data,from,'price_kop',3);
      convertFromWords(data,from,'is_paper_ticket',4);
      convertFromWords(data,from,'issuer',5);
      convertFromWords(data,from,'issuer_inn',6);

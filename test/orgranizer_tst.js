@@ -261,7 +261,7 @@ describe('Organizer module',function(){
                id:"58b04f5a299e2500113cb81b",
                is_paper_ticket:true,
                organizer_inn:"111111111111",
-               price_rub:110,
+               price_kop:110,
                row:"6",
                seat:"10Б",
                seller:"ООО ОблакоБилетов",
@@ -309,7 +309,7 @@ describe('Organizer module',function(){
 
                var p = JSON.parse(dataOut);
                assert.equal(p.state,"sold");
-               assert.equal(p.price_rub, 110);
+               assert.equal(p.price_kop, 110);
 
                assert.equal(typeof(p.event_date),'undefined');
                assert.notEqual(typeof(p.buying_date),'undefined');

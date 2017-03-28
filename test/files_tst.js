@@ -201,7 +201,7 @@ describe('Files module 1',function(){
                //console.log('DO: ');
                //console.log(dataOut);
 
-               assert.equal(p.price_rub, 120);
+               assert.equal(p.price_kop, 120);
                assert.equal(p.is_paper_ticket, true);
                assert.equal(p.issuer, 'TicketsCloud');
                assert.equal(p.issuer_inn, '2346787891');
