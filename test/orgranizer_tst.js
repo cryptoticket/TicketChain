@@ -80,6 +80,7 @@ describe('Organizer module',function(){
           });
      })
 
+     /*
      it('should get organizers', function(done){
           var url = '/api/v1/organizers';
 
@@ -99,22 +100,6 @@ describe('Organizer module',function(){
                done();
           });
      })
-
-     /*
-     it('should get organizer by INN', function(done){
-          var url = '/api/v1/organizers/' + orgOneInn;
-
-          var authToken = '';
-          getData(9091,url,authToken,function(err,statusCode,dataOut){
-               assert.equal(err,null);
-               assert.equal(statusCode,200);
-
-               var p = JSON.parse(dataOut);
-               assert.equal(p.organizer_inn,INN);
-               done();
-          });
-     })
-     */
 
      it('should get tickets', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets';
@@ -188,7 +173,6 @@ describe('Organizer module',function(){
           });
      })
 
-     /*
      it('should not get tickets if INN is bad', function(done){
           var INN = '123456789';
           var url = '/api/v1/organizers/' + INN + '/tickets';
@@ -236,17 +220,19 @@ describe('Organizer module',function(){
           var data = { 
                issuer_ogrn: '1234567890123'
           };
-          var postData = JSON.stringify(data);
+          var putData = JSON.stringify(data);
 
           var authToken = '';
-          putDataAuth(9091,url,postData,authToken,function(err,statusCode,headers,dataOut){
+          putDataAuth(9091,url,putData,authToken,function(err,statusCode,headers,dataOut){
                assert.equal(err,null);
                assert.equal(statusCode,200);
 
                done();
           });
      })
+     */
 
+     /*
      it('should get updated ticket', function(done){
           var url = '/api/v1/organizers/' + INN + '/tickets/' + encodeURIComponent(ticketOneSerialNumber);
 

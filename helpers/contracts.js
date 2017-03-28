@@ -155,6 +155,9 @@ function deployTicket(ticket,cb){
                          return cb(err);
                     }
 
+                    console.log('R2: ');
+                    console.log(result);
+
                     var address = g_ledger.getTicket(g_ledger.currentTicketCount - 1);
                     cb(null,address);
                });
@@ -211,6 +214,9 @@ function copyIssuer(ticket,contract,cb){
 }
 
 function copySeller(ticket,contract,cb){
+     //console.log('CONTRACT: ');
+     //console.log(contract);
+
      contract.setSeller(
                (ticket.seller || contract.seller), 
                (ticket.seller_inn || contract.seller_inn),
@@ -353,19 +359,12 @@ function getTicketByNumber(num,cb){
           return [];
      }
 
-     var count = g_ledger.getTicketCount();
-     for(var i=0; i<count; ++i){
-          var addr = g_ledger.getTicket(i);
-          var t = web3.eth.contract(g_abiTicket).at(addr);
-
-          var currentNum = t.getSerialNum();
-          if(currentNum==num){
-               return cb(null,t);
-          }
+     var addr = g_ledger.getTicketBySernum(num);
+     if(!addr){
+          return cb(null,null);
      }
-
-     // not found
-     return cb(null,null);
+     var t = web3.eth.contract(g_abiTicket).at(addr);
+     return cb(null,t);
 }
 
 function getTicketById(id,cb){
@@ -374,21 +373,12 @@ function getTicketById(id,cb){
           return [];
      }
 
-     var count = g_ledger.getTicketCount();
-     for(var i=0; i<count; ++i){
-          var addr = g_ledger.getTicket(i);
-          var t = web3.eth.contract(g_abiTicket).at(addr);
-
-          var currentNum = t.getSerialNum();
-          var currentId = t.getId();
-
-          if(currentId==id){
-               return cb(null,t);
-          }
+     var addr = g_ledger.getTicketById(id);
+     if(!addr){
+          return cb(null,null);
      }
-
-     // not found
-     return cb(null,null);
+     var t = web3.eth.contract(g_abiTicket).at(addr);
+     return cb(null,t);
 }
 
 /////////////////

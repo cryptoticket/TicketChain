@@ -140,11 +140,17 @@ contract Ticket
 
 contract TicketLedger {
      mapping (uint => address) tickets;
+     mapping (string => address) ticketsBySernum;
+     mapping (string => address) ticketsById;
+
      uint public currentTicketCount = 0;
 
      function issueNewTicket(string organizer_inn_,string serial_number_,string id_)returns(address out){
           out = new Ticket(organizer_inn_,serial_number_,id_);
           tickets[currentTicketCount] = out;
+          ticketsBySernum[serial_number_] = out;
+          ticketsById[id_] = out;
+
           currentTicketCount++;
           return;
      }
@@ -154,24 +160,18 @@ contract TicketLedger {
           return;
      }
 
-     /*
-     function getTicketCountForInn(string inn)constant returns(uint out){
-          for(uint i=0; i<currentTicketCount; ++i){
-               Ticket t = Ticket(tickets[i]);
-               string currentInn = t.getOrganizerInn();
-
-               if(currentInn==inn){
-                    
-               }
-          }
-
-          out = 5;
-          return;
-     }
-     */
-
      function getTicket(uint index) constant returns (address out){
           out = tickets[index];  
+          return;
+     }
+
+     function getTicketBySernum(string sernum) constant returns (address out){
+          out = ticketsBySernum[sernum];  
+          return;
+     }
+
+     function getTicketById(string id) constant returns (address out){
+          out = ticketsById[id];  
           return;
      }
 

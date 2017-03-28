@@ -336,6 +336,9 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
                     return next(err);
                }
 
+               console.log('Conctract address: ');
+               console.log(ticket.contract_address);
+
                contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
                     if(err){
                          return next(err);
