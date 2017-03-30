@@ -77,14 +77,14 @@ function deployContract1(cb){
 
                var alreadyCalled = false;
 
-               //console.log('C: ' + creator);
+               console.log('C: ' + creator);
 
                tempContract.new(
                     {
                          from: creator, 
-                         // should not exceed 5000000 for parity by default
+                         // should not exceed 5000000 for Kovan by default
                          gas: 4995000,
-                         gasPrice: 1200000,
+                         gasPrice: 120000000000,
                          data: '0x' + bytecode
                     }, 
                     function(err, c){
@@ -150,11 +150,17 @@ describe('Contract', function() {
      });
 
      it('should deploy Ticket Ledger contract',function(done){
+          /*
           deployContract1(function(err){
                assert.equal(err,null);
 
                done();
           });
+          */
+          ledgerContractAddress = '0x6840DAc30Bae749239bf4408f62e8182Ebd4064b';
+          ledgerContract = web3.eth.contract(ledgerAbi).at(ledgerContractAddress);
+
+          done();
      });
 
      it('should create new Ticket contract',function(done){
@@ -168,12 +174,13 @@ describe('Contract', function() {
                id,
                {
                     from: creator,               
-                    gasPrice: 2000000,
-                    gas: 3000000
+                    //gasPrice: 200000000000,
+                    //gas: 1000000 
+                    gas: 2900000 
                },function(err,result){
                     assert.equal(err,null);
 
-                    console.log('Result: ');
+                    console.log('Tx hash: ');
                     console.log(result);
 
                     web3.eth.getTransactionReceipt(result, function(err, r2){
@@ -238,12 +245,19 @@ describe('Contract', function() {
                cancelled_date,
                {
                     from: creator,               
-                    gasPrice: 2000000,
+                    //gasPrice: 2000000,
                     gas: 3000000
                },function(err,result){
                     assert.equal(err,null);
 
-                    done();
+                    console.log('Tx hash: ');
+                    console.log(result);
+
+                    web3.eth.getTransactionReceipt(result, function(err, r2){
+                         assert.equal(err, null);
+
+                         done();
+                    });
                }
           );
      });
@@ -263,12 +277,18 @@ describe('Contract', function() {
                     issuer_address,
                {
                     from: creator,               
-                    gasPrice: 2000000,
                     gas: 3000000
                },function(err,result){
                     assert.equal(err,null);
 
-                    done();
+                    console.log('Tx hash: ');
+                    console.log(result);
+
+                    web3.eth.getTransactionReceipt(result, function(err, r2){
+                         assert.equal(err, null);
+
+                         done();
+                    });
                }
           );
      });
@@ -288,12 +308,18 @@ describe('Contract', function() {
                     s_address,
                {
                     from: creator,               
-                    gasPrice: 2000000,
                     gas: 3000000
                },function(err,result){
                     assert.equal(err,null);
 
-                    done();
+                    console.log('Tx hash: ');
+                    console.log(result);
+
+                    web3.eth.getTransactionReceipt(result, function(err, r2){
+                         assert.equal(err, null);
+
+                         done();
+                    });
                }
           );
      });
@@ -313,10 +339,12 @@ describe('Contract', function() {
                     o_address,
                {
                     from: creator,               
-                    gasPrice: 2000000,
                     gas: 3000000
                },function(err,result){
                     assert.equal(err,null);
+
+                    console.log('Tx hash: ');
+                    console.log(result);
 
                     web3.eth.getTransactionReceipt(result, function(err, r){
                          assert.equal(err, null);
@@ -350,6 +378,7 @@ describe('Contract', function() {
           done();
      });
 
+     /*
      it('should create another Ticket contract',function(done){
           var organizer_inn = "1234567890";
           var serial_number = "АБ123457";    // +1 to initial ticket
@@ -403,4 +432,5 @@ describe('Contract', function() {
 
           done();
      })
+     */
 });
