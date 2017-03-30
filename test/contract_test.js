@@ -1,5 +1,6 @@
 var solc = require('solc');
 var Web3 = require('web3');
+var sleep = require('sleep');
 
 var config = require('../config');
 var contract_helpers = require('../helpers/contracts.js');
@@ -81,14 +82,23 @@ function deployContract1(cb){
                tempContract.new(
                     {
                          from: creator, 
-                         //gas: 6000000,
-                         gas: 5494630,
+                         // should not exceed 5000000 for parity by default
+                         gas: 4995000,
+                         gasPrice: 1200000,
                          data: '0x' + bytecode
                     }, 
                     function(err, c){
                          assert.equal(err, null);
 
-                         contract_helpers.waitForTransaction(c.transactionHash,function(err,result){
+                         console.log('TX HASH: ');
+                         console.log(c.transactionHash);
+
+                         //contract_helpers.waitForTransaction(c.transactionHash,function(err,result){
+
+                         web3.eth.getTransactionReceipt(c.transactionHash, function(err, result){
+                              console.log('RESULT: ');
+                              console.log(result);
+
                               assert.equal(err, null);
                               assert.notEqual(result, null);
 

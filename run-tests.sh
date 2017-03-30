@@ -45,8 +45,12 @@ env ETH_NODE=http://ethnode.chain.cloud:8545 mocha --reporter spec -t 90000 -g "
 # To create new account from console:
 #    web3.personal.newAccount()
 
+# To check account balance:
+#    web3.eth.getBalance(web3.eth.accounts[0])
+
 # To unlock from console:
 #    web3.personal.unlockAccount(web3.eth.accounts[0])
 
-
+# Show last syncronized block:
+#    web3.eth.getBlock('latest').number
 
