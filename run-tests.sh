@@ -7,9 +7,11 @@
 #    "test_node":"http://138.201.89.68:8545"
 #    "test_node":"http://localhost:8989"
 
-#env ETH_NODE=http://138.201.89.68:8545 mocha --reporter spec -t 90000 -g "Organizer"
+env ETH_NODE=http://ethnode.chain.cloud:8545 mocha --reporter spec -t 90000 -g "Contract"
 
-env ETH_NODE=http://localhost:8989 mocha --reporter spec -t 90000 -g "Organizer"
+#env ETH_NODE=http://localhost:8989 mocha --reporter spec -t 90000 
+
+#-g "Organizer"
 
 #-g "Contract"
 
@@ -40,7 +42,10 @@ env ETH_NODE=http://localhost:8989 mocha --reporter spec -t 90000 -g "Organizer"
 # To start
 #    screen -c /home/ubuntu/new_start_kill_shells/screenrc_gft -L -dmS gft_geth /usr/bin/geth --fast --rpc --rpcport "8545" --rpcaddr "0.0.0.0" --rpccorsdomain "*" --rpcapi eth,web3,personal  --port 30309 --testnet --datadir "/backup/fast-testnet" --ipcpath "/big/ftn" 2>&1
 
-# To unlock from console! 
+# To create new account from console:
+#    web3.personal.newAccount()
+
+# To unlock from console:
 #    web3.personal.unlockAccount(web3.eth.accounts[0])
 
 
