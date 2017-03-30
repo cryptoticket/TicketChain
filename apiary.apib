@@ -27,46 +27,6 @@ Returns array of all organizers INN's.
                 123456789012
             ]
 
-
-### DEPRECATED: Get Organizer [GET /organizers/{INN}]
-
-Get an organizer by INN.
-This method is blocking.
-
-+ Response 201 (application/json)
-
-    + Body
-
-            {
-                organizer: "LaLaLand company",
-                organizer_inn: "111111111123",
-                organizer_ogrn: "1111111111123",
-                organizer_ogrnip: "111111111112345",
-                organizer_address: ""
-            }
-
-### DEPRECATED: Update an Organizer [PUT /organizers/{INN}]
-
-Update an Organizer.
-This method is blocking.
-
-+ Request (application/json)
-
-    + Body
-
-            {
-                organizer: "LaLaLand company",
-                
-                // Can not change!
-                //organizer_inn: "111111111123",
-                
-                organizer_ogrn: "1111111111123",
-                organizer_ogrnip: "111111111112345",
-                organizer_address: ""
-            }           
-
-+ Response 200
-
 ## Batches [/organizers/{INN}/batches]
 
 ### Create new Batch [POST /organizers/{INN}/batches]
@@ -148,12 +108,12 @@ Before you create all tickets in batch -> calculate count.
 
 ## Tickets [/organizers/{INN}/tickets]
 
-### Get Ticket Count [GET /organizers/{INN}/tickets_count]
+### Get Ticket Count [GET /organizers/{INN}/ticket_count]
 
 Get the count of all tickets for that organizer.
 
 + Parameters
-    + state (number, optional) - State of tickets to search (created, sold, cancelled)
+    + state (string, optional) - State of tickets to search ("created", "sold", "cancelled")
     
 + Response 201 (application/json)
 
@@ -173,7 +133,7 @@ This method supports paging. Please use ?page=1&limit=100 format. Default limit 
         + Default: 1
     + limit (number, optional) - Limit for paging
         + Default: 50
-    + state (number, optional) - State of tickets to search (created, sold, cancelled)
+    + state (string, optional) - State of tickets to search ("created","sold", "cancelled")
 
 + Response 201 (application/json)
 
@@ -222,7 +182,7 @@ Will create Organizer if it doesn't exist.
         
 
 ### Get a Ticket [GET /organizers/{INN}/tickets/{ID_OR_SERIAL_NUMBER}]
-
+    
 Get a ticket by ID or SERIAL_NUMBER.
 This method is blocking.
 
@@ -239,10 +199,10 @@ This method is blocking.
                 // 2 - cancelled
                 "state": "sold",
                 
-                "created_date":"12.03.2017 12:16",
+                "created_date":"1486740328",
                 
                 // optional fields:
-                "price_rub": 120,
+                "price_kop": 120,
                 "is_paper_ticket": false,
 
                 "issuer": "TicketChain",
@@ -253,7 +213,7 @@ This method is blocking.
                 
                 "event_title": "",
                 "event_place_title": "",
-                "event_date": "15.03.2017 18:00",
+                "event_date": "1486740328",
                 "event_place_address": "",
                 
                 "row": "17",
@@ -267,8 +227,11 @@ This method is blocking.
                 "seller_address": "",
                 
                 "buyer_name": "Alexey Key",
-                "buying_date":"12.03.2017 12:16",
-                "cancelled_date": ""
+                "buying_date":"1486740328",
+                "cancelled_date": "",
+                
+                // ticket contract is at this address
+                "contract_address: "0xe7962464741983eB4620DD0e2Aa6d572145bab0E"
             }
 
 ### Edit a Ticket [PUT /organizers/{INN}/tickets/{id}]
@@ -284,7 +247,7 @@ This method is blocking.
 
         {
             // all these fields are optional:
-            "price_rub": 120,
+            "price_kop": 120,
             "is_paper_ticket": false,
             
             "issuer": "TicketChain",
@@ -295,7 +258,7 @@ This method is blocking.
             
             "event_title": "",
             "event_place_title": "",
-            "event_date": "15.03.2017 18:00",
+            "event_date": "1486740328",
             "event_place_address": "",
             
             "row": "17",
@@ -309,7 +272,7 @@ This method is blocking.
             "seller_address": "",
             
             "buyer_name": "Alexey Key",
-            "buying_date": "12.03.2017 12:16",
+            "buying_date": "1486740328",
             "cancelled_date": ""
         }
 
@@ -327,7 +290,7 @@ Sell ticket.
 
         {
             // all these fields are optional:
-            "price_rub": 120,
+            "price_kop": 120,
             "is_paper_ticket": false,
             
             "issuer": "TicketChain",
@@ -338,7 +301,7 @@ Sell ticket.
             
             "event_title": "",
             "event_place_title": "",
-            "event_date": "15.03.2017 18:00",
+            "event_date": "1486740328",
             "event_place_address": "",
             
             "row": "17",
@@ -352,7 +315,7 @@ Sell ticket.
             "seller_address": "",
             
             "buyer_name": "Alexey Key",
-            "buying_date":"12.03.2017 12:16",
+            "buying_date":"1486740328",
             "cancelled_date": ""
         }
 
