@@ -136,6 +136,27 @@ function dateToUnix(d){
      return (tmp.getTime() / 1000);
 }
 
+function incrementSerialNumber(s){
+     var series = s.substring(0,2);
+     var num = Number(s.substring(2,8));
+
+     if(num==999999){
+          // TODO: increase series 
+     }else{
+          num = num + 1;
+     }
+
+     var strNum = '' + num;
+     var addZeroes = (6 - strNum.length);
+     for(var i=0; i<addZeroes; ++i){
+          strNum = '0' + strNum; 
+     }
+
+     var out = series + strNum;
+     return out;
+}
+
+
 exports.getRandom = getRandom;
 
 exports.validateInn = validateInn;
@@ -159,3 +180,4 @@ exports.decodeUrlEnc = decodeUrlEnc;
 
 exports.capitalizeFirst = capitalizeFirst;
 exports.dateToUnix = dateToUnix;
+exports.incrementSerialNumber = incrementSerialNumber;

@@ -154,7 +154,8 @@ app.use(paginate.middleware(50, 300));
 // This is main APIs file
 eval(fs.readFileSync('requests/users.js')+'');
 eval(fs.readFileSync('requests/static_pages.js')+'');
-eval(fs.readFileSync('requests/organizer.js')+'');
+eval(fs.readFileSync('requests/apis.js')+'');
+//eval(fs.readFileSync('requests/apis_no_smart_contracts.js')+'');
 eval(fs.readFileSync('requests/files.js')+'');
 
 function initDb(dbInit){

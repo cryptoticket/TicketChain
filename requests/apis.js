@@ -34,24 +34,6 @@ app.get('/api/v1/organizers/:inn/ticket_count',function(request,res,next){
      }
      winston.info('Asking ticket_count for INN: ' + inn);
 
-     /*
-     var query = {organizer_inn:inn};
-     if(typeof(request.query.state)!=='undefined'){
-          query.state = stateToQuery(request.query.state);
-     }
-     
-     // This method uses DB
-     db.TicketModel.find(query).count(function(err,count){
-          if(err){return next(err);}
-
-          var out = {
-               count: count
-          };
-
-          return res.json(out);
-     });
-     */
-
      var out = {
           count: 0 
      };
@@ -247,20 +229,6 @@ app.get('/api/v1/organizers/:inn/tickets/:id_or_number',function(request,res,nex
 });
 
 function getTicketByNumber(num,request,res,next){
-     /*
-     winston.info('Getting ticket by num: ' + num);
-     db.TicketModel.findOne({serial_number:num},function(err,ticket){
-          if(err){
-               return next(err);
-          }
-          if(!ticket){
-               return next();
-          }
-
-          return convertTicketToOut(ticket,request,res,next);
-     });
-     */
-     
      contract_helpers.getTicketByNumber(num,function(err,ticket){
           if(err){
                return next(err);
@@ -276,16 +244,6 @@ function getTicketByNumber(num,request,res,next){
 function getTicketById(id,request,res,next){
      winston.info('Getting ticket by ID: ' + id);
      
-     /*
-     db.TicketModel.findOne({_id:id},function(err,ticket){
-          if(err){
-               return next(err);
-          }
-          
-          return convertTicketToOut(ticket,request,res,next);
-     });
-     */
-
      contract_helpers.getTicketById(id,function(err,ticket){
           if(err){
                return next(err);
@@ -575,30 +533,10 @@ function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
                }
 
                // continue recursion 
-               strs = incrementSerialNumber(strs);
+               strs = helpers.incrementSerialNumber(strs);
                addNewTicketToBatch(batch,inn,n - 1, strs,request,res,next);
           });
      });
-}
-
-function incrementSerialNumber(s){
-     var series = s.substring(0,2);
-     var num = Number(s.substring(2,8));
-
-     if(num==999999){
-          // TODO: increase series 
-     }else{
-          num = num + 1;
-     }
-
-     var strNum = '' + num;
-     var addZeroes = (6 - strNum.length);
-     for(var i=0; i<addZeroes; ++i){
-          strNum = '0' + strNum; 
-     }
-
-     var out = series + strNum;
-     return out;
 }
 
 // Get batch
@@ -761,22 +699,6 @@ function copyField(to,from,field){
 //
 // http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-all-organizers
 app.get('/api/v1/organizers',function(request,res,next){
-     /*
-     // This method uses DB
-     db.TicketModel.distinct('organizer_inn',function(err,orgs){
-          if(err){
-               return next(err);
-          }
-
-          if(!orgs || !orgs.length){
-               winston.info('Can not find organizers');
-               return next();
-          }
-
-          res.json(orgs);
-     });
-     */
-
      var out = contract_helpers.getAllOrganizerInns();
      res.json(out);
 });
