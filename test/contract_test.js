@@ -81,7 +81,7 @@ function deployContract1(cb){
                tempContract.new(
                     {
                          from: creator, 
-                         gas: 4000000,
+                         gas: 6000000,
                          data: '0x' + bytecode
                     }, 
                     function(err, c){
