@@ -13,6 +13,8 @@ var BigNumber = require('bignumber.js');
 assert.notEqual(typeof(process.env.ETH_NODE),'undefined');
 var web3 = new Web3(new Web3.providers.HttpProvider(process.env.ETH_NODE));
 
+var alreadyDeployedAddress = process.env.LEDGER_CONTRACT_ADDRESS;
+
 //var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8989"));
 //var web3 = new Web3(new Web3.providers.HttpProvider("http://138.201.89.68:8545"));
 
@@ -93,8 +95,8 @@ function deployContract1(cb){
                          console.log('TX HASH: ');
                          console.log(c.transactionHash);
 
-                         //contract_helpers.waitForTransaction(c.transactionHash,function(err,result){
-
+                         // TX can be processed in 1 minute or in 30 minutes...
+                         // So we can not be sure on this -> result can be null.
                          web3.eth.getTransactionReceipt(c.transactionHash, function(err, result){
                               console.log('RESULT: ');
                               console.log(result);
@@ -150,17 +152,20 @@ describe('Contract', function() {
      });
 
      it('should deploy Ticket Ledger contract',function(done){
-          /*
-          deployContract1(function(err){
-               assert.equal(err,null);
+          if(alreadyDeployedAddress && alreadyDeployedAddress.length){
+               console.log('Main Contract was already deployed at address: ' + alreadyDeployedAddress);
+
+               ledgerContractAddress = alreadyDeployedAddress;
+               ledgerContract = web3.eth.contract(ledgerAbi).at(ledgerContractAddress);
 
                done();
-          });
-          */
-          ledgerContractAddress = '0x6840DAc30Bae749239bf4408f62e8182Ebd4064b';
-          ledgerContract = web3.eth.contract(ledgerAbi).at(ledgerContractAddress);
+          }else{
+               deployContract1(function(err){
+                    assert.equal(err,null);
 
-          done();
+                    done();
+               });
+          }
      });
 
      it('should create new Ticket contract',function(done){
@@ -400,7 +405,6 @@ describe('Contract', function() {
                }
           );
      })
-
 
      it('should get Ticket count',function(done){
           var count = ledgerContract.getTicketCount();

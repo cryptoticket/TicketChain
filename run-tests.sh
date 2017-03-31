@@ -7,7 +7,7 @@
 #    "test_node":"http://138.201.89.68:8545"
 #    "test_node":"http://localhost:8989"
 
-env ETH_NODE=http://ethnode.chain.cloud:8545 mocha --reporter spec -t 90000 -g "Contract"
+env ETH_NODE=http://ethnode.chain.cloud:8545 LEDGER_CONTRACT_ADDRESS=0x0605bf0970025A6DD604f5fE481Cc307E9d5450e mocha --reporter spec -t 90000 -g "Contract"
 
 #env ETH_NODE=http://localhost:8989 mocha --reporter spec -t 90000 
 
