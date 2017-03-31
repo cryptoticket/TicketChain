@@ -174,8 +174,6 @@ describe('Contract', function() {
                id,
                {
                     from: creator,               
-                    //gasPrice: 200000000000,
-                    //gas: 1000000 
                     gas: 2900000 
                },function(err,result){
                     assert.equal(err,null);
@@ -378,7 +376,6 @@ describe('Contract', function() {
           done();
      });
 
-     /*
      it('should create another Ticket contract',function(done){
           var organizer_inn = "1234567890";
           var serial_number = "АБ123457";    // +1 to initial ticket
@@ -391,8 +388,7 @@ describe('Contract', function() {
                id,
                {
                     from: creator,               
-                    gasPrice: 2000000,
-                    gas: 3000000
+                    gas: 2900000 
                },function(err,result){
                     assert.equal(err,null);
 
@@ -408,6 +404,7 @@ describe('Contract', function() {
 
      it('should get Ticket count',function(done){
           var count = ledgerContract.getTicketCount();
+          console.log('Count: ' + count);
           assert.equal(count,2);
 
           done();
@@ -432,5 +429,4 @@ describe('Contract', function() {
 
           done();
      })
-     */
 });
