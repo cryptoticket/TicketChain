@@ -234,6 +234,7 @@ function getTicketByNumber(num,request,res,next){
                return next(err);
           }
           if(!ticket){
+               winston.info('Ledger. Can not get ticket: ' + id);
                return next();
           }
 
@@ -244,11 +245,12 @@ function getTicketByNumber(num,request,res,next){
 function getTicketById(id,request,res,next){
      winston.info('Getting ticket by ID: ' + id);
      
-     contract_helpers.getTicketById(id,function(err,ticket){
+     contract_helpers.getTicketById('' + id,function(err,ticket){
           if(err){
                return next(err);
           }
           if(!ticket){
+               winston.info('Ledger. Can not get ticket: ' + id);
                return next();
           }
 
