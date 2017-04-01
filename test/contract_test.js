@@ -498,13 +498,6 @@ describe('Contract2', function() {
           }
      });
 
-     it('should get current count of tickets',function(done){
-          var count = ledgerContract.getTicketCount();
-          //console.log('Count: ' + count);
-          assert.equal(count,0);
-          done();
-     })
-
      it('should create new Ticket contract',function(done){
           var organizer_inn = "1234567890";
           var serial_number = "АБ123456";
@@ -535,13 +528,6 @@ describe('Contract2', function() {
                     });
                }
           );
-     })
-
-     it('should get current count of tickets',function(done){
-          var count = ledgerContract.getTicketCount();
-          assert.equal(count,1);
-
-          done();
      })
 
      it('should get contract address',function(done){
