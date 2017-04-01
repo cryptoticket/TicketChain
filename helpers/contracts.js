@@ -21,7 +21,7 @@ var g_abi;
 var g_abiTicket;
 
 var g_bytecode;
-var g_ledgerAddress = (process.env.ETH_MAIN_ADDRESS || config.get('ehtereum:main_contract_address'));
+var g_ledgerAddress = process.env.ETH_MAIN_ADDRESS;
 var g_ledger = 0;
 
 function getContractAbi(contractName,cb){
@@ -107,13 +107,15 @@ function deployMain(cb){
      tempContract.new(
           {
                from: g_creator, 
-               gas: 6000000, 
+               gas: 4995000,
                data: g_bytecode
           }, 
           function(err, c){
                if(err){return cb(err);}
 
-               web3.eth.getTransactionReceipt(c.transactionHash, function(err, result){
+               // must wait here until TX is mined!
+               // TODO: can fail if still not
+               waitForTransaction(c.transactionHash,function(err,result){
                     if(err){return cb(err);}
 
                     if(!alreadyCalled){
@@ -125,6 +127,8 @@ function deployMain(cb){
           });
 }
 
+// IN: ticket object
+// OUT: TX hash
 function deployTicket(ticket,cb){
      if(!enabled){
           return cb(null,0);
@@ -141,23 +145,16 @@ function deployTicket(ticket,cb){
           '' + ticket._id,
           {
                from: g_creator,               
-               gasPrice: 2000000,
-               gas: 3000000
+               gas: 2900000 
           },function(err,result){
                if(err){
                     return cb(err);
                }
 
-               web3.eth.getTransactionReceipt(result, function(err, r2){
-                    if(err){
-                         return cb(err);
-                    }
+               winston.info('Issued new contract: ' + ticket.serial_number + ' with TX hash: ' + result);
 
-                    var address = g_ledger.getTicket(g_ledger.currentTicketCount - 1);
-                    //console.log('DEPLOYED: ', address); 
-
-                    cb(null,address);
-               });
+               // TX will be mined later
+               return cb(null,result);
           }
      );
 }
@@ -172,7 +169,6 @@ function copyOrganizer(ticket,contract,cb){
                (ticket.organizer_address || contract.organizer_address()),
           {
                from: g_creator,               
-               gasPrice: 2000000,
                gas: 3000000
           },function(err,result){
                if(err){return cb(err);}
@@ -194,7 +190,6 @@ function copyIssuer(ticket,contract,cb){
                (ticket.issuer_address || contract.issuer_address()),
           {
                from: g_creator,               
-               gasPrice: 2000000,
                gas: 3000000
           },function(err,result){
                if(err){return cb(err);}
@@ -270,7 +265,6 @@ function copySeller(ticket,contract,cb){
                (ticket.seller_address || contract.seller_address()),
           {
                from: g_creator,               
-               gasPrice: 2000000,
                gas: 3000000
           },function(err,result){
                if(err){return cb(err);}
@@ -283,32 +277,41 @@ function copySeller(ticket,contract,cb){
      );
 }
 
-function updateContract(contractAddress,body,cb){
+function updateContract(ticketId,body,cb){
      if(!enabled){
           return cb(null);
      }
 
-     winston.info('Updating contract: ' + contractAddress);
-     var contract = web3.eth.contract(g_abiTicket).at(contractAddress);
-
-     // 1 - Convert data
-     var placeholder = {};
-     db_helpers.fromDataToTicket(placeholder,body,function(err,out){
+     getTicketById(ticketId,function(err,contract,contractAddr){
           if(err){
                return cb(err);
           }
+          if(!contract){
+               return cb(new Error('Contract is not mined yet'));
+          }
 
-          // 2 - Convert organizer
-          db_helpers.fromDataToOrganizer(out,body,function(err,out2){
+          winston.info('Updating ticket: ' + ticketId);
+          winston.info('Contract address: ' + contractAddr);
+
+          // 1 - Convert data
+          var placeholder = {};
+          db_helpers.fromDataToTicket(placeholder,body,function(err,out){
                if(err){
                     return cb(err);
                }
 
-               copyData(out2,contract,function(err){
-                    copySeller(out2,contract,function(err){
-                         copyOrganizer(out2,contract,function(err){
-                              copyIssuer(out2,contract,function(err){
-                                   return cb(null);
+               // 2 - Convert organizer
+               db_helpers.fromDataToOrganizer(out,body,function(err,out2){
+                    if(err){
+                         return cb(err);
+                    }
+                    
+                    copyData(out2,contract,function(err){
+                         copySeller(out2,contract,function(err){
+                              copyOrganizer(out2,contract,function(err){
+                                   copyIssuer(out2,contract,function(err){
+                                        return cb(null);
+                                   });
                               });
                          });
                     });
@@ -317,37 +320,43 @@ function updateContract(contractAddress,body,cb){
      });
 }
 
-function updateContractWithState(contractAddress,body,state,cb){
+function updateContractWithState(ticketId,body,state,cb){
      if(!enabled){
           return cb(null);
      }
      
-     winston.info('Updating contract with state: ' + contractAddress);
-
-     var currentDate = Date.now();
-     var contract = web3.eth.contract(g_abiTicket).at(contractAddress);
-
-     contract.setState(
-          state,
-          currentDate,
-          {
-               from: g_creator,               
-               gasPrice: 2000000,
-               gas: 3000000
-          },function(err,result){
-               if(err){return cb(err);}
-
-               web3.eth.getTransactionReceipt(result, function(err, r){
-                    winston.info('Seller transaction info: ' + r.transactionHash);
-
-                    if(err){
-                         return cb(err);
-                    }
-                    updateContract(contractAddress,body,cb);
-               });
+     getTicketById(ticketId,function(err,contract){
+          if(err){
+               return cb(err);
           }
-     );
+          if(!contract){
+               return cb(new Error('Contract is not mined yet'));
+          }
 
+          winston.info('Updating contract with state: ' + ticketId);
+
+          var currentDate = Date.now();
+
+          contract.setState(
+               state,
+               currentDate,
+               {
+                    from: g_creator,               
+                    gas: 3000000
+               },function(err,result){
+                    if(err){return cb(err);}
+
+                    web3.eth.getTransactionReceipt(result, function(err, r){
+                         winston.info('Seller transaction info: ' + r.transactionHash);
+
+                         if(err){
+                              return cb(err);
+                         }
+                         updateContract(ticketId,body,cb);
+                    });
+               }
+          );
+     });
 }
 
 function waitForTransaction(txHash,cb){
@@ -436,7 +445,7 @@ function getTicketCountForOrganizer(inn){
 function getTicketByNumber(num,cb){
      if(!enabled){
           winston.info('ETH connect is disabled. Please set ETH_NODE var');
-          return [];
+          return cb(null,null);
      }
 
      var addr = g_ledger.getTicketBySernum(num);
@@ -444,21 +453,31 @@ function getTicketByNumber(num,cb){
           return cb(null,null);
      }
      var t = web3.eth.contract(g_abiTicket).at(addr);
-     return cb(null,t);
+     return cb(null,t,addr);
 }
 
 function getTicketById(id,cb){
      if(!enabled){
           winston.info('ETH connect is disabled. Please set ETH_NODE var');
-          return [];
+          return cb(null,null);
      }
 
      var addr = g_ledger.getTicketById(id);
-     if(!addr){
+     if(!addr || (addr=='0x0000000000000000000000000000000000000000')){
           return cb(null,null);
      }
      var t = web3.eth.contract(g_abiTicket).at(addr);
-     return cb(null,t);
+     return cb(null,t,addr);
+}
+
+function getTicketAddressById(id,cb){
+     if(!enabled){
+          winston.info('ETH connect is disabled. Please set ETH_NODE var');
+          return cb(null,null);
+     }
+
+     var addr = g_ledger.getTicketById(id);
+     return cb(null,addr);
 }
 
 /////////////////
@@ -473,5 +492,6 @@ exports.getAllOrganizerInns = getAllOrganizerInns;
 exports.getTicketCountForOrganizer = getTicketCountForOrganizer;
 exports.getTicketByNumber = getTicketByNumber;
 exports.getTicketById = getTicketById;
+exports.getTicketAddressById = getTicketAddressById;
 
 exports.waitForTransaction = waitForTransaction;

@@ -294,16 +294,16 @@ app.put('/api/v1/organizers/:inn/tickets/:id',function(request,res,next){
                     return next(err);
                }
 
-               console.log('Conctract address: ');
-               console.log(ticket.contract_address);
+               console.log('Contract ID: ');
+               console.log(ticket._id);
 
-               contract_helpers.updateContract(ticket.contract_address,request.body,function(err){
+               contract_helpers.updateContract('' + ticket._id,request.body,function(err){
                     if(err){
+                         // will not save data to DB...
                          return next(err);
                     }
 
-                    // TODO: if contract is update, but DB will fail...
-                    // -> problems
+                    // TODO: if contract is updated, but DB will fail... -> problems
                     ticketOut.save(function(err){
                          if(err){
                               return next(err);
@@ -402,10 +402,7 @@ function changeStateInternal(request,inn,id,state,cb){
                     }
 
                     // 2 - update contract 
-                    console.log('BODY: ');
-                    console.log(request.body);
-
-                    contract_helpers.updateContractWithState(ticket.contract_address,request.body,state,function(err){
+                    contract_helpers.updateContractWithState('' + ticket._id,request.body,state,function(err){
                          if(err){
                               return cb(err);
                          }
@@ -615,15 +612,15 @@ function createNewBlankTicket(inn,optionalSerNum,cb){
           //ticket.organizer = organizerId;
 
           winston.info('Deploying new ticket to Blockchain');
-          contract_helpers.deployTicket(ticket,function(err,contractTicketAddress){
+          contract_helpers.deployTicket(ticket,function(err,txHash){
                if(err){
                     winston.error('Can not deploy new ticket');
                     return cb(err);
                }
 
-               winston.info('Contract address: ' + contractTicketAddress);
+               winston.info('TX hash: ' + txHash);
 
-               ticket.contract_address = '' + contractTicketAddress;
+               ticket.tx_hash = txHash;
 
                winston.info('Saving new Ticket: ' + ticket.serial_number);
                ticket.save(function(err){
@@ -675,8 +672,7 @@ function convertTicketToOut(t,request,res,next){
           buying_date: t.buying_date(),
           cancelled_date: t.cancelled_date(),
 
-          // TODO:
-          contract_address: t.address
+          contract_address: ''
      };
 
      if(t.currentState()==1){
@@ -685,7 +681,11 @@ function convertTicketToOut(t,request,res,next){
           out.state = 'cancelled';
      }
 
-     res.json(out);
+     contract_helpers.getTicketAddressById(t.id(),function(err,address){
+          out.contract_address = address;
+
+          res.json(out);
+     });
 }
 
 

@@ -13,7 +13,7 @@ var BigNumber = require('bignumber.js');
 assert.notEqual(typeof(process.env.ETH_NODE),'undefined');
 var web3 = new Web3(new Web3.providers.HttpProvider(process.env.ETH_NODE));
 
-var alreadyDeployedAddress = process.env.LEDGER_CONTRACT_ADDRESS;
+var alreadyDeployedAddress = process.env.ETH_MAIN_ADDRESS;
 
 //var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8989"));
 //var web3 = new Web3(new Web3.providers.HttpProvider("http://138.201.89.68:8545"));
@@ -26,6 +26,8 @@ var ledgerContract;
 
 var contractAddress;
 var contract;
+
+var txHash;
 
 var ledgerAbi;
 var ticketAbi;
@@ -86,7 +88,7 @@ function deployContract1(cb){
                          from: creator, 
                          // should not exceed 5000000 for Kovan by default
                          gas: 4995000,
-                         gasPrice: 120000000000,
+                         //gasPrice: 120000000000,
                          data: '0x' + bytecode
                     }, 
                     function(err, c){
@@ -121,7 +123,7 @@ function deployContract1(cb){
      });
 }
 
-describe('Contract', function() {
+describe('Contract1', function() {
      before("Initialize everything", function(done) {
           web3.eth.getAccounts(function(err, as) {
                if(err) {
@@ -168,6 +170,13 @@ describe('Contract', function() {
           }
      });
 
+     it('should get current count of tickets',function(done){
+          var count = ledgerContract.getTicketCount();
+          console.log('Count: ' + count);
+
+          done();
+     })
+
      it('should create new Ticket contract',function(done){
           var organizer_inn = "1234567890";
           var serial_number = "АБ123456";
@@ -193,6 +202,13 @@ describe('Contract', function() {
                     });
                }
           );
+     })
+
+     it('should get current count of tickets',function(done){
+          var count = ledgerContract.getTicketCount();
+          console.log('After: ' + count);
+
+          done();
      })
 
      it('should get Ticket contract address',function(done){
@@ -434,3 +450,107 @@ describe('Contract', function() {
           done();
      })
 });
+
+describe('Contract2', function() {
+     before("Initialize everything", function(done) {
+          web3.eth.getAccounts(function(err, as) {
+               if(err) {
+                    done(err);
+                    return;
+               }
+
+               accounts = as;
+               creator = accounts[0];
+
+               // 1 - abi 1
+               var contractName = ':TicketLedger';
+               getContractAbi(contractName,function(err,abi){
+                    ledgerAbi = abi;
+
+                    var contractName2 = ':Ticket';
+                    getContractAbi(contractName2,function(err,abi){
+                         ticketAbi = abi;
+
+                         done();
+                    });
+               });
+          });
+     });
+
+     after("Deinitialize everything", function(done) {
+          done();
+     });
+
+     it('should deploy Ticket Ledger contract',function(done){
+          if(alreadyDeployedAddress && alreadyDeployedAddress.length){
+               console.log('Main Contract was already deployed at address: ' + alreadyDeployedAddress);
+
+               ledgerContractAddress = alreadyDeployedAddress;
+               ledgerContract = web3.eth.contract(ledgerAbi).at(ledgerContractAddress);
+
+               done();
+          }else{
+               deployContract1(function(err){
+                    assert.equal(err,null);
+
+                    done();
+               });
+          }
+     });
+
+     it('should get current count of tickets',function(done){
+          var count = ledgerContract.getTicketCount();
+          //console.log('Count: ' + count);
+          assert.equal(count,0);
+          done();
+     })
+
+     it('should create new Ticket contract',function(done){
+          var organizer_inn = "1234567890";
+          var serial_number = "АБ123456";
+          var id = "1231312313";
+
+          ledgerContract.issueNewTicket(
+               organizer_inn,
+               serial_number,
+               id,
+               {
+                    from: creator,               
+                    gas: 2900000 
+               },function(err,result){
+                    assert.equal(err,null);
+
+                    console.log('Tx hash: ');
+                    console.log(result);
+
+                    txHash = result;
+
+                    web3.eth.getTransactionReceipt(result, function(err, r2){
+                         assert.equal(err, null);
+
+                         //console.log('TX receipt result: ');
+                         //console.log(r2);
+
+                         done();
+                    });
+               }
+          );
+     })
+
+     it('should get current count of tickets',function(done){
+          var count = ledgerContract.getTicketCount();
+          assert.equal(count,1);
+
+          done();
+     })
+
+     it('should get contract address',function(done){
+          var id = "1231312313";
+          var address = ledgerContract.getTicketById(id);
+
+          console.log('ADDRESS: ');
+          console.log(address);
+
+          done();
+     })
+})
