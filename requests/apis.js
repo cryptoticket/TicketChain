@@ -105,7 +105,7 @@ app.get('/api/v1/organizers/:inn/tickets',function(request,res,next){
      winston.info('Asking tickets for INN: ' + inn + ' page=' + request.query.page + ' limit= ' + request.query.limit);
 
      var query = {organizer_inn:inn};
-     if(typeof(request.query.state)!=='undefined'){
+     if(typeof(request.query.state)!=='undefined' && (request.query.state) && (request.query.state!=='undefined')){
           query.state = stateToQuery(request.query.state);
      }
      

@@ -539,4 +539,165 @@ describe('Contract2', function() {
 
           done();
      })
+
+     /*
+     it('should get contract address',function(done){
+          var id = "1231312313";
+          var address = ledgerContract.getTicketById(id);
+
+          console.log('ADDRESS: ');
+          console.log(address);
+
+          contract = web3.eth.contract(ticketAbi).at(address);
+          done();
+     })
+     */
+
+     it('should set basic data',function(done){
+          // Params:
+          var date_created = 0;
+          var price_kop = 100;
+          var is_paper_ticket = false;
+
+          var event_title = "";
+          var event_place_title = "";
+          var event_date = "";
+          var event_place_address = "";
+
+          var row = "12";
+          var seat = "5A";
+          var ticket_category = "";
+
+          var buyer_name = "Anton Akentiev";
+          var buying_date = 100;
+          var cancelled_date = 120;
+
+          contract.setData(
+               date_created,
+               price_kop,
+               is_paper_ticket,
+               event_title,
+               event_place_title,
+               event_date,
+               event_place_address,
+               row,
+               seat,
+               ticket_category,
+               buyer_name,
+               buying_date,
+               cancelled_date,
+               {
+                    from: creator,               
+                    //gasPrice: 2000000,
+                    gas: 3000000
+               },function(err,result){
+                    assert.equal(err,null);
+
+                    console.log('Tx hash: ');
+                    console.log(result);
+
+                    web3.eth.getTransactionReceipt(result, function(err, r2){
+                         assert.equal(err, null);
+
+                         done();
+                    });
+               }
+          );
+     });
+
+     it('should set issuer',function(done){
+          var issuer = "TicketsCloud";
+          var issuer_inn = "1234567890";
+          var issuer_orgn = "1234567890123";
+          var issuer_ogrnip = "123456789012345";
+          var issuer_address = "Moscow";
+
+          contract.setIssuer(
+                    issuer,
+                    issuer_inn,
+                    issuer_orgn,
+                    issuer_ogrnip,
+                    issuer_address,
+               {
+                    from: creator,               
+                    gas: 3000000
+               },function(err,result){
+                    assert.equal(err,null);
+
+                    console.log('Tx hash: ');
+                    console.log(result);
+
+                    web3.eth.getTransactionReceipt(result, function(err, r2){
+                         assert.equal(err, null);
+
+                         done();
+                    });
+               }
+          );
+     });
+
+     it('should set seller',function(done){
+          var s = "TicketLand";
+          var s_inn = "1234567890";
+          var s_orgn = "1234567890123";
+          var s_ogrnip = "123456789012345";
+          var s_address = "Spb";
+
+          contract.setSeller(
+                    s,
+                    s_inn,
+                    s_orgn,
+                    s_ogrnip,
+                    s_address,
+               {
+                    from: creator,               
+                    gas: 3000000
+               },function(err,result){
+                    assert.equal(err,null);
+
+                    console.log('Tx hash: ');
+                    console.log(result);
+
+                    web3.eth.getTransactionReceipt(result, function(err, r2){
+                         assert.equal(err, null);
+
+                         done();
+                    });
+               }
+          );
+     });
+
+     it('should set organizer',function(done){
+          var o = "МХАТ";
+          var o_inn = "1234567890";
+          var o_orgn = "1234567890123";
+          var o_ogrnip = "123456789012345";
+          var o_address = "Москва";
+
+          contract.setOrganizer(
+                    o,
+                    o_inn,
+                    o_orgn,
+                    o_ogrnip,
+                    o_address,
+               {
+                    from: creator,               
+                    gas: 3000000
+               },function(err,result){
+                    assert.equal(err,null);
+
+                    console.log('Tx hash: ');
+                    console.log(result);
+
+                    web3.eth.getTransactionReceipt(result, function(err, r){
+                         assert.equal(err, null);
+
+                         //console.log('Result: ');
+                         //console.log(r);
+
+                         done();
+                    });
+               }
+          );
+     });
 })
