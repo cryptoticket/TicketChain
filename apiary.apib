@@ -108,11 +108,13 @@ Before you create all tickets in batch -> calculate count.
 
 ## Tickets [/organizers/{INN}/tickets]
 
-### Get Ticket Count [GET /organizers/{INN}/ticket_count]
+### Get Ticket Count [GET /organizers/{INN}/ticket_count{?state}]
 
 Get the count of all tickets for that organizer.
 
 + Parameters
+    + INN - Organizer's INN
+    
     + state (string, optional) - State of tickets to search ("created", "sold", "cancelled")
     
 + Response 201 (application/json)
@@ -123,7 +125,7 @@ Get the count of all tickets for that organizer.
                 count: 134034
             }
 
-### Get all Ticket issued by Organizer [GET /organizers/{INN}/tickets]
+### Get all Ticket issued by Organizer [GET /organizers/{INN}/tickets{?page}{?limit}{?state}]
 
 Get all issued by particular company tickets. Returns array of ticket IDs.
 This method supports paging. Please use ?page=1&limit=100 format. Default limit is 50.
