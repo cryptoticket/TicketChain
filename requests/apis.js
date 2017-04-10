@@ -22,6 +22,7 @@ function stateToQuery(s){
 // Get total ticket count for current organizer
 //
 // http://docs.ticketchain.apiary.io/#reference/0/tickets/get-ticket-count
+/*
 app.get('/api/v1/organizers/:inn/ticket_count',function(request,res,next){
      if(typeof(request.params.inn)==='undefined'){
           winston.error('No inn');
@@ -40,6 +41,35 @@ app.get('/api/v1/organizers/:inn/ticket_count',function(request,res,next){
 
      out.count = contract_helpers.getTicketCountForOrganizer(inn);
      return res.json(out);
+});
+*/
+app.get('/api/v1/organizers/:inn/ticket_count',function(request,res,next){
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No inn');
+          return next();
+     }
+     var inn = request.params.inn;
+     if(!helpers.validateInn(inn)){
+          winston.error('Bad inn');
+          return next();
+     }
+     winston.info('Asking ticket_count for INN: ' + inn);
+
+     var query = {organizer_inn:inn};
+     if(typeof(request.query.state)!=='undefined'){
+          query.state = stateToQuery(request.query.state);
+     }
+     
+     // This method uses DB
+     db.TicketModel.find(query).count(function(err,count){
+          if(err){return next(err);}
+
+          var out = {
+               count: count
+          };
+
+          return res.json(out);
+     });
 });
 
 app.get('/api/v1/organizers/:inn/stats',function(request,res,next){

@@ -12,11 +12,7 @@ Heroku **master** branch Build - [![Heroku Master branch Build](https://heroku-b
 * Before running install Mocha and Forever:
      **npm install \-\-global mocha forever**
 * Install mongodb: see **scripts/installmongo.sh**
-* Modify **config.json** and **package.json**
-* Add valid HTTPS (SSL) certificates to cert folder
 * Run **npm install**
-* To install as a daemon: ./scripts/installdaemon.sh
-* DO NOT FORGET TO CHANGE 'salt' in config.json! Using sample salt will lead to vulnerability!
 * Use HTTPS only (set *enable_https* to true config.json) to prevent JWT or other data stealing in the middle
 * Run tests (see below)
 
@@ -40,5 +36,9 @@ Heroku **master** branch Build - [![Heroku Master branch Build](https://heroku-b
      use 'ticketchain'
      db.users.find()
 
-# APIs
+## Deploy to Heroku
+
+```
+git push heroku master
+```
 

@@ -180,9 +180,6 @@ function fromDataToTicket(ticket,from,cb){
      
      // TODO: date
      if(typeof(from['event_date'])!=='undefined'){
-          var d = helpers.dateToUnix(from['event_date']);
-          console.log('Date to UNIX: ' + d);
-
           ticket.event_date = helpers.dateToUnix(from['event_date']);
      }
      if(typeof(from['buying_date'])!=='undefined'){
