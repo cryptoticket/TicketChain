@@ -179,9 +179,22 @@ function fromDataToTicket(ticket,from,cb){
      copyField(ticket,from,'buyer_name');
      
      // TODO: date
-     copyField(ticket,from,'event_date');
-     copyField(ticket,from,'buying_date');
-     copyField(ticket,from,'cancelled_date');
+     if(typeof(from['event_date'])!=='undefined'){
+          var d = helpers.dateToUnix(from['event_date']);
+          console.log('Date to UNIX: ' + d);
+
+          ticket.event_date = helpers.dateToUnix(from['event_date']);
+     }
+     if(typeof(from['buying_date'])!=='undefined'){
+          ticket.buying_date = helpers.dateToUnix(from['buying_date']);
+     }
+     if(typeof(from['cancelled_date'])!=='undefined'){
+          ticket.cancelled_date = helpers.dateToUnix(from['cancelled_date']);
+     }
+
+     //copyField(ticket,from,'event_date');
+     //copyField(ticket,from,'buying_date');
+     //copyField(ticket,from,'cancelled_date');
 
      return cb(null,ticket);
 }

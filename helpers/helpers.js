@@ -133,7 +133,7 @@ function generateFileName(){
 
 function dateToUnix(d){
      var tmp = new Date(Date.parse(d));
-     return (tmp.getTime() / 1000);
+     return Math.trunc(tmp.getTime() / 1000);
 }
 
 function incrementSerialNumber(s){

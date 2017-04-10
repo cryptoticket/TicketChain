@@ -228,6 +228,7 @@ app.get('/api/v1/organizers/:inn/tickets/:id_or_number',function(request,res,nex
      }
 });
 
+/*
 function getTicketByNumber(num,request,res,next){
      contract_helpers.getTicketByNumber(num,function(err,ticket){
           if(err){
@@ -254,6 +255,33 @@ function getTicketById(id,request,res,next){
                return next();
           }
 
+          return convertTicketToOut(ticket,request,res,next);
+     });
+}
+*/
+
+// This is copied from 'requests/apis_no_smart_contracts.js'
+function getTicketByNumber(num,request,res,next){
+     winston.info('Getting ticket by num: ' + num);
+     db.TicketModel.findOne({serial_number:num},function(err,ticket){
+          if(err){
+               return next(err);
+          }
+          if(!ticket){
+               return next();
+          }
+
+          return convertTicketToOut(ticket,request,res,next);
+     });
+}
+
+function getTicketById(id,request,res,next){
+     winston.info('Getting ticket by ID: ' + id);
+     db.TicketModel.findOne({_id:id},function(err,ticket){
+          if(err){
+               return next(err);
+          }
+          
           return convertTicketToOut(ticket,request,res,next);
      });
 }
@@ -632,6 +660,7 @@ function createNewBlankTicket(inn,optionalSerNum,cb){
      });
 }
 
+/*
 function convertTicketToOut(t,request,res,next){
      var out = {
           id: t.id(),
@@ -689,6 +718,77 @@ function convertTicketToOut(t,request,res,next){
           res.json(out);
      });
 }
+*/
+
+// This is copied from 'requests/apis_no_smart_contracts.js'
+function convertTicketToOut(t,request,res,next){
+     var out = {
+          id: t.id,
+          serial_number: t.serial_number,
+          state: 'created',
+
+          price_kop: t.price_kop,
+
+          is_paper_ticket: t.is_paper_ticket,
+
+          issuer: t.issuer,
+          issuer_inn: t.issuer_inn,
+          issuer_ogrn: t.issuer_ogrn,
+          issuer_ogrnip: t.issuer_ogrnip,
+          issuer_address: t.issuer_address,
+
+          event_title: t.event_title,
+          event_place_title: t.event_place_title,
+          event_date: t.event_date,
+          event_place_address: t.event_place_address,
+
+          row: t.row,
+          seat: t.seat,
+          
+          ticket_category: t.ticket_category,
+
+          organizer: t.organizer,
+          organizer_inn: t.organizer_inn,
+          organizer_ogrn: t.organizer_ogrn,
+          organizer_ogrnip: t.organizer_ogrnip,
+          organizer_address: t.organizer_address,
+
+          seller: t.seller,
+          seller_inn: t.seller_inn,
+          seller_ogrn: t.seller_ogrn,
+          seller_ogrnip: t.seller_ogrnip,
+          seller_address: t.seller_address,
+
+          buyer_name: t.buyer_name,
+          buying_date: t.buying_date,
+          cancelled_date: t.cancelled_date,
+
+          contract_address: 0  
+     };
+
+     if(t.state==1){
+          out.state = 'sold';
+     }else if(t.state==2){
+          out.state = 'cancelled';
+     }
+
+     if(typeof(out.event_date)=='undefined'){
+          out.event_date = 0;
+     }
+     if(typeof(out.buying_date)=='undefined'){
+          out.buying_date = 0;
+     }
+     if(typeof(out.cancelled_date)=='undefined'){
+          out.cancelled_date = 0;
+     }
+
+     // TODO: this call is very slow...
+     contract_helpers.getTicketAddressById('' + t.id,function(err,address){
+          out.contract_address = address;
+
+          res.json(out);
+     });
+}
 
 
 function copyField(to,from,field){
@@ -700,9 +800,28 @@ function copyField(to,from,field){
 // Get all organizers
 //
 // http://docs.ticketchain.apiary.io/#reference/0/organizers-collection/get-all-organizers
+/*
 app.get('/api/v1/organizers',function(request,res,next){
      var out = contract_helpers.getAllOrganizerInns();
      res.json(out);
+});
+*/
+
+// This is copied from 'requests/apis_no_smart_contracts.js'
+app.get('/api/v1/organizers',function(request,res,next){
+     // This method uses DB
+     db.TicketModel.distinct('organizer_inn',function(err,orgs){
+          if(err){
+               return next(err);
+          }
+
+          if(!orgs || !orgs.length){
+               winston.info('Can not find organizers');
+               return next();
+          }
+
+          res.json(orgs);
+     });
 });
 
 function convertOrgToOut(to,from){

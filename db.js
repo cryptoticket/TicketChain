@@ -70,7 +70,8 @@ var Ticket = new Schema({
 
      event_title: {type: String, required:false},
      event_place_title: {type: String, required:false},
-     event_date: { type: Date, required:false },
+     //event_date: { type: Date, required:false },
+     event_date: { type: String, required:false },
      event_place_address: {type: String, required:false},
 
      row: {type: String, required:false},
@@ -93,11 +94,14 @@ var Ticket = new Schema({
      seller_address: {type: String, required:false},
 
      buyer_name: {type: String, required:false},
-     buying_date: { type: Date, required:false },
-     cancelled_date: { type: Date, required:false},
+     //buying_date: { type: Date, required:false },
+     //cancelled_date: { type: Date, required:false},
+     buying_date: { type: String, required:false },
+     cancelled_date: { type: String, required:false},
 
      tx_hash: {type:String, required: false},
-     //contract_address: {type:String, required: false}
+
+     contract_address: {type:String, required: false}
 });
 Ticket.plugin(mongoosePaginate);
 
