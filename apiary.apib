@@ -40,6 +40,9 @@ Postcondition:
 2) Blank tickets have been created and deployed (can take some time)
 3) Batch has been created.
 
++ Parameters
+    + INN - Organizer's INN
+    
 + Request (application/json)
 
         {
@@ -63,6 +66,11 @@ Postcondition:
 
 Will return all tickets that have been created in a single batch. 
 
++ Parameters
+    + INN - Organizer's INN
+    
+    + BATCH_ID - Current batch ID you want to read
+    
 + Response 201 (application/json)
 
     + Body
@@ -86,6 +94,9 @@ Will return all tickets that have been created in a single batch.
 
 Before you create all tickets in batch -> calculate count.
 
++ Parameters
+    + INN - Organizer's INN
+    
 + Request (application/json)
 
         {
@@ -156,6 +167,9 @@ Will create Organizer if it doesn't exist.
 1) Blank ticket has been created and deployed to network
 2) Organizer has been created.
 
++ Parameters
+    + INN - Organizer's INN
+    
 + Request (application/json)
 
         {
@@ -188,6 +202,11 @@ Will create Organizer if it doesn't exist.
 Get a ticket by ID or SERIAL_NUMBER.
 This method is blocking.
 
++ Parameters
+    + INN - Organizer's INN
+    
+    + ID_OR_SERIAL_NUMBER - Ticket's ID or Serial Number
+    
 + Response 201 (application/json)
 
     + Body
@@ -236,7 +255,7 @@ This method is blocking.
                 "contract_address: "0xe7962464741983eB4620DD0e2Aa6d572145bab0E"
             }
 
-### Edit a Ticket [PUT /organizers/{INN}/tickets/{id}]
+### Edit a Ticket [PUT /organizers/{INN}/tickets/{ID}]
 
 Update/edit ticket data.
 
@@ -245,6 +264,11 @@ Update/edit ticket data.
 
 This method is blocking.
 
++ Parameters
+    + INN - Organizer's INN
+    
+    + ID - Ticket's ID
+    
 + Request (application/json)
 
         {
@@ -281,13 +305,18 @@ This method is blocking.
 + Response 201
 + Response 400           
             
-### Sell a Ticket [POST /organizers/{INN}/tickets/{id}/sell]
+### Sell a Ticket [POST /organizers/{INN}/tickets/{ID}/sell]
 
 Sell ticket.
 
 **Postcondition**:
 1) Ticket has changed state from 'created' to 'sold'.
 
++ Parameters
+    + INN - Organizer's INN
+    
+    + ID - Ticket's ID
+    
 + Request (application/json)
 
         {
@@ -324,13 +353,18 @@ Sell ticket.
 + Response 201
 + Response 400
 
-### Cancel a Ticket [POST /organizers/{INN}/tickets/{id}/cancel]
+### Cancel a Ticket [POST /organizers/{INN}/tickets/{ID}/cancel]
 
 Cancel ticket.
 
 **Postcondition**:
 1) Ticket has changed state to 'cancelled'.
 
++ Parameters
+    + INN - Organizer's INN
+    
+    + ID - Ticket's ID
+    
 + Response 201
 + Response 400
 
@@ -345,6 +379,9 @@ CSV file format: https://docs.google.com/spreadsheets/d/1g3YEMokRK8HAEyPKNjAZQWn
 **Postcondition**:
 1) New job added to queue.
 
++ Parameters
+    + INN - Organizer's INN
+    
 + Request (application/json)
 
         {
@@ -362,6 +399,11 @@ CSV file format: https://docs.google.com/spreadsheets/d/1g3YEMokRK8HAEyPKNjAZQWn
 
 Will return status of the job. 
 
++ Parameters
+    + INN - Organizer's INN
+    
+    + JOB_ID - Current job ID you want to read
+    
 + Response 201 (application/json)
 
     + Body
@@ -389,6 +431,9 @@ Will return status of the job.
 ## Ticket Stats [/organizers/{INN}/stats]
 
 ### Get all Ticket Stats for Organizer [GET /organizers/{INN}/stats]
+
++ Parameters
+    + INN - Organizer's INN
 
 + Response 201 (application/json)
 
