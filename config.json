@@ -32,11 +32,11 @@
           "lang": "eng",
 
           "service":"yandex",
-          "user":"noreply@ticketchain.ru",
-          "pass":"",
+          "user":"4ticketchain@chain.cloud",
+          "pass":"P@ssw0rd",
 
           "reply_to":"support@ticketchain.ru",
-          "send_copy_to":"support@ticketchain.ru",
+          "send_copy_to":"tony@chain.cloud",
 
           "agreement_link":"http://www.ticketchain.ru/agreement.html",
           "about_link":"http://www.ticketchain.ru/about.html",

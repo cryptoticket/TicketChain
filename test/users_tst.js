@@ -16,7 +16,6 @@ var globalToken = '';
 
 // Commented because not needed
 
-/*
 describe('Users module',function(){
      before(function(done){
           var uri  = 'mongodb://localhost/tests';
@@ -349,4 +348,3 @@ describe('Users module',function(){
           });
      })
 });
-*/
