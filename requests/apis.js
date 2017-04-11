@@ -1028,20 +1028,17 @@ function checkIfUniqueSerNum(sn,cb){
 app.get('/api/v1/info',function(request,res,next){
      var enabled = (typeof(process.env.ETH_NODE)!=='undefined');
 
-     console.log('Getting info. Creator address: ', contract_helpers.g_creator);
-
      var out = {
-	  eth_is_enabled: enabled,
-	  eth_node: process.env.ETH_NODE,
+          eth_is_enabled: enabled,
+          eth_node: process.env.ETH_NODE,
 
-	  eth_main_address: contract_helpers.g_ledgerAddress,
-	  eth_main_address_link: contract_helpers.getMainAddressLink(),
-	  
-	  eth_main_account: contract_helpers.g_creator,
-	  eth_main_account_link: contract_helpers.getMainAccountLink(),
+          eth_main_address: contract_helpers.g_ledgerAddress,
+          eth_main_address_link: contract_helpers.getMainAddressLink(),
 
-	  //eth_balance_wei: contract_helpers.getBalance(contract_helpers.g_creator)
-	  eth_balance_wei: 0
+          eth_main_account: contract_helpers.getMainAccount(),
+          eth_main_account_link: contract_helpers.getMainAccountLink(),
+
+          eth_balance_wei: contract_helpers.getBalance(contract_helpers.getMainAccount())
      };
 
      return res.json(out);

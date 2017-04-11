@@ -484,11 +484,18 @@ function getMainAddressLink(){
      return process.env.ETH_EXPLORER_ADDRESS_LINK + g_ledgerAddress;
 }
 
+function getMainAccount(){
+     return g_creator;
+}
+
 function getMainAccountLink(){
      return process.env.ETH_EXPLORER_ADDRESS_LINK + g_creator;
 }
 
 function getBalance(address){
+     if(!address){
+          return 0;
+     }
      return web3.eth.getBalance(address);
 }
 
@@ -509,7 +516,8 @@ exports.getTicketAddressById = getTicketAddressById;
 exports.waitForTransaction = waitForTransaction;
 
 exports.g_ledgerAddress = g_ledgerAddress;
-exports.g_creator = g_creator;
+
+exports.getMainAccount = getMainAccount;
 exports.getMainAddressLink = getMainAddressLink;
 exports.getMainAccountLink = getMainAccountLink;
 exports.getBalance = getBalance;
