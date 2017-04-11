@@ -13,6 +13,26 @@ TicketChain is an application that's making ticket market decentralized.
 2) Async methods
 3) Pagination
 
+## Basic Info [/info]
+
+### Get Basic Info [GET /info]
+
+Returns basic info for the project that can be used to inform service clients.
+
++ Response 201 (application/json)
+
+    + Body
+    
+            {
+                "eth_is_enabled": true,
+                "eth_node": "http://ethnode.chain.cloud:8545",
+                "eth_main_address": "0x0605bf0970025A6DD604f5fE481Cc307E9d5450e",
+                "eth_main_address_link": "https://kovan.etherscan.io/address/0x0605bf0970025A6DD604f5fE481Cc307E9d5450e",
+                "eth_main_account": "0xb9af8aa42c97f5a1f73c6e1a683c4bf6353b83e7",
+                "eth_main_account_link": "https://kovan.etherscan.io/address/0xb9af8aa42c97f5a1f73c6e1a683c4bf6353b83e7",
+                "eth_balance_wei": "123112"
+            }
+
 ## Organizers [/organizers]
 
 ### Get all Organizers [GET /organizers]
@@ -60,6 +80,38 @@ Postcondition:
             {
                 batch_id: 12313434,
                 count: 16
+            }
+        
+### Create new Batch with ticket count only [POST /organizers/{INN}/batches_with_count]
+
+Create multiple new blank tickets to reserve them. This method is blocking. It can take long time to deploy all tickets to Ethereum network.
+Will create Organizer if it doesn't exist. Returns batch ID.
+
+Postcondition: 
+
+1) Organizer has been created
+2) Blank tickets have been created and deployed (can take some time)
+3) Batch has been created.
+
++ Parameters
+    + INN - Organizer's INN
+    
++ Request (application/json)
+
+        {
+            start_series: "АА",
+            start_number: "123456",
+
+            count: 12
+        }
+        
++ Response 201 (application/json)
+    
+    + Body
+
+            {
+                batch_id: 12313434,
+                count: 12
             }
             
 ### Get batch [GET /organizers/{INN}/batches/{BATCH_ID}]
