@@ -21,11 +21,11 @@ Heroku **master** branch Build - [![Heroku Master branch Build](https://heroku-b
 ### Environment vars
 Before running - set these env.vars:
 
-IS_TASK_PROCESSOR - true (example)
-MONGODB_URI - mongodb://heroku_qvmn1bxg:1qebii0edmrjjt9hvkipsjscv5@ds151059.mlab.com:51059/heroku_qvmn1bxg (example)
-ETH_MAIN_ADDRESS - 0x0605bf0970025A6DD604f5fE481Cc307E9d5450e (example)
-ETH_NODE - http://ethnode.chain.cloud:8545 (example)
-ETH_EXPLORER_ADDRESS_LINK - https://kovan.etherscan.io/address/ (example)
+* IS_TASK_PROCESSOR - true (example)
+* MONGODB_URI - mongodb://heroku_qvmn1bxg:1qebii0edmrjjt9hvkipsjscv5@ds151059.mlab.com:51059/heroku_qvmn1bxg (example)
+* ETH_MAIN_ADDRESS - 0x0605bf0970025A6DD604f5fE481Cc307E9d5450e (example)
+* ETH_NODE - http://ethnode.chain.cloud:8545 (example)
+* ETH_EXPLORER_ADDRESS_LINK - https://kovan.etherscan.io/address/ (example)
 
 
 * To run tests:
