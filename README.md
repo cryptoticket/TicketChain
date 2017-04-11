@@ -16,8 +16,6 @@ Heroku **master** branch Build - [![Heroku Master branch Build](https://heroku-b
 * Use HTTPS only (set *enable_https* to true config.json) to prevent JWT or other data stealing in the middle
 * Run tests (see below)
 
-## Run:
-
 ### Environment vars
 Before running - set these env.vars:
 
@@ -27,7 +25,7 @@ Before running - set these env.vars:
 * ETH_NODE - http://ethnode.chain.cloud:8545 (example)
 * ETH_EXPLORER_ADDRESS_LINK - https://kovan.etherscan.io/address/ (example)
 
-
+# Running
 * To run tests:
      ./run-tests.sh
 
