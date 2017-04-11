@@ -562,6 +562,72 @@ app.post('/api/v1/organizers/:inn/batches',function(request, res, next){
      });
 });
 
+// Create multiple new blank tickets to reserve them. 
+// Returns batch ID. 
+// 
+// Postcondition: 
+//   1) blank tickets have been created
+//   2) batch has been created
+// 
+// http://docs.ticketchain.apiary.io/#reference/0/batches/create-new-batch-with-ticket-count-only
+// TODO: write tests
+app.post('/api/v1/organizers/:inn/batches_with_count',function(request, res, next){
+     if(typeof(request.params.inn)==='undefined'){
+          winston.error('No inn');
+          return next();
+     }
+     var inn = request.params.inn;
+
+     if(typeof(request.body)==='undefined' || request.body===null){
+          return next();
+     } 
+     if(typeof(request.body.start_series)==='undefined'){
+          winston.error('No start_series provided');
+          return next();
+     }
+     if(typeof(request.body.start_number)==='undefined'){
+          winston.error('No start_number provided');
+          return next();
+     }
+     if(typeof(request.body.count)==='undefined'){
+          winston.error('No count provided');
+          return next();
+     }
+
+     var ss = request.body.start_series;
+     ss = ss.toUpperCase();
+     var sn = request.body.start_number;
+     
+     // TODO: check 
+     if(ss.length!==2){
+          winston.error('Start series is bad');
+          return next();
+     }
+     if(sn.length!==6){
+          winston.error('Start number is bad');
+          return next();
+     }
+
+     var strs = '' + ss + sn;
+     //var n = calculateCount(strs,stre);
+     var n = request.body.count;
+     
+     // create batch:
+     var batch = new db.BatchModel();
+     //batch.organizer = orgId;
+     batch.organizer_inn = inn;
+     batch.tickets = [];
+
+     batch.save(function(err){
+          if(err){
+               return next(err);
+          }
+
+          var strs = '' + ss + sn;
+          addNewTicketToBatch(batch/*,orgId*/,inn,n,strs,request,res,next);
+     });
+});
+
 function addNewTicketToBatch(batch,inn,n,strs,request,res,next){
      if(!n){
           // end recursion
