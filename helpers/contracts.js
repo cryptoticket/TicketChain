@@ -481,11 +481,11 @@ function getTicketAddressById(id,cb){
 }
 
 function getMainAddressLink(){
-     return process.evn.ETH_EXPLORER_ADDRESS_LINK + g_ledgerAddress;
+     return process.env.ETH_EXPLORER_ADDRESS_LINK + g_ledgerAddress;
 }
 
 function getMainAccountLink(){
-     return process.evn.ETH_EXPLORER_ADDRESS_LINK + g_creator;
+     return process.env.ETH_EXPLORER_ADDRESS_LINK + g_creator;
 }
 
 function getBalance(address){
