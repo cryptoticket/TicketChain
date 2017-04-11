@@ -61,6 +61,38 @@ Postcondition:
                 batch_id: 12313434,
                 count: 16
             }
+        
+### Create new Batch with ticket count only [POST /organizers/{INN}/batches_with_count]
+
+Create multiple new blank tickets to reserve them. This method is blocking. It can take long time to deploy all tickets to Ethereum network.
+Will create Organizer if it doesn't exist. Returns batch ID.
+
+Postcondition: 
+
+1) Organizer has been created
+2) Blank tickets have been created and deployed (can take some time)
+3) Batch has been created.
+
++ Parameters
+    + INN - Organizer's INN
+    
++ Request (application/json)
+
+        {
+            start_series: "АА",
+            start_number: "123456",
+
+            count: 12
+        }
+        
++ Response 201 (application/json)
+    
+    + Body
+
+            {
+                batch_id: 12313434,
+                count: 12
+            }
             
 ### Get batch [GET /organizers/{INN}/batches/{BATCH_ID}]
 
