@@ -16,25 +16,6 @@ function stateToQuery(s){
      return -1;
 }
 
-app.get('/api/v1/info',function(request,res,next){
-     var enabled = (typeof(process.env.ETH_NODE)!=='undefined');
-
-     var out = {
-	  eth_is_enabled: enabled,
-	  eth_node: process.env.ETH_NODE,
-
-	  eth_main_address: contract_helpers.g_ledgerAddress,
-	  eth_main_address_link: contract_helpers.getMainAddressLink(),
-	  
-	  eth_main_account: contract_helpers.g_creator,
-	  eth_main_account_link: contract_helpers.getMainAccountLink(),
-
-	  eth_balance_wei: contract_helpers.getBalance(contract_helpers.g_creator)
-     };
-
-     return res.json(out);
-});
-
 //var BigNumber = require('bignumber.js');
 //var unit = new BigNumber(Math.pow(10,18));
 
@@ -1042,4 +1023,24 @@ function checkIfUniqueSerNum(sn,cb){
      });
 }
 
+
+// TODO: add tests
+app.get('/api/v1/info',function(request,res,next){
+     var enabled = (typeof(process.env.ETH_NODE)!=='undefined');
+
+     var out = {
+	  eth_is_enabled: enabled,
+	  eth_node: process.env.ETH_NODE,
+
+	  eth_main_address: contract_helpers.g_ledgerAddress,
+	  eth_main_address_link: contract_helpers.getMainAddressLink(),
+	  
+	  eth_main_account: contract_helpers.g_creator,
+	  eth_main_account_link: contract_helpers.getMainAccountLink(),
+
+	  eth_balance_wei: contract_helpers.getBalance(contract_helpers.g_creator)
+     };
+
+     return res.json(out);
+});
 
