@@ -480,6 +480,14 @@ function getTicketAddressById(id,cb){
      return cb(null,addr);
 }
 
+function getMainAddressLink(){
+     return process.evn.ETH_EXPLORER_ADDRESS_LINK + g_ledgerAddress;
+}
+
+function getMainAccountLink(){
+     return process.evn.ETH_EXPLORER_ADDRESS_LINK + g_creator;
+}
+
 /////////////////
 exports.getAccount = getAccounts;
 exports.compileContracts = compileContracts;
@@ -495,3 +503,8 @@ exports.getTicketById = getTicketById;
 exports.getTicketAddressById = getTicketAddressById;
 
 exports.waitForTransaction = waitForTransaction;
+
+exports.g_ledgerAddress = g_ledgerAddress;
+exports.g_creator = g_creator;
+exports.getMainAddressLink = getMainAddressLink;
+exports.getMainAccountLink = getMainAccountLink;
