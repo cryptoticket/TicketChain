@@ -488,6 +488,10 @@ function getMainAccountLink(){
      return process.evn.ETH_EXPLORER_ADDRESS_LINK + g_creator;
 }
 
+function getBalance(address){
+     return web3.eth.getBalance(address);
+}
+
 /////////////////
 exports.getAccount = getAccounts;
 exports.compileContracts = compileContracts;
@@ -508,3 +512,4 @@ exports.g_ledgerAddress = g_ledgerAddress;
 exports.g_creator = g_creator;
 exports.getMainAddressLink = getMainAddressLink;
 exports.getMainAccountLink = getMainAccountLink;
+exports.getBalance = getBalance;

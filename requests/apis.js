@@ -29,8 +29,7 @@ app.get('/api/v1/info',function(request,res,next){
 	  eth_main_account: contract_helpers.g_creator,
 	  eth_main_account_link: contract_helpers.getMainAccountLink(),
 
-	  // TODO:
-	  eth_balance_wei: ''
+	  eth_balance_wei: contract_helpers.getBalance(contract_helpers.g_creator)
      };
 
      return res.json(out);
