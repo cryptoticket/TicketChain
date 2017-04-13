@@ -2,6 +2,8 @@
 
 Heroku **master** branch Build - [![Heroku Master branch Build](https://heroku-badge.herokuapp.com/?app=ticketchain-backend)](https://ticketchain-backend.herokuapp.com)
 
+[Documentation is here](https://docs.google.com/document/d/1gaIODpJwLFtP7XddWnDX_xuId11Z_9xkTUgXwGM9YfY/edit?usp=sharing)
+
 [API description is here](http://docs.ticketchain.apiary.io)
 
 ## Before you go
